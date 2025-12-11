@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Measure Detail - User</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .breadcrumb {
+        margin-bottom: 20px;
+        color: #0066cc;
+      }
+
+      .breadcrumb a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+
+      .page-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 24px;
+        color: #333;
+      }
+
+      .section {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f0f0f0;
+        padding: 12px;
+        margin: -24px -24px 20px -24px;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .edit-button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .edit-icon {
+        width: 20px;
+        height: 20px;
+        color: #666;
+      }
+
+      .definition-grid {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+
+      .field-label {
+        font-weight: 500;
+        color: #495057;
+      }
+
+      .field-value {
+        color: #212529;
+      }
+
+      /* Table styles */
+      .table-container {
+        margin-top: 20px;
+        overflow-x: auto;
+        max-height: 375px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border: none;
+        margin: 0;
+      }
+
+      .table-container table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 10;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+      }
+
+      .result-table td:last-child {
+        text-align: center;
+      }
+
+      .trend-up {
+        color: green;
+      }
+
+      .trend-down {
+        color: red;
+      }
+
+      .assessment-table th:last-child {
+        width: 120px;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        position: relative;
+        background-color: white;
+        margin: 5% auto;
+        padding: 24px;
+        border-radius: 8px;
+        max-width: 600px;
+        width: 90%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .modal-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .close-button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .form-group select[multiple] {
+        height: auto;
+        min-height: 100px;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #ddd;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        border: none;
+      }
+
+      .btn-secondary {
+        background-color: white;
+        border: 1px solid #ddd;
+        color: #333;
+      }
+
+      .btn-primary {
+        background-color: #0066cc;
+        color: white;
+      }
+
+      .btn-new {
+        background-color: #0066cc;
+        color: white;
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      /* Action buttons */
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      /* Tooltip styles */
+      .tooltip-label {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+      }
+
+      .tooltip-text {
+        visibility: hidden;
+        width: 280px;
+        background-color: #333;
+        color: #fff;
+        text-align: left;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1001;
+        bottom: 125%;
+        left: 0;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 20px;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+      }
+
+      .tooltip-label:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      /* Edit button small */
+      .edit-button.small {
+        padding: 2px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+      }
+
+      .edit-button.small .edit-icon {
+        width: 16px;
+        height: 16px;
+      }
+
+      .status-closed {
+        color: #777;
+        font-size: 12px;
+      }
+
+      /* Notification styles */
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: none;
+        align-items: center;
+        z-index: 1000;
+        max-width: 350px;
+        animation: slideIn 0.3s ease-out forwards;
+      }
+
+      .success-notification {
+        background-color: #e7f7ee;
+        border-left: 4px solid #34c759;
+        color: #2a7c44;
+      }
+
+      .error-notification {
+        background-color: #ffeeee;
+        border-left: 4px solid #ff3b30;
+        color: #cc2f26;
+      }
+
+      .notification-icon {
+        margin-right: 12px;
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .notification-message {
+        font-size: 14px;
+        flex-grow: 1;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      input[disabled],
+      select[disabled] {
+        background-color: #f5f5f5;
+        color: #666;
+        cursor: not-allowed;
+      }
+    </style>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include webapi.js or equivalent -->
+    <script src="/path/to/webapi.js"></script>
+  </head>
+  {% assign measGUID = request.params["id"] %} {% fetchxml measureDefinition %}
+  <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
+    <entity name="ecm_measure">
+      <attribute name="ecm_id" />
+      <attribute name="ecm_measureid" />
+      <attribute name="ecm_name" />
+      <attribute name="ecm_type" />
+      <attribute name="ecm_status" />
+      <attribute name="ecm_organization" />
+      <attribute name="ecm_reportingfrequency" />
+      <attribute name="ecm_target" />
+      <attribute name="ecm_desiredtrend" />
+      <attribute name="ecm_usage" />
+      <attribute name="ecm_fy2630alignment" />
+      <attribute name="ecm_fy2630objective" />
+      <attribute name="ecm_fy2226alignment" />
+      <attribute name="ecm_fy2226objective" />
+      <attribute name="ecm_calculationmethod" />
+      <attribute name="ecm_validationmethod" />
+      <attribute name="ecm_datacollection" />
+      <attribute name="ecm_datavalidation" />
+      <attribute name="ecm_strategicalignment" />
+      <attribute name="ecm_usefulness" />
+      <attribute name="ecm_intuitiveness" />
+      <attribute name="ecm_coreoperationmeasure" />
+      <attribute name="statecode" />
+      <filter type="and">
+        <condition attribute="ecm_measureid" operator="eq" value="{{measGUID}}" />
+        <condition attribute="statecode" operator="eq" value="0" />
+      </filter>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  <!--include PortalWebAPI helper for WebAPI-->
+  {% include 'portalwebapihelper' %} {% assign measureRecord = measureDefinition.results.entities[0] %} {% fetchxml measureActuals %}
+  <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
+    <entity name="ecm_measureactual">
+      <attribute name="statecode" />
+      <attribute name="ecm_measureactualid" />
+      <attribute name="ecm_id" />
+      <attribute name="ecm_fiscalyear" />
+      <attribute name="ecm_measure" />
+      <attribute name="ecm_quarter" />
+      <attribute name="ecm_actual" />
+      <attribute name="ecm_actualytd" />
+      <attribute name="ecm_target" />
+      <attribute name="ecm_targetmet" />
+      <attribute name="ecm_trend" />
+      <attribute name="ecm_month" />
+      <attribute name="ecm_optionalnarrative" />
+      <attribute name="ecm_status" />
+      <filter type="and">
+        <condition attribute="ecm_measure" operator="eq" value="{{measGUID}}" />
+      </filter>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  <body>
+    <div class="breadcrumb"><a href="/Measures/">Measures</a> &gt; {{ measureRecord.ecm_name }}</div>
+
+    <!-- Measure Definition Section - Basic User has VIEW ONLY access (no edit/delete buttons) -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">Measure Definition</h2>
+        <!-- No action buttons for basic users -->
+      </div>
+      <div class="definition-grid">
+        <div class="field-label">ID</div>
+        <div class="field-value">{{ measureRecord.ecm_id }}</div>
+
+        <div class="field-label">Name</div>
+        <div class="field-value">{{ measureRecord.ecm_name }}</div>
+
+        <div class="field-label">Type</div>
+        <div class="field-value">{{ measureRecord.ecm_type }}</div>
+
+        <div class="field-label">Status</div>
+        <div class="field-value">{{ measureRecord.ecm_status }}</div>
+
+        <div class="field-label">Organization</div>
+        <div class="field-value">{{ measureRecord.ecm_organization }}</div>
+
+        <div class="field-label">Reporting Frequency</div>
+        <div class="field-value">{{ measureRecord.ecm_reportingfrequency }}</div>
+
+        <div class="field-label">Target</div>
+        <div class="field-value">{{ measureRecord.ecm_target }}</div>
+
+        <div class="field-label">Desired Trend</div>
+        <div class="field-value">{{ measureRecord.ecm_desiredtrend }}</div>
+
+        <div class="field-label">Core Operation Measure</div>
+        <div class="field-value">{{ measureRecord.ecm_coreoperationmeasure }}</div>
+
+        <div class="field-label">Usage</div>
+        <div class="field-value">{{ measureRecord.ecm_usage }}</div>
+
+        <div class="field-label">FY26-30 Strategic Plan Alignment</div>
+        <div class="field-value">{{ measureRecord.ecm_fy2630alignment }}</div>
+
+        <div class="field-label">FY26-30 Objective</div>
+        <div class="field-value">{{ measureRecord.ecm_fy2630objective }}</div>
+
+        <div class="field-label">Definition</div>
+        <div class="field-value">{{ measureRecord.ecm_calculationmethod }}</div>
+      </div>
+    </div>
+
+    <!-- Results Section - Basic User can ADD new actuals and EDIT existing ones (when status is active) -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">Actual</h2>
+        <div class="action-buttons">
+          {% if measureRecord.ecm_reportingfrequency == 'Annually' or measureRecord.ecm_reportingfrequency == 'Monthly' %}
+          <button class="btn-new" onclick="openAddResultModal()">New</button>
+          {% endif %}
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="result-table">
+          <thead>
+            <tr>
+              {% case measureRecord.ecm_reportingfrequency %} {% when 'Quarterly (Count)' %}
+              <th>Fiscal Year</th>
+              <th>Quarter</th>
+              <th>Actual</th>
+              <th>Actual (YTD)</th>
+              <th>Target</th>
+              <th>Target Met</th>
+              <th>Optional Narrative</th>
+              <th>Actions</th>
+              {% when 'Quarterly (Year-to-Date)' %}
+              <th>Fiscal Year</th>
+              <th>Quarter</th>
+              <th>Actual</th>
+              <th>Target</th>
+              <th>Target Met</th>
+              <th>Optional Narrative</th>
+              <th>Actions</th>
+              {% when 'Annually' %}
+              <th>Fiscal Year</th>
+              <th>Actual</th>
+              <th>Target</th>
+              <th>Target Met</th>
+              <th>Optional Narrative</th>
+              <th>Actions</th>
+              {% when 'Monthly' %}
+              <th>Fiscal Year</th>
+              <th>Month</th>
+              <th>Actual</th>
+              <th>Target</th>
+              <th>Target Met</th>
+              <th>Optional Narrative</th>
+              <th>Actions</th>
+              {% endcase %}
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Table body will be populated by JavaScript for proper sorting -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Strength Assessment Section - Basic User has VIEW ONLY access (no edit button) -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">Strength Assessment (Provided by Department)</h2>
+        <!-- No edit button for basic users -->
+      </div>
+      <div class="table-container">
+        <table class="assessment-table">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Score (Max of 3)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Data Collection</td>
+              <td>{{ measureRecord.ecm_datacollection }}</td>
+            </tr>
+            <tr>
+              <td>Data Validation</td>
+              <td>{{ measureRecord.ecm_datavalidation }}</td>
+            </tr>
+            <tr>
+              <td>Strategic Alignment</td>
+              <td>{{ measureRecord.ecm_strategicalignment }}</td>
+            </tr>
+            <tr>
+              <td>Intuitiveness</td>
+              <td>{{ measureRecord.ecm_intuitiveness }}</td>
+            </tr>
+            <tr>
+              <td>Usefulness</td>
+              <td>{{ measureRecord.ecm_usefulness }}</td>
+            </tr>
+            <tr>
+              <td><strong>Weighted Total Rating</strong></td>
+              <td>
+                <strong>
+                  {% assign total = measureRecord.ecm_datacollection | plus: 0 | plus: measureRecord.ecm_datavalidation | plus: 0 | plus: measureRecord.ecm_strategicalignment | plus: 0 | plus: measureRecord.ecm_intuitiveness | plus: 0 | plus: measureRecord.ecm_usefulness | plus: 0 %} {% assign average = total | divided_by: 5.0 | round: 1 %} {{ average }}
+                </strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add Result Modal - Basic users CAN add new actuals -->
+    <div id="addResultModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Add Actual</h2>
+          <button class="close-button" onclick="closeModal('addResultModal')">&times;</button>
+        </div>
+        <form id="addResultForm">
+          {% case measureRecord.ecm_reportingfrequency %} {% when 'Quarterly (Count)' %}
+          <div class="form-group">
+            <label for="fiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <select id="fiscalYear" required>
+              <option value="">Select Fiscal Year</option>
+              <option value="FY 22">FY 22</option>
+              <option value="FY 23">FY 23</option>
+              <option value="FY 24">FY 24</option>
+              <option value="FY 25">FY 25</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="quarter">
+              <span class="tooltip-label">
+                Quarter *
+                <span class="tooltip-text">Select the quarter for which results are being reported.</span>
+              </span>
+            </label>
+            <select id="quarter" required>
+              <option value="">Select Quarter</option>
+              <option value="Q1">Q1</option>
+              <option value="Q2">Q2</option>
+              <option value="Q3">Q3</option>
+              <option value="Q4">Q4</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="actual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="actualYTD">
+              <span class="tooltip-label">
+                Actual (YTD)
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="actualYTD" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+          </div>
+          <div class="form-group">
+            <label for="target">Target</label>
+            <input type="number" id="target" readonly />
+          </div>
+          <div class="form-group">
+            <label for="targetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="targetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% when 'Quarterly (Year-to-Date)' %}
+          <div class="form-group">
+            <label for="fiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <select id="fiscalYear" required>
+              <option value="">Select Fiscal Year</option>
+              <option value="FY 22">FY 22</option>
+              <option value="FY 23">FY 23</option>
+              <option value="FY 24">FY 24</option>
+              <option value="FY 25">FY 25</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="quarter">
+              <span class="tooltip-label">
+                Quarter *
+                <span class="tooltip-text">Select the quarter for which results are being reported.</span>
+              </span>
+            </label>
+            <select id="quarter" required>
+              <option value="">Select Quarter</option>
+              <option value="Q1">Q1</option>
+              <option value="Q2">Q2</option>
+              <option value="Q3">Q3</option>
+              <option value="Q4">Q4</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="actual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="target">Target</label>
+            <input type="number" id="target" readonly />
+          </div>
+          <div class="form-group">
+            <label for="targetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="targetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% when 'Annually' %}
+          <div class="form-group">
+            <label for="fiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <select id="fiscalYear" required>
+              <option value="">Select Fiscal Year</option>
+              <option value="FY 22">FY 22</option>
+              <option value="FY 23">FY 23</option>
+              <option value="FY 24">FY 24</option>
+              <option value="FY 25">FY 25</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="actual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="target">Target</label>
+            <input type="number" id="target" readonly />
+          </div>
+          <div class="form-group">
+            <label for="targetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="targetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% when 'Monthly' %}
+          <div class="form-group">
+            <label for="fiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <select id="fiscalYear" required>
+              <option value="">Select Fiscal Year</option>
+              <option value="FY 22">FY 22</option>
+              <option value="FY 23">FY 23</option>
+              <option value="FY 24">FY 24</option>
+              <option value="FY 25">FY 25</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="month">
+              <span class="tooltip-label">
+                Month *
+                <span class="tooltip-text">Select the month for which results are being reported.</span>
+              </span>
+            </label>
+            <select id="month" required>
+              <option value="">Select Month</option>
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="actual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="target">Target</label>
+            <input type="number" id="target" readonly />
+          </div>
+          <div class="form-group">
+            <label for="targetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="targetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% endcase %}
+          <div class="form-group">
+            <label for="narrative">Optional Narrative</label>
+            <textarea id="narrative"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('addResultModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Actual Modal - Basic users CAN edit actuals when status is active -->
+    <div id="editActualModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Edit Actual</h2>
+          <button class="close-button" onclick="closeModal('editActualModal')">&times;</button>
+        </div>
+        <form id="editActualForm">
+          <input type="hidden" id="editActualId" />
+          {% case measureRecord.ecm_reportingfrequency %} {% when 'Quarterly (Count)' %}
+          <div class="form-group">
+            <label for="editFiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <input type="text" id="editFiscalYear" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editQuarter">Quarter</label>
+            <input type="text" id="editQuarter" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editActual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="editTargetValue">Target</label>
+            <input type="number" id="editTargetValue" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editTargetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="editTargetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% when 'Quarterly (Year-to-Date)' %}
+          <div class="form-group">
+            <label for="editFiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <input type="text" id="editFiscalYear" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editQuarter">Quarter</label>
+            <input type="text" id="editQuarter" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editActual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="editTargetValue">Target</label>
+            <input type="number" id="editTargetValue" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editTargetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="editTargetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% when 'Annually' %}
+          <div class="form-group">
+            <label for="editFiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <input type="text" id="editFiscalYear" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editActual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="editTargetValue">Target</label>
+            <input type="number" id="editTargetValue" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editTargetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="editTargetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% when 'Monthly' %}
+          <div class="form-group">
+            <label for="editFiscalYear">
+              <span class="tooltip-label">
+                Fiscal Year *
+                <span class="tooltip-text">Select the Fiscal Year for which results are being reported.</span>
+              </span>
+            </label>
+            <input type="text" id="editFiscalYear" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editMonth">Month</label>
+            <input type="text" id="editMonth" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editActual">
+              <span class="tooltip-label">
+                Actual *
+                <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
+              </span>
+            </label>
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+          </div>
+          <div class="form-group">
+            <label for="editTargetValue">Target</label>
+            <input type="number" id="editTargetValue" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editTargetMet">
+              <span class="tooltip-label">
+                Target Met
+                <span class="tooltip-text">Does the actual meet the target?</span>
+              </span>
+            </label>
+            <select id="editTargetMet">
+              <option value="">Select</option>
+              <option value="Met">Met</option>
+              <option value="Not Met">Not Met</option>
+              <option value="N/A (Baseline)">N/A (Baseline)</option>
+              <option value="N/A (Indicator)">N/A (Indicator)</option>
+            </select>
+          </div>
+          {% endcase %}
+          <div class="form-group">
+            <label for="editNarrative">Optional Narrative</label>
+            <textarea id="editNarrative"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('editActualModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Store measure actuals data for YTD calculations
+      var measureActualsData = [];
+
+      {% if measureActuals.results.entities.size > 0 %}
+        {% for actual in measureActuals.results.entities %}
+          measureActualsData.push({
+            id: "{{ actual.ecm_measureactualid }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear }}",
+            quarter: "{{ actual.ecm_quarter }}",
+            actual: "{{ actual.ecm_actual }}",
+            actualYTD: "{{ actual.ecm_actualytd }}"
+          });
+        {% endfor %}
+      {% endif %}
+
+      // Utility Functions
+      function validateDecimalInput(value, maxDecimals = 4) {
+        var cleaned = value.replace(/[^-\d.]/g, "");
+        var parts = cleaned.split(".");
+        if (parts.length > 2) {
+          cleaned = parts[0] + "." + parts.slice(1).join("");
+        }
+        if (parts.length === 2 && parts[1].length > maxDecimals) {
+          cleaned = parts[0] + "." + parts[1].substring(0, maxDecimals);
+        }
+        return cleaned;
+      }
+
+      function openModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+      }
+
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+        var form = document.getElementById(modalId.replace("Modal", "Form"));
+        if (form) form.reset();
+      }
+
+      function setSelectValue(selectId, value) {
+        var selectElement = document.getElementById(selectId);
+        for (var i = 0; i < selectElement.options.length; i++) {
+          if (selectElement.options[i].value === value) {
+            selectElement.selectedIndex = i;
+            break;
+          }
+        }
+      }
+
+      // Notification Functions
+      function showSuccessNotification(message) {
+        var notification = document.getElementById("successNotification");
+        if (!notification) {
+          notification = document.createElement("div");
+          notification.id = "successNotification";
+          notification.className = "notification success-notification";
+          document.body.appendChild(notification);
+        }
+        notification.innerHTML = '<div class="notification-icon">&#10003;</div><div class="notification-message">' + message + "</div>";
+        notification.style.display = "flex";
+        setTimeout(function () {
+          notification.style.display = "none";
+        }, 5000);
+      }
+
+      function showErrorNotification(message) {
+        var notification = document.getElementById("errorNotification");
+        if (!notification) {
+          notification = document.createElement("div");
+          notification.id = "errorNotification";
+          notification.className = "notification error-notification";
+          document.body.appendChild(notification);
+        }
+        notification.innerHTML = '<div class="notification-icon">&#10007;</div><div class="notification-message">' + message + "</div>";
+        notification.style.display = "flex";
+        setTimeout(function () {
+          notification.style.display = "none";
+        }, 5000);
+      }
+
+      // YTD Calculation Functions
+      function calculateYTDValue(fiscalYear, currentQuarter, currentActual, actualId) {
+        var quarterMap = { Q1: 1, Q2: 2, Q3: 3, Q4: 4 };
+        var currentQuarterNum = quarterMap[currentQuarter];
+        var currentActualValue = parseFloat(currentActual) || 0;
+        var ytdValue = currentActualValue;
+
+        for (var i = 0; i < measureActualsData.length; i++) {
+          var record = measureActualsData[i];
+          if (actualId && record.id === actualId) continue;
+          if (record.fiscalYear === fiscalYear) {
+            var recordQuarterNum = quarterMap[record.quarter];
+            if (recordQuarterNum && recordQuarterNum < currentQuarterNum) {
+              ytdValue += parseFloat(record.actual) || 0;
+            }
+          }
+        }
+        return ytdValue;
+      }
+
+      function getYTDValue(fiscalYear, currentQuarter, currentActual, actualId) {
+        return new Promise(function (resolve, reject) {
+          var measGUID = "{{ measGUID }}";
+          var quarterMap = { Q1: 1, Q2: 2, Q3: 3, Q4: 4 };
+          var currentQuarterNum = quarterMap[currentQuarter];
+          var currentActualValue = parseFloat(currentActual) || 0;
+
+          var apiUrl = "/_api/ecm_measureactuals?$select=ecm_actual,ecm_quarter,ecm_measureactualid,ecm_fiscalyear&$filter=ecm_measure eq '" + measGUID + "' and ecm_fiscalyear eq '" + fiscalYear + "'";
+
+          webapi.safeAjax({
+            type: "GET",
+            url: apiUrl,
+            success: function (data) {
+              var sum = currentActualValue;
+              if (data && data.value && data.value.length > 0) {
+                data.value.forEach(function (record) {
+                  if (!record.ecm_quarter) return;
+                  var recordQuarterNum = quarterMap[record.ecm_quarter];
+                  if (actualId && record.ecm_measureactualid === actualId) return;
+                  if (recordQuarterNum < currentQuarterNum) {
+                    sum += parseFloat(record.ecm_actual) || 0;
+                  }
+                });
+              }
+              resolve(sum);
+            },
+            error: function (xhr) {
+              console.error("YTD Calculation Error:", xhr);
+              resolve(currentActualValue);
+            },
+          });
+        });
+      }
+
+      // Table Sorting and Population
+      function sortActualsData(actualsArray, reportingFrequency) {
+        function getFiscalYearNumber(fyString) {
+          var match = fyString.match(/FY\s*(\d+)/i);
+          return match ? parseInt(match[1]) : 0;
+        }
+        function getQuarterNumber(quarterString) {
+          if (!quarterString) return 0;
+          var match = quarterString.match(/Q(\d)/);
+          return match ? parseInt(match[1]) : 0;
+        }
+        function getMonthNumber(monthString) {
+          if (!monthString) return 0;
+          var months = { October: 1, November: 2, December: 3, January: 4, February: 5, March: 6, April: 7, May: 8, June: 9, July: 10, August: 11, September: 12 };
+          return months[monthString] || 0;
+        }
+
+        return actualsArray.sort(function (a, b) {
+          var fyA = getFiscalYearNumber(a.ecm_fiscalyear);
+          var fyB = getFiscalYearNumber(b.ecm_fiscalyear);
+          if (fyA !== fyB) return fyB - fyA;
+
+          if (reportingFrequency === "Quarterly (Count)" || reportingFrequency === "Quarterly (Year-to-Date)") {
+            return getQuarterNumber(b.ecm_quarter) - getQuarterNumber(a.ecm_quarter);
+          } else if (reportingFrequency === "Monthly") {
+            return getMonthNumber(b.ecm_month) - getMonthNumber(a.ecm_month);
+          }
+          return 0;
+        });
+      }
+
+      function populateSortedTable() {
+        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+        var actualsData = [
+          {% if measureActuals.results.entities.size > 0 %}
+            {% for actual in measureActuals.results.entities %}
+              {
+                ecm_measureactualid: "{{ actual.ecm_measureactualid }}",
+                ecm_fiscalyear: "{{ actual.ecm_fiscalyear }}",
+                ecm_quarter: "{{ actual.ecm_quarter }}",
+                ecm_month: "{{ actual.ecm_month }}",
+                ecm_actual: "{{ actual.ecm_actual }}",
+                ecm_actualytd: "{{ actual.ecm_actualytd }}",
+                ecm_target: "{{ actual.ecm_target }}",
+                ecm_targetmet: "{{ actual.ecm_targetmet }}",
+                ecm_optionalnarrative: "{{ actual.ecm_optionalnarrative }}",
+                ecm_status: "{{ actual.ecm_status }}"
+              }{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          {% endif %}
+        ];
+
+        var sortedActuals = sortActualsData(actualsData, reportingFrequency);
+        var tbody = document.querySelector(".result-table tbody");
+
+        if (sortedActuals.length === 0) {
+          var colSpan = reportingFrequency === "Quarterly (Count)" ? 8 : reportingFrequency === "Annually" ? 6 : 7;
+          tbody.innerHTML = '<tr><td colspan="' + colSpan + '" style="text-align: center;">No results found</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = "";
+        sortedActuals.forEach(function (actual) {
+          var row = document.createElement("tr");
+          row.setAttribute("data-id", actual.ecm_measureactualid);
+          row.setAttribute("data-status", actual.ecm_status);
+
+          var rowHTML = "";
+          switch (reportingFrequency) {
+            case "Quarterly (Count)":
+              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_quarter + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_actualytd + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              break;
+            case "Quarterly (Year-to-Date)":
+              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_quarter + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              break;
+            case "Annually":
+              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              break;
+            case "Monthly":
+              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_month + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              break;
+          }
+
+          // Basic User version: Show edit button only for active status records (status == 1 or status == 'true')
+          // No delete button for basic users
+          if (actual.ecm_status == 1 || actual.ecm_status === "true" || actual.ecm_status === true) {
+            rowHTML +=
+              '<td><button class="edit-button small" onclick="openEditActualModal(\'' +
+              actual.ecm_measureactualid +
+              "')\">" +
+              '<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+              '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>' +
+              '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>' +
+              "</svg></button></td>";
+          } else {
+            rowHTML += '<td><span class="status-closed">Closed</span></td>';
+          }
+
+          row.innerHTML = rowHTML;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Modal Functions
+      function openAddResultModal() {
+        openModal("addResultModal");
+        document.getElementById("target").value = "{{ measureRecord.ecm_target }}";
+      }
+
+      function openEditActualModal(actualId) {
+        openModal("editActualModal");
+        document.getElementById("editActualId").value = actualId;
+
+        var rows = document.querySelectorAll(".result-table tbody tr");
+        for (var i = 0; i < rows.length; i++) {
+          if (rows[i].getAttribute("data-id") === actualId) {
+            var cells = rows[i].cells;
+            var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+
+            if (reportingFrequency === "Monthly") {
+              document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
+              document.getElementById("editMonth").value = cells[1].textContent.trim();
+              document.getElementById("editActual").value = cells[2].textContent.trim();
+              document.getElementById("editTargetValue").value = cells[3].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              setSelectValue("editTargetMet", cells[4].textContent.trim());
+              document.getElementById("editNarrative").value = cells[5] ? cells[5].textContent.trim() : "";
+            } else if (reportingFrequency === "Annually") {
+              document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
+              document.getElementById("editActual").value = cells[1].textContent.trim();
+              document.getElementById("editTargetValue").value = cells[2].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              setSelectValue("editTargetMet", cells[3].textContent.trim());
+              document.getElementById("editNarrative").value = cells[4] ? cells[4].textContent.trim() : "";
+            } else {
+              document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
+              if (document.getElementById("editQuarter")) document.getElementById("editQuarter").value = cells[1].textContent.trim();
+              document.getElementById("editActual").value = cells[2].textContent.trim();
+              document.getElementById("editTargetValue").value = cells[3].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              setSelectValue("editTargetMet", cells[4].textContent.trim());
+              document.getElementById("editNarrative").value = cells[5] ? cells[5].textContent.trim() : "";
+            }
+            break;
+          }
+        }
+      }
+
+      // Form Submissions
+      document.getElementById("addResultForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        var submitButton = document.querySelector("#addResultForm .btn-primary");
+        var originalText = submitButton.textContent;
+        submitButton.textContent = "Saving...";
+        submitButton.disabled = true;
+
+        var measGUID = "{{ measGUID }}";
+        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+        var record = {};
+        record["ecm_Measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
+
+        switch (reportingFrequency) {
+          case "Quarterly (Count)":
+            var fiscalYear = document.getElementById("fiscalYear").value;
+            var quarter = document.getElementById("quarter").value;
+            var actual = document.getElementById("actual").value;
+            record.ecm_fiscalyear = fiscalYear;
+            record.ecm_quarter = quarter;
+            record.ecm_actual = actual;
+            try {
+              var ytdValue = await getYTDValue(fiscalYear, quarter, actual, null);
+              record.ecm_actualytd = ytdValue.toString();
+            } catch (error) {
+              record.ecm_actualytd = actual;
+            }
+            break;
+          case "Quarterly (Year-to-Date)":
+            record.ecm_fiscalyear = document.getElementById("fiscalYear").value;
+            record.ecm_quarter = document.getElementById("quarter").value;
+            record.ecm_actual = document.getElementById("actual").value;
+            break;
+          case "Annually":
+            record.ecm_fiscalyear = document.getElementById("fiscalYear").value;
+            record.ecm_actual = document.getElementById("actual").value;
+            break;
+          case "Monthly":
+            record.ecm_fiscalyear = document.getElementById("fiscalYear").value;
+            record.ecm_month = document.getElementById("month").value;
+            record.ecm_actual = document.getElementById("actual").value;
+            break;
+        }
+
+        var target = document.getElementById("target").value;
+        if (target) record.ecm_target = target;
+        var targetMet = document.getElementById("targetMet").value;
+        if (targetMet) record.ecm_targetmet = targetMet;
+        var narrative = document.getElementById("narrative").value;
+        if (narrative) record.ecm_optionalnarrative = narrative;
+
+        webapi.safeAjax({
+          type: "POST",
+          contentType: "application/json",
+          url: "/_api/ecm_measureactuals",
+          data: JSON.stringify(record),
+          success: function (data, textStatus, xhr) {
+            closeModal("addResultModal");
+            showSuccessNotification("Result added successfully");
+            setTimeout(function () {
+              location.reload();
+            }, 2000);
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            var errorMessage = "Error adding result. Please check the console for details.";
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+              errorMessage = xhr.responseJSON.error.message || errorMessage;
+            }
+            showErrorNotification(errorMessage);
+          },
+        });
+      });
+
+      document.getElementById("editActualForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var actualId = document.getElementById("editActualId").value;
+        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+        var submitButton = document.querySelector("#editActualForm .btn-primary");
+        var originalText = submitButton.textContent;
+        submitButton.textContent = "Saving...";
+        submitButton.disabled = true;
+
+        var record = {};
+
+        switch (reportingFrequency) {
+          case "Quarterly (Count)":
+            var fiscalYear = document.getElementById("editFiscalYear").value;
+            var quarter = document.getElementById("editQuarter").value;
+            var actual = document.getElementById("editActual").value;
+            record.ecm_actual = actual;
+            var ytdValue = calculateYTDValue(fiscalYear, quarter, actual, actualId);
+            record.ecm_actualytd = ytdValue.toString();
+            break;
+          case "Quarterly (Year-to-Date)":
+          case "Annually":
+          case "Monthly":
+            record.ecm_actual = document.getElementById("editActual").value;
+            break;
+        }
+
+        var targetMetSelection = document.getElementById("editTargetMet").value;
+        if (targetMetSelection) record.ecm_targetmet = targetMetSelection;
+        var narrative = document.getElementById("editNarrative").value;
+        record.ecm_optionalnarrative = narrative || null;
+
+        webapi.safeAjax({
+          type: "PATCH",
+          contentType: "application/json",
+          url: "/_api/ecm_measureactuals(" + actualId + ")",
+          data: JSON.stringify(record),
+          success: function (data, textStatus, xhr) {
+            closeModal("editActualModal");
+            showSuccessNotification("Your changes have been successfully saved");
+            setTimeout(function () {
+              location.reload();
+            }, 2000);
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            var errorMessage = "Error updating result. Please try again.";
+            if (xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) {
+              errorMessage = xhr.responseJSON.error.message;
+            }
+            showErrorNotification(errorMessage);
+          },
+        });
+      });
+
+      // Initialize on DOM ready
+      document.addEventListener("DOMContentLoaded", function () {
+        var decimalInputs = ["editActual", "editActualYTD", "actual", "actualYTD"];
+        decimalInputs.forEach(function (inputId) {
+          var input = document.getElementById(inputId);
+          if (input) {
+            input.addEventListener("input", function (e) {
+              e.target.value = validateDecimalInput(e.target.value);
+            });
+          }
+        });
+
+        populateSortedTable();
+      });
+
+      // Close modals when clicking outside
+      window.onclick = function (event) {
+        if (event.target.classList.contains("modal")) {
+          event.target.style.display = "none";
+        }
+      };
+    </script>
+  </body>
+</html>
