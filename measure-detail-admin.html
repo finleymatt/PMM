@@ -1914,6 +1914,10 @@
             return;
         }
 
+        console.log("DELETE URL:", url);
+        console.log("DELETE Item Type:", itemType);
+        console.log("DELETE Item ID:", itemId);
+
         webapi.safeAjax({
           type: "DELETE",
           url: url,
@@ -1931,6 +1935,8 @@
             }
           },
           error: function (xhr, textStatus, errorThrown) {
+            console.log("DELETE Error - Status:", xhr.status);
+            console.log("DELETE Error - Response:", xhr.responseText);
             showErrorNotification("Error deleting item: " + (xhr.responseJSON?.error?.message || "Unknown error"));
             closeModal("deleteConfirmModal");
           },
@@ -1969,6 +1975,10 @@
           contentType: "application/json",
           url: "/_api/ecm_measures(" + measGUID + ")",
           data: JSON.stringify(record),
+          beforeSend: function() {
+            console.log("PATCH URL:", "/_api/ecm_measures(" + measGUID + ")");
+            console.log("PATCH Data:", JSON.stringify(record));
+          },
           success: function (data, textStatus, xhr) {
             closeModal("editDefinitionModal");
             showSuccessNotification("Your changes have been successfully saved");
@@ -1977,6 +1987,8 @@
             }, 2000);
           },
           error: function (xhr, textStatus, errorThrown) {
+            console.log("PATCH Error - Status:", xhr.status);
+            console.log("PATCH Error - Response:", xhr.responseText);
             var errorMessage = "Error updating measure. Please try again.";
             if (xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) {
               errorMessage = xhr.responseJSON.error.message;
