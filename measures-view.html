@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Measures View</title>
+    <style>
+        .left-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.right-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.export-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.export-btn:hover {
+    background-color: #218838;
+}
+
+.export-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.export-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+    top: 100%;
+    right: 0;
+}
+
+.export-dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+.export-dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.export-dropdown.show .export-dropdown-content {
+    display: block;
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #0066cc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+        /* Existing styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .sectionBlockLayout {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        /* Updated table styles */
+        .table-container {
+            max-height: none;
+            border: none;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Result button style */
+        .result-button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .result-button:hover {
+            background-color: #0052a3;
+        }
+
+        /* Search and controls section */
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+            font-size: 13px;
+            height: 32px;
+        }
+
+        /* Sort arrow styles */
+        .sortable-header {
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .sort-arrows {
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .sort-arrow {
+            display: block;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            line-height: 0;
+        }
+
+        .sort-arrow.up {
+            border-bottom: 6px solid #ccc;
+            margin-bottom: 2px;
+        }
+
+        .sort-arrow.down {
+            border-top: 6px solid #ccc;
+        }
+
+        .sort-arrow.active {
+            border-bottom-color: #0066cc;
+            border-top-color: #0066cc;
+        }
+        /* Filter button and modal styles */
+        .filter-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-checkbox input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .filter-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #ddd;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+        }
+        /* Updated button styles */
+        .filter-btn, .reset-filters-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            height: 32px;
+        }
+
+        .filter-btn:hover, .reset-filters-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .reset-filters-btn {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
+        .reset-filters-btn:hover {
+            background-color: #ffeaa7;
+        }
+
+        /* Updated export and new measure buttons */
+        .export-btn, .new-measure-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            height: 32px;
+        }
+
+        /* Adjust controls spacing */
+        .left-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .right-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* Updated filter modal styles for smaller buttons */
+        .filter-modal-content {
+            position: relative;
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-header h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .filter-section h4 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-checkbox label {
+            margin: 0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .clear-filters-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            border: none;
+        }
+
+        .btn-secondary {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .btn-primary {
+            background-color: #0066cc;
+            color: white;
+        }
+
+        .new-measure-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px 0;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-number {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .page-number.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #ddd;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+        }
+
+        .btn-secondary {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .btn-primary {
+            background-color: #0066cc;
+            color: white;
+        }
+
+        /* Usage tags style */
+        .usage-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .usage-tag {
+            background-color: #e8f4ff;
+            color: #0066cc;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .measure-name {
+        color: #0066cc;
+        text-decoration: none;
+        cursor: pointer;
+        }
+        .measure-name:hover {
+            text-decoration: underline;
+        }
+        /* Tooltip styles */
+        .tooltip-label {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+        }
+
+        .tooltip-text {
+        visibility: hidden;
+        width: 280px;
+        background-color: #333;
+        color: #fff;
+        text-align: left;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1001;
+        bottom: 125%;
+        left: 0;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 13px;
+        line-height: 1.4;
+        }
+
+        .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 20px;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+        }
+
+        .tooltip-label:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+        }
+    </style>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include webapi.js or equivalent -->
+
+    <script src="/path/to/webapi.js"></script>
+</head>
+<body>
+
+
+<div class="sectionBlockLayout">
+    {% fetchxml currentUserInfo %}
+    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+      <entity name="contact">
+        <attribute name="fullname" />
+        <attribute name="ecm_organizationname" />
+        <filter type="and">
+          <condition attribute="fullname" operator="eq" value="{{ user.fullname }}" />
+        </filter>
+      </entity>
+    </fetch>
+    {% endfetchxml %}
+
+    {% assign adminEmails = 'Alexander.Longo@treasury.gov,Michael.Esposito2@treasury.gov,Kriskatlin.Zabala@treasury.gov,anne.chiang@treasury.gov,san-eou.lan@treasury.gov,jocelyn.nieto@treasury.gov,logan.white@treasury.gov,james.miceli2@treasury.gov,lam-anh.le@treasury.gov,caroline.alford@treasury.gov,starrlese.butcher@treasury.gov,parraize.butler@treasury.gov,jarred.byers@treasury.gov,erica.chamberlain@treasury.gov,hannah.coursey@treasury.gov,paul.eikamp@treasury.gov,antonio.frederick@treasury.gov,daniel.jacobs2@treasury.gov,gerard.mcerlane@treasury.gov,alexander.nau@treasury.gov,daniel.nickson@treasury.gov,ryan.sylvia@treasury.gov,brad.tobin@treasury.gov,clifton.bradshaw2@treasury.gov,cliftonbradshaw2@ustreasury.onmicrosoft.com' | split: ',' %}
+    {% assign userEmails = 'Roberto.Cardona4@treasury.gov,omar.sabagh@treasury.gov,wendy.miller@ofr.treasury.gov,sheri.james@fincen.gov,rohit.sudarshan@treasury.gov,kimberly.grunett@fincen.gov,thomas.g.sotomayor@irs.gov,christy.g.parent@irs.gov,taylor.crider@ofr.treasury.gov,mark.susi@fincen.gov,Matthew.Finley@treasury.gov,michelle.boyd@occ.treas.gov,christian.buchmann@fiscal.treasury.gov,demetria.hall@fiscal.treasury.gov,michael.johnston@bep.gov,nathan.jones@fiscal.treasury.gov,maheshi.leitan@fiscal.treasury.gov,mckays@cdfi.treas.gov,jill.murphy@ttb.gov,osborned@oig.treas.gov,courtney.perez@ttb.gov,josephine.l.prince@irs.gov,lucas.shin@treasury.gov,evan.sirota@usmint.treas.gov,sarah.snow@fiscal.treasury.gov,sarah.m.strehl@irs.gov,susan.thomas@tigta.treas.gov,johnna.thorn@fiscal.treasury.gov,karen.weber@treasury.gov,molly.jerome@fincen.gov' | split: ',' %}
+
+    {% assign currentUserEmail = user.emailaddress1 | downcase | strip %}
+
+    {% comment %} Check if user is PMM Admin {% endcomment %}
+    {% assign isAdmin = false %}
+    {% for email in adminEmails %}
+        {% assign emailLower = email | downcase | strip %}
+        {% if currentUserEmail == emailLower %}
+            {% assign isAdmin = true %}
+            {% break %}
+        {% endif %}
+    {% endfor %}
+
+    {% comment %} Check if user is PMM User (only if not already admin) {% endcomment %}
+    {% assign isBasicUser = false %}
+    {% if isAdmin == false %}
+        {% for email in userEmails %}
+            {% assign emailLower = email | downcase | strip %}
+            {% if currentUserEmail == emailLower %}
+                {% assign isBasicUser = true %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% comment %} User is authorized if they are either admin or basic user {% endcomment %}
+    {% assign isAuthorizedUser = false %}
+    {% if isAdmin or isBasicUser %}
+        {% assign isAuthorizedUser = true %}
+    {% endif %}
+
+    {% assign userOrganization = "" %}
+    {% if currentUserInfo.results.entities.size > 0 and currentUserInfo.results.entities[0].ecm_organizationname %}
+        {% assign userOrganization = currentUserInfo.results.entities[0].ecm_organizationname %}
+    {% endif %}
+
+
+    {% if isAuthorizedUser %}
+    <!-- Added notification text with hyperlink -->
+    <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #ddd;">
+        <p style="font-size: 16px; color: #333;">To request any changes to measure definitions or data, please fill out the measure modification request form <a href="https://my.treasury.gov/offices/OSPPI/Lists/TOPS%20Measures%20Modification%20Request/NewForm.aspx?Source=https%3A%2F%2Fmy%2Etreasury%2Egov%2Foffices%2FOSPPI%2FLists%2FTOPS%2520Measures%2520Modification%2520Request%2FAllItems%2Easpx&RootFolder=" style="color: #0066cc; text-decoration: underline;">here</a>.</p>
+    </div>
+
+    <!-- Controls section -->
+<div class="controls-section">
+    <div class="left-controls">
+        <button class="filter-btn" onclick="openFilterModal()">
+            <span>🔍</span> Filter
+        </button>
+        <button class="reset-filters-btn" onclick="resetAllFilters()">Reset Filters</button>
+        <input type="text" class="search-box" placeholder="Search by name, organization, usage, type, frequency, or status...">
+            <select id="reportingFreqFilter" class="form-control" style="width: 200px; padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; height: 32px;">
+            <option value="">All Reporting Frequencies</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Quarterly (Count)">Quarterly (Count)</option>
+            <option value="Quarterly (Year-to-Date)">Quarterly (Year-to-Date)</option>
+            <option value="Annually">Annually</option>
+        </select>
+    </div>
+
+    <div class="right-controls">
+        <div class="export-dropdown">
+            <button class="export-btn" onclick="toggleExportDropdown()">
+                <span>📊</span> Export
+                <span style="font-size: 10px;">▼</span>
+            </button>
+            <div class="export-dropdown-content">
+                <a onclick="exportTable('csv')">Export Measure Definitions (CSV)</a>
+                <a onclick="exportAllTabs('csv')">Export All Tabs (Multiple CSV)</a>
+            </div>
+        </div>
+
+        <button class="new-measure-btn" onclick="openNewMeasureModal()">+ New Measure</button>
+    </div>
+</div>
+
+{% fetchxml measureDefinitions %}
+<fetch version="1.0" mapping="logical" no-lock="false" userqueryid="f9372ecb-951d-f011-998a-001dd80b32ed" distinct="true">
+<entity name="ecm_measure">
+<attribute name="ecm_id"/>
+<attribute name="ecm_measureid"/>
+<order attribute="modifiedon" descending="true"/>
+<attribute name="ecm_name"/>
+<attribute name="ecm_organization"/>
+<attribute name="ecm_strategicplan"/>
+<attribute name="ecm_type"/>
+<attribute name="ecm_reportingfrequency"/>
+<attribute name="statecode"/>
+<attribute name="ecm_target"/>
+<attribute name="ecm_status"/>
+<filter type="and">
+  {% if userOrganization != "" %}
+  <condition attribute="ecm_organization" operator="eq" value="{{ userOrganization }}" />
+  {% endif %}
+</filter>
+</entity>
+</fetch>
+{% endfetchxml %}
+
+{% fetchxml allMeasureActuals %}
+<fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
+  <entity name="ecm_measureactual">
+    <attribute name="ecm_measureactualid" />
+    <attribute name="ecm_measure" />
+    <attribute name="ecm_fiscalyear" />
+    <attribute name="ecm_quarter" />
+    <attribute name="ecm_actual" />
+    <attribute name="ecm_target" />
+    <attribute name="statecode" />
+    <link-entity name="ecm_measure" from="ecm_measureid" to="ecm_measure" alias="parentmeasure">
+      <attribute name="ecm_measureid" alias="measure_guid" />
+      <attribute name="ecm_organization" alias="measure_org" />
+      {% if userOrganization != "" %}
+      <filter type="and">
+        <condition attribute="ecm_organization" operator="eq" value="{{ userOrganization }}" />
+      </filter>
+      {% endif %}
+    </link-entity>
+    <filter type="and">
+      <condition attribute="statecode" operator="eq" value="0" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml %}
+
+<!--include PortalWebAPI helder for WebAPI-->
+{% include 'portalwebapihelper' %}
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th class="sortable-header" data-column="name">
+                    Name
+                    <span class="sort-arrows">
+                        <span class="sort-arrow up"></span>
+                        <span class="sort-arrow down"></span>
+                    </span>
+                </th>
+                <th class="sortable-header" data-column="organization">
+                    Organization
+                    <span class="sort-arrows">
+                        <span class="sort-arrow up"></span>
+                        <span class="sort-arrow down"></span>
+                    </span>
+                </th>
+                <th class="sortable-header" data-column="usage">
+                    Usage
+                    <span class="sort-arrows">
+                        <span class="sort-arrow up"></span>
+                        <span class="sort-arrow down"></span>
+                    </span>
+                </th>
+                <th class="sortable-header" data-column="type">
+                    Type
+                    <span class="sort-arrows">
+                        <span class="sort-arrow up"></span>
+                        <span class="sort-arrow down"></span>
+                    </span>
+                </th>
+                <th class="sortable-header" data-column="frequency">
+                    Reporting Frequency
+                    <span class="sort-arrows">
+                        <span class="sort-arrow up"></span>
+                        <span class="sort-arrow down"></span>
+                    </span>
+                </th>
+                <th class="sortable-header" data-column="status">
+                    Status
+                    <span class="sort-arrows">
+                        <span class="sort-arrow up"></span>
+                        <span class="sort-arrow down"></span>
+                    </span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for measure in measureDefinitions.results.entities %}
+            <tr data-id="{{ measure.ecm_measureid }}">
+                <td><a href="#" class="measure-name" onclick="navigateToMeasureDetail('{{ measure.ecm_measureid }}'); return false;">{{ measure.ecm_name }}</a></td>
+                <td>{{ measure.ecm_organization }}</td>
+                <td>
+                    <div class="usage-tags">
+                        <span class="usage-tag">Budget</span>
+                    </div>
+                </td>
+                <td>{{ measure.ecm_type }}</td>
+                <td>{{ measure.ecm_reportingfrequency }}</td>
+                <td>{{ measure.ecm_status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="pagination">
+    <div class="page-size-selector">
+        <span>10 items</span>
+        <select>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+        </select>
+    </div>
+    <div class="page-controls">
+        <span class="prev-page">Previous</span>
+        <span class="page-number active">1</span>
+        <span class="next-page">Next</span>
+    </div>
+    <div>
+        <span>Go To:</span>
+        <input type="number" min="1" max="1" value="1" class="go-to-page" style="width: 60px; margin-left: 8px;">
+    </div>
+</div>
+
+<!-- New Measure Modal -->
+<div id="newMeasureModal" class="modal">
+   <div class="modal-content">
+       <div class="modal-header">
+           <h2>Create Measure</h2>
+           <button class="close-button" onclick="closeModal('newMeasureModal')">&times;</button>
+       </div>
+
+       <form id="newMeasureForm">
+           <div class="form-group">
+               <label for="measureName">
+                 <span class="tooltip-label">
+                   Name *
+                   <span class="tooltip-text">Write the full name for the measure, including the unit of measurement (percent, count, dollars, etcetera). Example: "Electronic Filing Rate for Claims (percent)" or "Percent Business Returns Processed Electronically"</span>
+                 </span>
+               </label>
+               <input type="text" id="measureName" placeholder="Enter Measure Name" required>
+           </div>
+           <div class="form-group">
+               <label for="measureType">
+                 <span class="tooltip-label">
+                   Type *
+                   <span class="tooltip-text">Select "Measure" or "Indicator". Note: Indicators do not have targets.</span>
+                 </span>
+               </label>
+               <select id="measureType" required>
+                   <option value="">Select Measure Type</option>
+                   <option value="Measure">Measure</option>
+                   <option value="Indicator">Indicator</option>
+               </select>
+           </div>
+           <div class="form-group">
+               <label for="measureStatus">
+                 <span class="tooltip-label">
+                   Status *
+                   <span class="tooltip-text">Select "active" if currently being collected and reported and "inactive" if no longer in use.</span>
+                 </span>
+               </label>
+               <select id="measureStatus" required>
+                   <option value="">Select Status</option>
+                   <option value="Active">Active</option>
+                   <option value="Inactive">Inactive</option>
+               </select>
+           </div>
+           <div class="form-group">
+               <label for="organization">
+                 <span class="tooltip-label">
+                   Organization *
+                   <span class="tooltip-text">Select your organization.</span>
+                 </span>
+               </label>
+               <select id="organization" required>
+                   <option value="">Select Organization</option>
+                   <option value="BEP">BEP</option>
+                   <option value="BFS">BFS</option>
+                   <option value="CDFI">CDFI</option>
+                   <option value="CEA">CEA</option>
+                   <option value="DF">DF</option>
+                   <option value="DO">DO</option>
+                   <option value="FinCEN">FinCEN</option>
+                   <option value="IA">IA</option>
+                   <option value="IRS">IRS</option>
+                   <option value="Mint">Mint</option>
+                   <option value="OCC">OCC</option>
+                   <option value="OFR">OFR</option>
+                   <option value="OFS">OFS</option>
+                   <option value="OIG">OIG</option>
+                   <option value="OTA">OTA</option>
+                   <option value="SIGTARP">SIGTARP</option>
+                   <option value="TEOAF">TEOAF</option>
+                   <option value="TFF">TFF</option>
+                   <option value="TFI">TFI</option>
+                   <option value="TIGTA">TIGTA</option>
+                   <option value="TP">TP</option>
+                   <option value="TTB">TTB</option>
+               </select>
+           </div>
+           <div class="form-group">
+               <label for="reportingFreq">
+                 <span class="tooltip-label">
+                   Reporting Frequency *
+                   <span class="tooltip-text">Select the appropriate reporting cadence for this measure/indicator. If unsure, consult with Treasury OSPM.</span>
+                 </span>
+               </label>
+               <select id="reportingFreq" required>
+                   <option value="">Select Reporting Frequency</option>
+                   <option value="Monthly">Monthly</option>
+                   <option value="Quarterly (Count)">Quarterly (Count)</option>
+                   <option value="Quarterly (Year-to-Date)">Quarterly (Year-to-Date)</option>
+                   <option value="Annually">Annually</option>
+               </select>
+           </div>
+           <div class="form-group">
+                <label for="target">
+                    <span class="tooltip-label">
+                        Target <span id="targetAsterisk">*</span>
+                        <span class="tooltip-text">Enter the desired numeric value for this measure.</span>
+                    </span>
+                </label>
+                <input type="number" id="target" placeholder="Enter Target Value" step="0.0001" min="-999999999.9999" max="999999999.9999" required>
+            </div>
+           <div class="form-group">
+               <label for="desiredTrend">
+                 <span class="tooltip-label">
+                   Desired Trend *
+                   <span class="tooltip-text">Do you want actuals to increase or decrease? Ex: for "Number of cybersecurity breaches" or "Percentage of dropped calls", one would select "decreasing"; for "Dollars saved through efficiency programs", one would select "increasing".</span>
+                 </span>
+               </label>
+               <select id="desiredTrend" required>
+                   <option value="">Select Desired Trend</option>
+                   <option value="Increasing">Increasing</option>
+                   <option value="Decreasing">Decreasing</option>
+                   <option value="Maintain">Maintain</option>
+                   <option value="N/A (Indicator)">N/A (Indicator)</option>
+               </select>
+           </div>
+           <div class="form-group">
+                   <label for="CoreOperationMeasure">Core Operation Measure</label>
+                   <select id="CoreOperationMeasure" >
+                       <option value="Yes">Yes</option>
+                       <option value="No" selected>No</option>
+                   </select>
+               </div>
+           <div class="form-group">
+               <label for="usage">
+                 <span class="tooltip-label">
+                   Usage *
+                   <span class="tooltip-text">Select the reports to which this measure contributes. Note: If you wish the measure to remain internal to Treasury, please select only "QPR/SOAR (Internal)". All other fields contribute to an external report.</span>
+                 </span>
+               </label>
+               <select id="usage" multiple required>
+                   <option value="AFR/APR">AFR/APR</option>
+                   <option value="QPR/SOAR">QPR/SOAR (Internal)</option>
+                   <option value="Budget">Budget</option>
+                   <option value="Government Service Delivery">Government Service Delivery</option>
+                   <option value="Critical Program/Project">Critical Program/Project</option>
+               </select>
+           </div>
+           <div class="form-group">
+               <label for="strategicPlanAlignment">
+                 <span class="tooltip-label">
+                   Does this measure align to the FY26-30 strategic plan? *
+                   <span class="tooltip-text">Select whether this measure aligns with the FY26-30 strategic plan.</span>
+                 </span>
+               </label>
+               <select id="strategicPlanAlignment" required>
+                   <option value="">Select alignment</option>
+                   <option value="Yes">Yes</option>
+                   <option value="No">No</option>
+               </select>
+           </div>
+           <div class="form-group">
+               <label for="fy2630Objective">
+                 <span class="tooltip-label">
+                   FY26-30 Objective <span id="objectiveAsterisk" style="display: none;">*</span>
+                   <span class="tooltip-text">Select the specific objective this measure aligns with.</span>
+                 </span>
+               </label>
+               <select id="fy2630Objective" required disabled>
+                   <option value="">Select objective</option>
+                   <option value="Objective 1.1">Objective 1.1</option>
+                    <option value="Objective 1.2">Objective 1.2</option>
+                    <option value="Objective 1.3">Objective 1.3</option>
+                    <option value="Objective 2.1">Objective 2.1</option>
+                    <option value="Objective 2.2">Objective 2.2</option>
+                    <option value="Objective 2.3">Objective 2.3</option>
+                    <option value="Objective 3.1">Objective 3.1</option>
+                    <option value="Objective 3.2">Objective 3.2</option>
+                    <option value="Objective 3.3">Objective 3.3</option>
+                    <option value="Objective 3.4">Objective 3.4</option>
+                    <option value="Objective 4.1">Objective 4.1</option>
+                    <option value="Objective 4.2">Objective 4.2</option>
+                    <option value="Objective 4.3">Objective 4.3</option>
+                    <option value="Objective 4.4">Objective 4.4</option>
+                   <option value="Goal 5">Goal 5</option>
+               </select>
+           </div>
+           <div class="form-group">
+               <label for="calcMethod">
+                <span class="tooltip-label">
+                    Definition *
+                    <span class="tooltip-text">Briefly describe what the metric is, how it is calculated, and how the results are verified.</span>
+                </span>
+                </label>
+            <textarea id="calcMethod" placeholder="Enter Definition" required></textarea>
+           </div>
+           <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" onclick="closeModal('newMeasureModal')">Cancel</button>
+               <button type="submit" class="btn btn-primary">Save</button>
+           </div>
+       </form>
+   </div>
+   <!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <p>Preparing export...</p>
+    </div>
+</div>
+</div>
+<!-- Filter Modal -->
+<div id="filterModal" class="filter-modal">
+    <div class="filter-modal-content">
+        <div class="filter-header">
+            <h2>Filter Measures</h2>
+            <button class="close-button" onclick="closeFilterModal()">&times;</button>
+        </div>
+
+        <div class="filter-section">
+            <h4>Organization</h4>
+            <div class="filter-checkbox-group" id="organizationFilters">
+                <!-- Will be populated dynamically -->
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4>Usage</h4>
+            <div class="filter-checkbox-group" id="usageFilters">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-afr" value="AFR/APR">
+                    <label for="usage-afr">AFR/APR</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-qpr" value="Budget">
+                    <label for="usage-qpr">Budget</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-budget" value="QPR/SOAR">
+                    <label for="usage-budget">QPR/SOAR (Internal)</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-gsd" value="Government Service Delivery">
+                    <label for="usage-gsd">Government Service Delivery</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-critical" value="Critical Program/Project">
+                    <label for="usage-critical">Critical Program/Project</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4>Type</h4>
+            <div class="filter-checkbox-group" id="typeFilters">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="type-measure" value="Measure">
+                    <label for="type-measure">Measure</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="type-indicator" value="Indicator">
+                    <label for="type-indicator">Indicator</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4>Reporting Frequency</h4>
+            <div class="filter-checkbox-group" id="frequencyFilters">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="freq-monthly" value="Monthly">
+                    <label for="freq-monthly">Monthly</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="freq-quarterly-count" value="Quarterly (Count)">
+                    <label for="freq-quarterly-count">Quarterly (Count)</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="freq-quarterly-ytd" value="Quarterly (Year-to-Date)">
+                    <label for="freq-quarterly-ytd">Quarterly (Year-to-Date)</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="freq-annually" value="Annually">
+                    <label for="freq-annually">Annually</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4>Status</h4>
+            <div class="filter-checkbox-group" id="statusFilters">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="status-active" value="Active">
+                    <label for="status-active">Active</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="status-inactive" value="Inactive">
+                    <label for="status-inactive">Inactive</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-footer">
+            <button class="clear-filters-btn" onclick="clearAllFilters()">Clear All Filters</button>
+            <div class="filter-actions">
+                <button class="btn btn-secondary" onclick="closeFilterModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="applyFilters()">Apply Selection(s)</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <h2>Access Restricted</h2>
+        <p>You do not have permission to view this content. Please contact your administrator if you believe this is an error.</p>
+    </div>
+{% endif %}
+
+<script>
+    // User role configuration - set by Liquid template
+    const userRole = {% if isAdmin %}'admin'{% elsif isBasicUser %}'user'{% else %}'none'{% endif %};
+
+    // Navigation function for measure detail - routes based on user role
+    function navigateToMeasureDetail(id) {
+        const baseUrl = window.location.origin;
+
+        if (userRole === 'admin') {
+            window.location.href = `${baseUrl}/Measure-Detail-Admin/?id=${id}`;
+        } else if (userRole === 'user') {
+            window.location.href = `${baseUrl}/Measure-Detail-User/?id=${id}`;
+        } else {
+            // No valid role - should not happen since page is already restricted
+            alert('You do not have permission to view measure details.');
+        }
+    }
+
+        function resetAllFilters() {
+        // Clear advanced filters
+        activeFilters = {
+            organization: [],
+            usage: [],
+            type: [],
+            frequency: [],
+            status: []
+        };
+
+        // Clear search box
+        document.querySelector('.search-box').value = '';
+
+        // Clear dropdown filter
+        document.getElementById('reportingFreqFilter').value = '';
+
+        // Clear all modal checkboxes
+        document.querySelectorAll('#filterModal input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        // Reset sort to default
+        currentSort = {
+            column: 'modified',
+            direction: 'desc'
+        };
+
+        updateSortVisuals();
+        applySortAndFilter();
+    }
+    // Sorting functionality
+    let currentSort = {
+        column: 'modified',
+        direction: 'desc' // default sort
+    };
+
+    // Filter functionality
+    let activeFilters = {
+        organization: [],
+        usage: [],
+        type: [],
+        frequency: [],
+        status: []
+    };
+
+    // Initialize sorting and filtering
+    function initializeSortingAndFiltering() {
+        // Setup sort click handlers
+        document.querySelectorAll('.sortable-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const column = this.dataset.column;
+                handleSort(column);
+            });
+        });
+
+        // Populate organization filters based on user permissions
+        populateOrganizationFilters();
+    }
+
+    function handleSort(column) {
+        // Cycle through sort states: none -> asc -> desc -> none
+        if (currentSort.column !== column) {
+            currentSort.column = column;
+            currentSort.direction = 'asc';
+        } else if (currentSort.direction === 'asc') {
+            currentSort.direction = 'desc';
+        } else if (currentSort.direction === 'desc') {
+            currentSort.column = 'modified';
+            currentSort.direction = 'desc';
+        } else {
+            currentSort.direction = 'asc';
+        }
+
+        updateSortVisuals();
+        applySortAndFilter();
+    }
+
+    function updateSortVisuals() {
+        // Reset all sort arrows
+        document.querySelectorAll('.sort-arrow').forEach(arrow => {
+            arrow.classList.remove('active');
+        });
+
+        // Highlight active sort
+        if (currentSort.column !== 'modified') {
+            const activeHeader = document.querySelector(`[data-column="${currentSort.column}"]`);
+            if (activeHeader) {
+                const arrows = activeHeader.querySelectorAll('.sort-arrow');
+                if (currentSort.direction === 'asc') {
+                    arrows[0].classList.add('active'); // up arrow
+                } else {
+                    arrows[1].classList.add('active'); // down arrow
+                }
+            }
+        }
+    }
+
+    function populateOrganizationFilters() {
+        const container = document.getElementById('organizationFilters');
+        const organizations = ['BEP', 'BFS', 'CDFI', 'CEA', 'DF', 'DO', 'FinCEN', 'IA', 'IRS', 'Mint', 'OCC', 'OFR', 'OFS', 'OIG', 'OTA', 'SIGTARP', 'TEOAF', 'TFF', 'TFI', 'TIGTA', 'TP', 'TTB'];
+
+        // Check if user is admin/authorized for all organizations
+        const userOrganization = '{{ userOrganization }}';
+        const isAdmin = {% if isAdmin %}true{% else %}false{% endif %};
+
+        const availableOrgs = isAdmin ? organizations : (userOrganization ? [userOrganization] : organizations);
+
+        container.innerHTML = availableOrgs.map(org => `
+            <div class="filter-checkbox">
+                <input type="checkbox" id="org-${org.toLowerCase()}" value="${org}">
+                <label for="org-${org.toLowerCase()}">${org}</label>
+            </div>
+        `).join('');
+    }
+
+    function openFilterModal() {
+        document.getElementById('filterModal').style.display = 'block';
+    }
+
+    function closeFilterModal() {
+        document.getElementById('filterModal').style.display = 'none';
+    }
+
+    function clearAllFilters() {
+    // Clear all checkboxes
+    document.querySelectorAll('#filterModal input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+
+    // Reset active filters
+    activeFilters = {
+        organization: [],
+        usage: [],
+        type: [],
+        frequency: [],
+        status: []
+    };
+
+    // Apply the cleared filters immediately
+    applySortAndFilter();
+}
+
+    function applyFilters() {
+    // Collect selected filters
+    activeFilters.organization = Array.from(document.querySelectorAll('#organizationFilters input:checked')).map(cb => cb.value);
+    activeFilters.usage = Array.from(document.querySelectorAll('#usageFilters input:checked')).map(cb => cb.value);
+    activeFilters.type = Array.from(document.querySelectorAll('#typeFilters input:checked')).map(cb => cb.value);
+    activeFilters.frequency = Array.from(document.querySelectorAll('#frequencyFilters input:checked')).map(cb => cb.value);
+    activeFilters.status = Array.from(document.querySelectorAll('#statusFilters input:checked')).map(cb => cb.value);
+
+    closeFilterModal();
+    applySortAndFilter();
+}
+
+    function applySortAndFilter() {
+        const tableBody = document.querySelector('tbody');
+        const allRows = Array.from(tableBody.getElementsByTagName('tr'));
+
+        // Apply filters
+        filteredRows = allRows.filter(row => {
+            const cells = row.getElementsByTagName('td');
+            const organization = cells[1] ? cells[1].textContent.trim() : '';
+            const usage = cells[2] ? cells[2].textContent.trim() : '';
+            const type = cells[3] ? cells[3].textContent.trim() : '';
+            const frequency = cells[4] ? cells[4].textContent.trim() : '';
+            const status = cells[5] ? cells[5].textContent.trim() : '';
+
+            // Apply search filter
+            const searchTerm = document.querySelector('.search-box').value.toLowerCase();
+            const matchesSearch = !searchTerm ||
+                cells[0].textContent.toLowerCase().includes(searchTerm) ||
+                organization.toLowerCase().includes(searchTerm) ||
+                usage.toLowerCase().includes(searchTerm) ||
+                type.toLowerCase().includes(searchTerm) ||
+                frequency.toLowerCase().includes(searchTerm) ||
+                status.toLowerCase().includes(searchTerm);
+
+            // Apply dropdown filter
+            const reportingFreq = document.getElementById('reportingFreqFilter').value;
+            const matchesFrequency = !reportingFreq || frequency === reportingFreq;
+
+            // Apply advanced filters
+            const matchesOrg = activeFilters.organization.length === 0 || activeFilters.organization.includes(organization);
+            const matchesUsage = activeFilters.usage.length === 0 || activeFilters.usage.some(u => usage.includes(u));
+            const matchesType = activeFilters.type.length === 0 || activeFilters.type.includes(type);
+            const matchesFreq = activeFilters.frequency.length === 0 || activeFilters.frequency.includes(frequency);
+            const matchesStatus = activeFilters.status.length === 0 || activeFilters.status.includes(status);
+
+            return matchesSearch && matchesFrequency && matchesOrg && matchesUsage && matchesType && matchesFreq && matchesStatus;
+        });
+
+        // Apply sorting
+        if (currentSort.column !== 'modified') {
+            filteredRows.sort((a, b) => {
+                const aValue = getCellValue(a, currentSort.column);
+                const bValue = getCellValue(b, currentSort.column);
+
+                const comparison = aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' });
+                return currentSort.direction === 'asc' ? comparison : -comparison;
+            });
+        }
+
+        // Reset to first page
+        currentPage = 1;
+        updateTable();
+    }
+
+    function getCellValue(row, column) {
+        const cells = row.getElementsByTagName('td');
+        switch (column) {
+            case 'name': return cells[0] ? cells[0].textContent.trim() : '';
+            case 'organization': return cells[1] ? cells[1].textContent.trim() : '';
+            case 'usage': return cells[2] ? cells[2].textContent.trim() : '';
+            case 'type': return cells[3] ? cells[3].textContent.trim() : '';
+            case 'frequency': return cells[4] ? cells[4].textContent.trim() : '';
+            case 'status': return cells[5] ? cells[5].textContent.trim() : '';
+            default: return '';
+        }
+    }
+
+    // Update the existing handleSearch and handleFilter functions
+    function handleSearch() {
+        applySortAndFilter();
+    }
+
+    function handleFilter() {
+        applySortAndFilter();
+    }
+    function handleMeasureTypeChange() {
+    const measureType = document.getElementById('measureType').value;
+    const targetField = document.getElementById('target');
+    const targetAsterisk = document.getElementById('targetAsterisk');
+
+    if (measureType === 'Indicator') {
+        // Make target not required for Indicators
+        targetField.required = false;
+        targetAsterisk.style.display = 'none';
+    } else {
+        // Make target required for Measures (default state)
+        targetField.required = true;
+        targetAsterisk.style.display = 'inline';
+    }
+}
+
+    function handleStrategicPlanChange() {
+    const strategicPlan = document.getElementById('strategicPlanAlignment').value;
+    const objectiveField = document.getElementById('fy2630Objective');
+    const objectiveAsterisk = document.getElementById('objectiveAsterisk');
+
+    if (strategicPlan === 'Yes') {
+        objectiveField.disabled = false;
+        objectiveField.required = true;
+        objectiveAsterisk.style.display = 'inline';
+    } else {
+        objectiveField.disabled = true;
+        objectiveField.required = false;
+        objectiveField.value = ''; // Clear selection when disabled
+        objectiveAsterisk.style.display = 'none';
+    }
+}
+    // Modal functions
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    function openNewMeasureModal() {
+        openModal('newMeasureModal');
+    // Reset form and handle initial state
+    document.getElementById('newMeasureForm').reset();
+    handleMeasureTypeChange();
+    handleStrategicPlanChange();
+    }
+
+    // Add click handlers for result buttons
+    document.querySelectorAll('.result-button').forEach(button => {
+        button.addEventListener('click', () => openModal('addResultModal'));
+    });
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = "none";
+        }
+    };
+
+    // Form submission handlers
+    document.getElementById('addResultForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Handle result submission
+        closeModal('addResultModal');
+    });
+    // Export functionality - moved to top level
+var exportDropdownOpen = false;
+
+function toggleExportDropdown() {
+    const dropdown = document.querySelector('.export-dropdown');
+    exportDropdownOpen = !exportDropdownOpen;
+
+    if (exportDropdownOpen) {
+        dropdown.classList.add('show');
+    } else {
+        dropdown.classList.remove('show');
+    }
+}
+
+function getAnnualActualsDataFromLiquid() {
+    // Get measures data
+    const measuresData = [
+        {% for measure in measureDefinitions.results.entities %}
+        {% if measure.ecm_reportingfrequency == 'Annually' %}
+        {
+            measureId: "{{ measure.ecm_id | escape }}",
+            measureName: "{{ measure.ecm_name | escape }}",
+            organization: "{{ measure.ecm_organization | escape }}",
+            reportingFrequency: "{{ measure.ecm_reportingfrequency | escape }}",
+            currentTarget: "{{ measure.ecm_target | escape }}",
+            measureGuid: "{{ measure.ecm_measureid }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endif %}
+        {% endfor %}
+    ];
+
+    // Get actuals data
+    const actualsData = [
+        {% for actual in allMeasureActuals.results.entities %}
+        {
+            measureGuid: "{{ actual.measure_guid }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear | escape }}",
+            quarter: "{{ actual.ecm_quarter | escape }}",
+            actual: "{{ actual.ecm_actual | escape }}",
+            target: "{{ actual.ecm_target | escape }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+    ];
+
+    const headers = [
+        'Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target',
+        'FY19 Target', 'FY19 Actual', 'FY20 Target', 'FY20 Actual', 'FY21 Target', 'FY21 Actual',
+        'FY22 Target', 'FY22 Actual', 'FY23 Target', 'FY23 Actual', 'FY24 Target', 'FY24 Actual',
+        'FY25 Target', 'FY25 Actual'
+    ];
+
+    const data = measuresData.map(measure => {
+        const row = [
+            measure.measureId,
+            measure.measureName,
+            measure.organization,
+            measure.reportingFrequency,
+            measure.currentTarget
+        ];
+
+        const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+        fiscalYears.forEach(fy => {
+            const fyActual = actualsData.find(a => a.measureGuid === measure.measureGuid && a.fiscalYear === fy);
+            row.push(fyActual ? fyActual.target : '');
+            row.push(fyActual ? fyActual.actual : '');
+        });
+
+        return row;
+    });
+
+    return Promise.resolve({ headers, data });
+}
+
+function getQuarterlyYTDActualsDataFromLiquid() {
+    // Get measures data
+    const measuresData = [
+        {% for measure in measureDefinitions.results.entities %}
+        {% if measure.ecm_reportingfrequency == 'Quarterly (Year-to-Date)' %}
+        {
+            measureId: "{{ measure.ecm_id | escape }}",
+            measureName: "{{ measure.ecm_name | escape }}",
+            organization: "{{ measure.ecm_organization | escape }}",
+            reportingFrequency: "{{ measure.ecm_reportingfrequency | escape }}",
+            currentTarget: "{{ measure.ecm_target | escape }}",
+            measureGuid: "{{ measure.ecm_measureid }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endif %}
+        {% endfor %}
+    ];
+
+    // Get actuals data
+    const actualsData = [
+        {% for actual in allMeasureActuals.results.entities %}
+        {
+            measureGuid: "{{ actual.measure_guid }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear | escape }}",
+            quarter: "{{ actual.ecm_quarter | escape }}",
+            actual: "{{ actual.ecm_actual | escape }}",
+            target: "{{ actual.ecm_target | escape }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+    ];
+
+    const headers = ['Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target'];
+
+    const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+    const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+
+    fiscalYears.forEach(fy => {
+        quarters.forEach(q => {
+            headers.push(`${q} ${fy} Target`, `${q} ${fy} Actual`);
+        });
+    });
+
+    const data = measuresData.map(measure => {
+        const row = [
+            measure.measureId,
+            measure.measureName,
+            measure.organization,
+            measure.reportingFrequency,
+            measure.currentTarget
+        ];
+
+        fiscalYears.forEach(fy => {
+            quarters.forEach(q => {
+                const qActual = actualsData.find(a => a.measureGuid === measure.measureGuid && a.fiscalYear === fy && a.quarter === q);
+                row.push(qActual ? qActual.target : '');
+                row.push(qActual ? qActual.actual : '');
+            });
+        });
+
+        return row;
+    });
+
+    return Promise.resolve({ headers, data });
+}
+
+function getQuarterlyCountActualsDataFromLiquid() {
+    // Get measures data
+    const measuresData = [
+        {% for measure in measureDefinitions.results.entities %}
+        {% if measure.ecm_reportingfrequency == 'Quarterly (Count)' %}
+        {
+            measureId: "{{ measure.ecm_id | escape }}",
+            measureName: "{{ measure.ecm_name | escape }}",
+            organization: "{{ measure.ecm_organization | escape }}",
+            reportingFrequency: "{{ measure.ecm_reportingfrequency | escape }}",
+            currentTarget: "{{ measure.ecm_target | escape }}",
+            measureGuid: "{{ measure.ecm_measureid }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endif %}
+        {% endfor %}
+    ];
+
+    // Get actuals data
+    const actualsData = [
+        {% for actual in allMeasureActuals.results.entities %}
+        {
+            measureGuid: "{{ actual.measure_guid }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear | escape }}",
+            quarter: "{{ actual.ecm_quarter | escape }}",
+            actual: "{{ actual.ecm_actual | escape }}",
+            target: "{{ actual.ecm_target | escape }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+    ];
+
+    const headers = ['Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target'];
+
+    const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+    const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+
+    fiscalYears.forEach(fy => {
+        quarters.forEach(q => {
+            headers.push(`${q} ${fy} Target`, `${q} ${fy} Actual`);
+        });
+    });
+
+    const data = measuresData.map(measure => {
+        const row = [
+            measure.measureId,
+            measure.measureName,
+            measure.organization,
+            measure.reportingFrequency,
+            measure.currentTarget
+        ];
+
+        fiscalYears.forEach(fy => {
+            quarters.forEach(q => {
+                const qActual = actualsData.find(a => a.measureGuid === measure.measureGuid && a.fiscalYear === fy && a.quarter === q);
+                row.push(qActual ? qActual.target : '');
+                row.push(qActual ? qActual.actual : '');
+            });
+        });
+
+        return row;
+    });
+
+    return Promise.resolve({ headers, data });
+}
+
+function debugActualsData() {
+    // Get actuals data using the aliased measure_guid field
+    const actualsData = [
+        {% for actual in allMeasureActuals.results.entities %}
+        {
+            measureGuid: "{{ actual.measure_guid }}",
+            measureGuidDirect: "{{ actual.ecm_measure }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear | escape }}",
+            quarter: "{{ actual.ecm_quarter | escape }}",
+            actual: "{{ actual.ecm_actual | escape }}",
+            target: "{{ actual.ecm_target | escape }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+    ];
+
+    console.log('Sample actuals with both GUID approaches:');
+    console.log(actualsData.slice(0, 5));
+
+    return actualsData;
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('.export-dropdown');
+    if (!dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+        exportDropdownOpen = false;
+    }
+});
+
+function showLoading() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+function getVisibleTableData() {
+    // Get all rows that match the current filters, regardless of pagination
+    const tableBody = document.querySelector('tbody');
+    const allRows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    // Apply the same filtering logic that's used in the filterTable function
+    const searchTerm = document.querySelector('.search-box').value.toLowerCase();
+    const reportingFreq = document.getElementById('reportingFreqFilter').value;
+
+    const filteredRows = allRows.filter(row => {
+        const cells = row.getElementsByTagName('td');
+
+        // Get text content from each column
+        const name = cells[0] ? cells[0].textContent.toLowerCase() : '';
+        const organization = cells[1] ? cells[1].textContent.toLowerCase() : '';
+        const usage = cells[2] ? cells[2].textContent.toLowerCase() : '';
+        const type = cells[3] ? cells[3].textContent.toLowerCase() : '';
+        const frequency = cells[4] ? cells[4].textContent : '';
+        const status = cells[5] ? cells[5].textContent.toLowerCase() : '';
+
+        // Apply search filter across all searchable columns
+        const matchesSearch = !searchTerm ||
+            name.includes(searchTerm) ||
+            organization.includes(searchTerm) ||
+            usage.includes(searchTerm) ||
+            type.includes(searchTerm) ||
+            frequency.toLowerCase().includes(searchTerm) ||
+            status.includes(searchTerm);
+
+        // Apply reporting frequency filter (exact match for dropdown filter)
+        const matchesFrequency = !reportingFreq || frequency === reportingFreq;
+
+        return matchesSearch && matchesFrequency;
+    });
+
+    // Use the existing Liquid template data that's already on the page
+    const existingMeasures = [
+        {% for measure in measureDefinitions.results.entities %}
+        {
+            ecm_measureid: "{{ measure.ecm_measureid }}",
+            ecm_organization: "{{ measure.ecm_organization | escape }}",
+            ecm_id: "{{ measure.ecm_id | escape }}",
+            ecm_name: "{{ measure.ecm_name | escape }}",
+            ecm_type: "{{ measure.ecm_type | escape }}",
+            ecm_status: "{{ measure.ecm_status | escape }}",
+            ecm_reportingfrequency: "{{ measure.ecm_reportingfrequency | escape }}",
+            ecm_target: "{{ measure.ecm_target | escape }}",
+            ecm_desiredtrend: "{{ measure.ecm_desiredtrend | escape }}",
+            ecm_coreoperationmeasure: "{{ measure.ecm_coreoperationmeasure | escape }}",
+            ecm_fy2630alignment: "{{ measure.ecm_fy2630alignment | escape }}",
+            ecm_fy2630objective: "{{ measure.ecm_fy2630objective | escape }}",
+            ecm_calculationmethod: "{{ measure.ecm_calculationmethod | escape }}"
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+    ];
+
+    const headers = [
+        'Organization', 'ID', 'Name', 'Type', 'Status', 'Reporting Frequency',
+        'Target', 'Desired Trend', 'Core Operation Measure',
+        'FY26-30 Strategic Plan Alignment', 'FY26-30 Objective', 'Definition'
+    ];
+
+    const data = filteredRows.map(row => {
+        const measureId = row.getAttribute('data-id');
+        const measureData = existingMeasures.find(m => m.ecm_measureid === measureId) || {};
+
+        return [
+            measureData.ecm_organization || '',
+            measureData.ecm_id || '',
+            measureData.ecm_name || '',
+            measureData.ecm_type || '',
+            measureData.ecm_status || '',
+            measureData.ecm_reportingfrequency || '',
+            measureData.ecm_target || '',
+            measureData.ecm_desiredtrend || '',
+            measureData.ecm_coreoperationmeasure || '',
+            measureData.ecm_fy2630alignment || '',
+            measureData.ecm_fy2630objective || '',
+            measureData.ecm_calculationmethod || ''
+        ];
+    });
+
+    return { headers, data };
+}
+
+function fetchCompleteDataForMeasures(measureIds) {
+    console.log("Fetching data for measure IDs:", measureIds);
+
+    if (measureIds.length === 0) {
+        console.log("No measure IDs to fetch");
+        return Promise.resolve([]);
+    }
+
+    // Create filter condition for the measure IDs
+    const idFilter = measureIds.map(id => `ecm_measureid eq '${id}'`).join(' or ');
+
+    const apiUrl = `/_api/ecm_measures?$select=ecm_measureid,ecm_organization,ecm_id,ecm_name,ecm_type,ecm_status,ecm_reportingfrequency,ecm_target,ecm_desiredtrend,ecm_coreoperationmeasure,ecm_fy2630alignment,ecm_fy2630objective,ecm_calculationmethod&$filter=${idFilter}`;
+
+    console.log("API URL:", apiUrl);
+
+    return new Promise((resolve, reject) => {
+        webapi.safeAjax({
+            type: "GET",
+            url: apiUrl,
+            success: function(data) {
+                console.log("API response:", data);
+                resolve(data.value || []);
+            },
+            error: function(xhr) {
+                console.error("Error fetching complete measure data:", xhr);
+                console.error("Error response:", xhr.responseText);
+                resolve([]); // Return empty array on error to prevent export failure
+            }
+        });
+    });
+}
+
+function exportTable(format) {
+    showLoading();
+
+    // Close the dropdown
+    document.querySelector('.export-dropdown').classList.remove('show');
+    exportDropdownOpen = false;
+
+    // Update loading message to reflect that we're exporting all data
+    document.querySelector('.loading-content p').textContent = 'Preparing export of all filtered records...';
+
+    setTimeout(() => {
+        try {
+            const { headers, data } = getVisibleTableData();
+
+            // Show count of records being exported
+            console.log(`Exporting ${data.length} records`);
+            console.log('Sample data:', data[0]); // Debug first row
+
+            if (format === 'csv') {
+                exportToCSV(headers, data);
+            } else if (format === 'excel') {
+                exportToExcel(headers, data);
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            alert('An error occurred during export. Please try again.');
+        } finally {
+            hideLoading();
+            // Reset loading message
+            document.querySelector('.loading-content p').textContent = 'Preparing export...';
+        }
+    }, 500);
+}
+
+function exportToCSV(headers, data, sheetName = 'Measure_Definitions') {
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    // Format date as MMDDYYYY
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    const dateStr = `${month}${day}${year}`;
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `TOPS_Measures_Export_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function exportAllTabs(format) {
+    showLoading();
+    document.querySelector('.export-dropdown').classList.remove('show');
+    exportDropdownOpen = false;
+
+    document.querySelector('.loading-content p').textContent = 'Preparing multi-tab export...';
+
+    setTimeout(() => {
+        Promise.all([
+            getMeasureDefinitionsData(),
+            getAnnualActualsDataFromLiquid(),
+            getQuarterlyYTDActualsDataFromLiquid(),
+            getQuarterlyCountActualsDataFromLiquid()
+        ]).then(([definitions, annual, quarterlyYTD, quarterlyCount]) => {
+
+            console.log('Annual data:', annual.data.length, 'rows');
+            console.log('Quarterly YTD data:', quarterlyYTD.data.length, 'rows');
+            console.log('Quarterly Count data:', quarterlyCount.data.length, 'rows');
+
+            const dateStr = getFormattedDate();
+
+            if (format === 'csv') {
+                exportMultipleCSV([
+                    { name: 'Measure_Definitions', headers: definitions.headers, data: definitions.data },
+                    { name: 'Annual_Actuals', headers: annual.headers, data: annual.data },
+                    { name: 'Quarterly_YTD_Actuals', headers: quarterlyYTD.headers, data: quarterlyYTD.data },
+                    { name: 'Quarterly_Count_Actuals', headers: quarterlyCount.headers, data: quarterlyCount.data }
+                ], dateStr);
+            } else {
+                exportCombinedExcel([
+                    { name: 'Measure_Definitions', headers: definitions.headers, data: definitions.data },
+                    { name: 'Annual_Actuals', headers: annual.headers, data: annual.data },
+                    { name: 'Quarterly_YTD_Actuals', headers: quarterlyYTD.headers, data: quarterlyYTD.data },
+                    { name: 'Quarterly_Count_Actuals', headers: quarterlyCount.headers, data: quarterlyCount.data }
+                ], dateStr);
+            }
+
+        }).catch(error => {
+            console.error('Multi-tab export error:', error);
+            alert('An error occurred while preparing the export. Please try again.');
+        }).finally(() => {
+            hideLoading();
+            document.querySelector('.loading-content p').textContent = 'Preparing export...';
+        });
+    }, 500);
+}
+
+function getFormattedDate() {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${month}${day}${year}`;
+}
+
+function getMeasureDefinitionsData() {
+    // Use your existing getVisibleTableData function
+    return Promise.resolve(getVisibleTableData());
+}
+
+function getAnnualActualsData() {
+    return fetchActualsData('Annually').then(data => {
+        const headers = [
+            'Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target',
+            'FY19 Target', 'FY19 Actual', 'FY20 Target', 'FY20 Actual', 'FY21 Target', 'FY21 Actual',
+            'FY22 Target', 'FY22 Actual', 'FY23 Target', 'FY23 Actual', 'FY24 Target', 'FY24 Actual',
+            'FY25 Target', 'FY25 Actual'
+        ];
+
+        return { headers, data };
+    });
+}
+
+function exportMultipleCSV(sheets, dateStr) {
+    sheets.forEach((sheet, index) => {
+        setTimeout(() => {
+            const csvContent = [
+                sheet.headers.join(','),
+                ...sheet.data.map(row => row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', `TOPS_Measures_Export_${dateStr}_${sheet.name}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }, index * 500); // Stagger downloads
+    });
+}
+
+function exportCombinedExcel(sheets, dateStr) {
+    // Create a single CSV with all sheets separated
+    let combinedContent = '';
+
+    const tabNames = [
+        'Measure Definitions',
+        'Annual Actuals',
+        'Quarterly (YTD) Actuals',
+        'Quarterly (Count) Actuals'
+    ];
+
+    sheets.forEach((sheet, sheetIndex) => {
+        if (sheetIndex > 0) combinedContent += '\n\n'; // Separator between sheets
+        combinedContent += `Tab: ${tabNames[sheetIndex]}\n`;
+        combinedContent += sheet.headers.join(',') + '\n';
+        combinedContent += sheet.data.map(row =>
+            row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(',')
+        ).join('\n');
+    });
+
+    const blob = new Blob([combinedContent], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `TOPS_Measures_Export_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function exportToExcel(headers, data) {
+    // Create CSV content instead of HTML table to avoid Excel warnings
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    // Format date as MMDDYYYY
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    const dateStr = `${month}${day}${year}`;
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `TOPS_Measures_Export_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+<!-- Add the form submission code -->
+<script>
+$(document).ready(function() {
+    $('#newMeasureForm').submit(function(event) {
+        event.preventDefault();
+
+        var record = {};
+        record.ecm_name = $('#measureName').val();
+        record.ecm_type = $('#measureType').val();
+        record.ecm_status = $('#measureStatus').val();
+        record.ecm_organization = $('#organization').val();
+        record.ecm_reportingfrequency = $('#reportingFreq').val();
+        record.ecm_target = $('#target').val();
+        record.ecm_desiredtrend = $('#desiredTrend').val();
+        record.ecm_coreoperationmeasure = $('#CoreOperationMeasure').val();
+        var selectedUsages = $('#usage').val() || [];
+        record.ecm_usage = Array.isArray(selectedUsages) ? selectedUsages.join(', ') : selectedUsages;
+        // For single line text field, just use the value directly
+        record.ecm_calculationmethod = $('#calcMethod').val();
+        record.ecm_fy2630alignment = $('#strategicPlanAlignment').val();
+        record.ecm_fy2630objective = $('#fy2630Objective').val();
+
+        webapi.safeAjax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/_api/ecm_measures",
+            data: JSON.stringify(record),
+            success: function(data, textStatus, xhr) {
+                var newId = xhr.getResponseHeader("entityid");
+                console.log("New measure created with ID: " + newId);
+                $('#newMeasureForm')[0].reset();
+                closeModal('newMeasureModal');
+                alert("Measure added successfully.");
+                location.reload();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                // Log detailed error information
+                console.log("Error creating measure:", xhr);
+
+                // Try to extract more helpful error messages if available
+                var errorMessage = "Error creating measure. Please try again.";
+                if (xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) {
+                    errorMessage = xhr.responseJSON.error.message;
+                }
+
+                alert(errorMessage);
+            }
+        });
+    });
+});
+
+
+//pagination
+// Add this JavaScript code to your existing script section
+
+// Table filtering and pagination
+let currentPage = 1;
+let itemsPerPage = 10;
+let filteredRows = [];
+
+function initializeTableFeatures() {
+    // Get all table rows (excluding header)
+    const tableBody = document.querySelector('tbody');
+    const allRows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    // Initialize filtered rows with all rows
+    filteredRows = allRows;
+
+    // Add event listeners
+    setupEventListeners();
+
+    // Initial render
+    updateTable();
+}
+
+function setupEventListeners() {
+    // Search functionality
+    const searchBox = document.querySelector('.search-box');
+    searchBox.addEventListener('input', debounce(handleSearch, 300));
+
+    // Reporting frequency filter
+    const reportingFilter = document.getElementById('reportingFreqFilter');
+    reportingFilter.addEventListener('change', handleFilter);
+
+    // Page size selector
+    const pageSizeSelector = document.querySelector('.page-size-selector select');
+    pageSizeSelector.addEventListener('change', handlePageSizeChange);
+
+    // Pagination controls
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('page-number')) {
+            handlePageClick(parseInt(e.target.textContent));
+        } else if (e.target.classList.contains('prev-page')) {
+            handlePageClick(currentPage - 1);
+        } else if (e.target.classList.contains('next-page')) {
+            handlePageClick(currentPage + 1);
+        }
+    });
+
+    // Go to page input
+    const goToPageInput = document.querySelector('.go-to-page');
+    goToPageInput.addEventListener('change', function() {
+        const page = parseInt(this.value);
+        if (page >= 1 && page <= getTotalPages()) {
+            handlePageClick(page);
+        }
+    });
+}
+
+function handleSearch() {
+    const searchTerm = document.querySelector('.search-box').value.toLowerCase();
+    const reportingFreq = document.getElementById('reportingFreqFilter').value;
+
+    filterTable(searchTerm, reportingFreq);
+}
+
+function handleFilter() {
+    const searchTerm = document.querySelector('.search-box').value.toLowerCase();
+    const reportingFreq = document.getElementById('reportingFreqFilter').value;
+
+    filterTable(searchTerm, reportingFreq);
+}
+
+function filterTable(searchTerm, reportingFreq) {
+    const tableBody = document.querySelector('tbody');
+    const allRows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    filteredRows = allRows.filter(row => {
+        const cells = row.getElementsByTagName('td');
+
+        // Get text content from each column
+        const name = cells[0] ? cells[0].textContent.toLowerCase() : '';
+        const organization = cells[1] ? cells[1].textContent.toLowerCase() : '';
+        const usage = cells[2] ? cells[2].textContent.toLowerCase() : '';
+        const type = cells[3] ? cells[3].textContent.toLowerCase() : '';
+        const frequency = cells[4] ? cells[4].textContent : '';
+        const status = cells[5] ? cells[5].textContent.toLowerCase() : '';
+
+        // Apply search filter across all searchable columns
+        const matchesSearch = !searchTerm ||
+            name.includes(searchTerm) ||
+            organization.includes(searchTerm) ||
+            usage.includes(searchTerm) ||
+            type.includes(searchTerm) ||
+            frequency.toLowerCase().includes(searchTerm) ||
+            status.includes(searchTerm);
+
+        // Apply reporting frequency filter (exact match for dropdown filter)
+        const matchesFrequency = !reportingFreq || frequency === reportingFreq;
+
+        return matchesSearch && matchesFrequency;
+    });
+
+    // Reset to first page when filtering
+    currentPage = 1;
+    updateTable();
+}
+
+function handlePageSizeChange(e) {
+    itemsPerPage = parseInt(e.target.value);
+    currentPage = 1;
+    updateTable();
+}
+
+function handlePageClick(page) {
+    if (page >= 1 && page <= getTotalPages()) {
+        currentPage = page;
+        updateTable();
+    }
+}
+
+function updateTable() {
+    const tableBody = document.querySelector('tbody');
+    const allRows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    // Hide all rows
+    allRows.forEach(row => row.style.display = 'none');
+
+    // Calculate pagination
+    const totalPages = getTotalPages();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredRows.length);
+
+    // Show only the rows for the current page
+    for (let i = startIndex; i < endIndex; i++) {
+        filteredRows[i].style.display = '';
+    }
+
+    // Update pagination controls
+    updatePaginationControls(totalPages);
+}
+
+function getTotalPages() {
+    return Math.ceil(filteredRows.length / itemsPerPage);
+}
+
+function updatePaginationControls(totalPages) {
+    // Update page size display
+    const pageSizeDisplay = document.querySelector('.page-size-selector span');
+    pageSizeDisplay.textContent = `${itemsPerPage} items`;
+
+    // Update page controls
+    const pageControlsHtml = `
+        <span class="prev-page ${currentPage === 1 ? 'disabled' : ''}"
+              style="cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'};
+                     color: ${currentPage === 1 ? '#ccc' : '#000'};">Previous</span>
+        ${generatePageNumbers(totalPages)}
+        <span class="next-page ${currentPage === totalPages ? 'disabled' : ''}"
+              style="cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'};
+                     color: ${currentPage === totalPages ? '#ccc' : '#000'};">Next</span>
+    `;
+
+    document.querySelector('.page-controls').innerHTML = pageControlsHtml;
+
+    // Update go to page input
+    const goToPageInput = document.querySelector('.go-to-page');
+    goToPageInput.value = currentPage;
+    goToPageInput.max = totalPages;
+}
+
+function generatePageNumbers(totalPages) {
+    let html = '';
+
+    if (totalPages <= 7) {
+        // Show all pages
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<span class="page-number ${i === currentPage ? 'active' : ''}">${i}</span>`;
+        }
+    } else {
+        // Show first, last, and pages around current
+        if (currentPage <= 3) {
+            for (let i = 1; i <= 5; i++) {
+                html += `<span class="page-number ${i === currentPage ? 'active' : ''}">${i}</span>`;
+            }
+            html += '<span>...</span>';
+            html += `<span class="page-number">${totalPages}</span>`;
+        } else if (currentPage >= totalPages - 2) {
+            html += '<span class="page-number">1</span>';
+            html += '<span>...</span>';
+            for (let i = totalPages - 4; i <= totalPages; i++) {
+                html += `<span class="page-number ${i === currentPage ? 'active' : ''}">${i}</span>`;
+            }
+        } else {
+            html += '<span class="page-number">1</span>';
+            html += '<span>...</span>';
+            for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                html += `<span class="page-number ${i === currentPage ? 'active' : ''}">${i}</span>`;
+            }
+            html += '<span>...</span>';
+            html += `<span class="page-number">${totalPages}</span>`;
+        }
+    }
+
+    return html;
+}
+
+// Debounce function for search
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Initialize table features when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const measureTypeSelect = document.getElementById('measureType');
+    measureTypeSelect.addEventListener('change', handleMeasureTypeChange);
+
+    const strategicPlanSelect = document.getElementById('strategicPlanAlignment');
+    strategicPlanSelect.addEventListener('change', handleStrategicPlanChange);
+
+    // Initialize the state when modal opens
+    handleMeasureTypeChange();
+    handleStrategicPlanChange();
+
+    // Initialize table features and new sorting/filtering
+    setTimeout(() => {
+        initializeTableFeatures();
+        initializeSortingAndFiltering();
+    }, 100);
+});
+</script>
+
+</body>
+</html>
