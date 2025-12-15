@@ -600,34 +600,20 @@
     </fetch>
     {% endfetchxml %}
 
-    {% assign adminEmails = 'Alexander.Longo@treasury.gov,Michael.Esposito2@treasury.gov,Kriskatlin.Zabala@treasury.gov,anne.chiang@treasury.gov,san-eou.lan@treasury.gov,jocelyn.nieto@treasury.gov,logan.white@treasury.gov,james.miceli2@treasury.gov,lam-anh.le@treasury.gov,caroline.alford@treasury.gov,starrlese.butcher@treasury.gov,parraize.butler@treasury.gov,jarred.byers@treasury.gov,erica.chamberlain@treasury.gov,hannah.coursey@treasury.gov,paul.eikamp@treasury.gov,antonio.frederick@treasury.gov,daniel.jacobs2@treasury.gov,gerard.mcerlane@treasury.gov,alexander.nau@treasury.gov,daniel.nickson@treasury.gov,ryan.sylvia@treasury.gov,brad.tobin@treasury.gov,clifton.bradshaw2@treasury.gov,cliftonbradshaw2@ustreasury.onmicrosoft.com' | split: ',' %}
-    {% assign userEmails = 'Roberto.Cardona4@treasury.gov,omar.sabagh@treasury.gov,wendy.miller@ofr.treasury.gov,sheri.james@fincen.gov,rohit.sudarshan@treasury.gov,kimberly.grunett@fincen.gov,thomas.g.sotomayor@irs.gov,christy.g.parent@irs.gov,taylor.crider@ofr.treasury.gov,mark.susi@fincen.gov,Matthew.Finley@treasury.gov,michelle.boyd@occ.treas.gov,christian.buchmann@fiscal.treasury.gov,demetria.hall@fiscal.treasury.gov,michael.johnston@bep.gov,nathan.jones@fiscal.treasury.gov,maheshi.leitan@fiscal.treasury.gov,mckays@cdfi.treas.gov,jill.murphy@ttb.gov,osborned@oig.treas.gov,courtney.perez@ttb.gov,josephine.l.prince@irs.gov,lucas.shin@treasury.gov,evan.sirota@usmint.treas.gov,sarah.snow@fiscal.treasury.gov,sarah.m.strehl@irs.gov,susan.thomas@tigta.treas.gov,johnna.thorn@fiscal.treasury.gov,karen.weber@treasury.gov,molly.jerome@fincen.gov' | split: ',' %}
-
-    {% assign currentUserEmail = user.emailaddress1 | downcase | strip %}
-
-    {% comment %} Check if user is PMM Admin {% endcomment %}
+    {% comment %} Check user's web roles for PMM Admin and PMM User {% endcomment %}
     {% assign isAdmin = false %}
-    {% for email in adminEmails %}
-        {% assign emailLower = email | downcase | strip %}
-        {% if currentUserEmail == emailLower %}
+    {% assign isBasicUser = false %}
+
+    {% for role in user.roles %}
+        {% if role.name == 'PMM Admin' %}
             {% assign isAdmin = true %}
-            {% break %}
+        {% endif %}
+        {% if role.name == 'PMM User' %}
+            {% assign isBasicUser = true %}
         {% endif %}
     {% endfor %}
 
-    {% comment %} Check if user is PMM User (only if not already admin) {% endcomment %}
-    {% assign isBasicUser = false %}
-    {% if isAdmin == false %}
-        {% for email in userEmails %}
-            {% assign emailLower = email | downcase | strip %}
-            {% if currentUserEmail == emailLower %}
-                {% assign isBasicUser = true %}
-                {% break %}
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-
-    {% comment %} User is authorized if they are either admin or basic user {% endcomment %}
+    {% comment %} User is authorized if they have either PMM Admin or PMM User role {% endcomment %}
     {% assign isAuthorizedUser = false %}
     {% if isAdmin or isBasicUser %}
         {% assign isAuthorizedUser = true %}
