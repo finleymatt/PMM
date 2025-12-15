@@ -619,6 +619,21 @@
         {% assign isAuthorizedUser = true %}
     {% endif %}
 
+    <!-- DEBUG: Remove this section after testing -->
+    <div style="background: #ffffcc; padding: 10px; margin: 10px; border: 1px solid #ccc;">
+        <strong>DEBUG - User Roles:</strong><br>
+        Number of roles: {{ user.roles.size }}<br>
+        <ul>
+        {% for role in user.roles %}
+            <li>Role: "{{ role.name }}" | ID: {{ role.id }}</li>
+        {% endfor %}
+        </ul>
+        isAdmin: {{ isAdmin }}<br>
+        isBasicUser: {{ isBasicUser }}<br>
+        isAuthorizedUser: {{ isAuthorizedUser }}
+    </div>
+    <!-- END DEBUG -->
+
     {% assign userOrganization = "" %}
     {% if currentUserInfo.results.entities.size > 0 and currentUserInfo.results.entities[0].ecm_organizationname %}
         {% assign userOrganization = currentUserInfo.results.entities[0].ecm_organizationname %}
