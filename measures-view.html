@@ -604,35 +604,19 @@
     {% assign isAdmin = false %}
     {% assign isBasicUser = false %}
 
-    {% for role in user.roles %}
-        {% if role.name == 'PMM Admin' %}
-            {% assign isAdmin = true %}
-        {% endif %}
-        {% if role.name == 'PMM User' %}
-            {% assign isBasicUser = true %}
-        {% endif %}
-    {% endfor %}
+    {% if user.roles contains 'PMM Admin' %}
+        {% assign isAdmin = true %}
+    {% endif %}
+
+    {% if user.roles contains 'PMM User' %}
+        {% assign isBasicUser = true %}
+    {% endif %}
 
     {% comment %} User is authorized if they have either PMM Admin or PMM User role {% endcomment %}
     {% assign isAuthorizedUser = false %}
     {% if isAdmin or isBasicUser %}
         {% assign isAuthorizedUser = true %}
     {% endif %}
-
-    <!-- DEBUG: Remove this section after testing -->
-    <div style="background: #ffffcc; padding: 10px; margin: 10px; border: 1px solid #ccc;">
-        <strong>DEBUG - User Roles:</strong><br>
-        Number of roles: {{ user.roles.size }}<br>
-        <ul>
-        {% for role in user.roles %}
-            <li>Role: "{{ role.name }}" | ID: {{ role.id }}</li>
-        {% endfor %}
-        </ul>
-        isAdmin: {{ isAdmin }}<br>
-        isBasicUser: {{ isBasicUser }}<br>
-        isAuthorizedUser: {{ isAuthorizedUser }}
-    </div>
-    <!-- END DEBUG -->
 
     {% assign userOrganization = "" %}
     {% if currentUserInfo.results.entities.size > 0 and currentUserInfo.results.entities[0].ecm_organizationname %}
