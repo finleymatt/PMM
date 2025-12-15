@@ -1112,9 +1112,101 @@
 <script>
     // User role configuration - set by Liquid template
     const userRole = {% if isAdmin %}'admin'{% elsif isBasicUser %}'user'{% else %}'none'{% endif %};
+    const userOrganization = '{{ userOrganization }}';
 
-    // Navigation function for measure detail - routes based on user role
+    // Filter persistence functions using sessionStorage
+    function saveFiltersToSession() {
+        const filterState = {
+            searchTerm: document.querySelector('.search-box').value,
+            reportingFreq: document.getElementById('reportingFreqFilter').value,
+            activeFilters: activeFilters,
+            currentSort: currentSort,
+            currentPage: currentPage
+        };
+        sessionStorage.setItem('measuresPageFilters', JSON.stringify(filterState));
+    }
+
+    function loadFiltersFromSession() {
+        const savedState = sessionStorage.getItem('measuresPageFilters');
+        if (savedState) {
+            try {
+                const filterState = JSON.parse(savedState);
+
+                // Restore search term
+                if (filterState.searchTerm) {
+                    document.querySelector('.search-box').value = filterState.searchTerm;
+                }
+
+                // Restore reporting frequency dropdown
+                if (filterState.reportingFreq) {
+                    document.getElementById('reportingFreqFilter').value = filterState.reportingFreq;
+                }
+
+                // Restore active filters
+                if (filterState.activeFilters) {
+                    activeFilters = filterState.activeFilters;
+
+                    // Restore checkbox states in filter modal
+                    restoreFilterCheckboxes();
+                }
+
+                // Restore sort state
+                if (filterState.currentSort) {
+                    currentSort = filterState.currentSort;
+                    updateSortVisuals();
+                }
+
+                // Restore current page
+                if (filterState.currentPage) {
+                    currentPage = filterState.currentPage;
+                }
+
+                return true;
+            } catch (e) {
+                console.error('Error loading filters from session:', e);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    function restoreFilterCheckboxes() {
+        // Restore organization checkboxes
+        activeFilters.organization.forEach(org => {
+            const checkbox = document.querySelector(`#organizationFilters input[value="${org}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        // Restore usage checkboxes
+        activeFilters.usage.forEach(usage => {
+            const checkbox = document.querySelector(`#usageFilters input[value="${usage}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        // Restore type checkboxes
+        activeFilters.type.forEach(type => {
+            const checkbox = document.querySelector(`#typeFilters input[value="${type}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        // Restore frequency checkboxes
+        activeFilters.frequency.forEach(freq => {
+            const checkbox = document.querySelector(`#frequencyFilters input[value="${freq}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        // Restore status checkboxes
+        activeFilters.status.forEach(status => {
+            const checkbox = document.querySelector(`#statusFilters input[value="${status}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+    }
+
+    // Navigation function for measure detail - saves filters before navigating
     function navigateToMeasureDetail(id) {
+        // Save current filter state before navigating
+        saveFiltersToSession();
+
         const baseUrl = window.location.origin;
 
         if (userRole === 'admin') {
@@ -1153,6 +1245,9 @@
             column: 'modified',
             direction: 'desc'
         };
+
+        // Clear saved filters from session
+        sessionStorage.removeItem('measuresPageFilters');
 
         updateSortVisuals();
         applySortAndFilter();
@@ -2276,10 +2371,29 @@ document.addEventListener('DOMContentLoaded', function() {
     handleMeasureTypeChange();
     handleStrategicPlanChange();
 
+    // Restrict organization dropdown for basic users (PMM User role)
+    if (userRole === 'user' && userOrganization) {
+        const orgSelect = document.getElementById('organization');
+        if (orgSelect) {
+            // Clear all options and add only user's organization
+            orgSelect.innerHTML = `
+                <option value="">Select Organization</option>
+                <option value="${userOrganization}" selected>${userOrganization}</option>
+            `;
+        }
+    }
+
     // Initialize table features and new sorting/filtering
     setTimeout(() => {
         initializeTableFeatures();
         initializeSortingAndFiltering();
+
+        // Load saved filters from session (for browser back button)
+        const filtersRestored = loadFiltersFromSession();
+        if (filtersRestored) {
+            // Apply the restored filters
+            applySortAndFilter();
+        }
     }, 100);
 });
 </script>
