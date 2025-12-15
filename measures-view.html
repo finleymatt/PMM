@@ -678,7 +678,7 @@
 <attribute name="ecm_target"/>
 <attribute name="ecm_status"/>
 <filter type="and">
-  {% if userOrganization != "" %}
+  {% if isBasicUser and userOrganization != "" %}
   <condition attribute="ecm_organization" operator="eq" value="{{ userOrganization }}" />
   {% endif %}
 </filter>
@@ -699,7 +699,7 @@
     <link-entity name="ecm_measure" from="ecm_measureid" to="ecm_measure" alias="parentmeasure">
       <attribute name="ecm_measureid" alias="measure_guid" />
       <attribute name="ecm_organization" alias="measure_org" />
-      {% if userOrganization != "" %}
+      {% if isBasicUser and userOrganization != "" %}
       <filter type="and">
         <condition attribute="ecm_organization" operator="eq" value="{{ userOrganization }}" />
       </filter>
