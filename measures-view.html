@@ -656,6 +656,7 @@
             <div class="export-dropdown-content">
                 <a onclick="exportTable('csv')">Export Measure Definitions (CSV)</a>
                 <a onclick="exportAllTabs('csv')">Export All Tabs (Multiple CSV)</a>
+                <a onclick="exportEndOfYearMetrics()">Export End of Year Metrics (CSV)</a>
             </div>
         </div>
 
@@ -693,7 +694,9 @@
     <attribute name="ecm_measure" />
     <attribute name="ecm_fiscalyear" />
     <attribute name="ecm_quarter" />
+    <attribute name="ecm_month" />
     <attribute name="ecm_actual" />
+    <attribute name="ecm_actualytd" />
     <attribute name="ecm_target" />
     <attribute name="statecode" />
     <link-entity name="ecm_measure" from="ecm_measureid" to="ecm_measure" alias="parentmeasure">
@@ -1978,6 +1981,157 @@ function exportAllTabs(format) {
             document.querySelector('.loading-content p').textContent = 'Preparing export...';
         });
     }, 500);
+}
+
+async function exportEndOfYearMetrics() {
+    showLoading();
+    document.querySelector('.export-dropdown').classList.remove('show');
+    exportDropdownOpen = false;
+
+    document.querySelector('.loading-content p').textContent = 'Preparing End of Year metrics export...';
+
+    try {
+        // Use existing Liquid data for measures
+        const measuresData = [
+            {% for measure in measureDefinitions.results.entities %}
+            {
+                measureId: "{{ measure.ecm_id | escape }}",
+                measureName: "{{ measure.ecm_name | escape }}",
+                organization: "{{ measure.ecm_organization | escape }}",
+                reportingFrequency: "{{ measure.ecm_reportingfrequency | escape }}",
+                currentTarget: "{{ measure.ecm_target | escape }}",
+                measureGuid: "{{ measure.ecm_measureid }}"
+            }{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+        ];
+
+        // Use existing Liquid data for actuals
+        const actualsData = [
+            {% for actual in allMeasureActuals.results.entities %}
+            {
+                measureGuid: "{{ actual.measure_guid }}",
+                fiscalYear: "{{ actual.ecm_fiscalyear | escape }}",
+                quarter: "{{ actual.ecm_quarter | escape }}",
+                month: "{{ actual.ecm_month | escape }}",
+                actual: "{{ actual.ecm_actual | escape }}",
+                actualYTD: "{{ actual.ecm_actualytd | escape }}",
+                target: "{{ actual.ecm_target | escape }}"
+            }{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+        ];
+
+        // Initialize CSV with headers
+        let csvContent = 'ID,Name,Organization,Reporting Frequency,FY19 Target,FY19 Actual,FY20 Target,FY20 Actual,FY21 Target,FY21 Actual,FY22 Target,FY22 Actual,FY23 Target,FY23 Actual,FY24 Target,FY24 Actual,FY25 Target,FY25 Actual\n';
+
+        // Process each measure
+        measuresData.forEach(measure => {
+            // Initialize row with measure info
+            let row = [
+                measure.measureId || '',
+                `"${(measure.measureName || '').replace(/"/g, '""')}"`,
+                measure.organization || '',
+                measure.reportingFrequency || ''
+            ];
+
+            // Initialize fiscal year data
+            const fyData = {};
+            const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+            fiscalYears.forEach(fy => {
+                fyData[fy] = { target: '', actual: '' };
+            });
+
+            // Get actuals for this measure
+            const measureActuals = actualsData.filter(a => a.measureGuid === measure.measureGuid);
+
+            switch(measure.reportingFrequency) {
+                case 'Annually':
+                    // For annual measures, get the annual data
+                    measureActuals.forEach(actual => {
+                        const fy = actual.fiscalYear ? actual.fiscalYear.replace(' ', '') : '';
+                        if (fyData.hasOwnProperty(fy)) {
+                            fyData[fy].target = actual.target || measure.currentTarget || '';
+                            fyData[fy].actual = actual.actual || '';
+                        }
+                    });
+                    break;
+
+                case 'Quarterly (Year-to-Date)':
+                    // For quarterly YTD, get Q4 data only
+                    measureActuals.forEach(actual => {
+                        if (actual.quarter === 'Q4') {
+                            const fy = actual.fiscalYear ? actual.fiscalYear.replace(' ', '') : '';
+                            if (fyData.hasOwnProperty(fy)) {
+                                fyData[fy].target = actual.target || measure.currentTarget || '';
+                                fyData[fy].actual = actual.actual || '';
+                            }
+                        }
+                    });
+                    break;
+
+                case 'Quarterly (Count)':
+                    // For quarterly count, get the YTD value from Q4
+                    measureActuals.forEach(actual => {
+                        if (actual.quarter === 'Q4') {
+                            const fy = actual.fiscalYear ? actual.fiscalYear.replace(' ', '') : '';
+                            if (fyData.hasOwnProperty(fy)) {
+                                fyData[fy].target = actual.target || measure.currentTarget || '';
+                                fyData[fy].actual = actual.actualYTD || '';
+                            }
+                        }
+                    });
+                    break;
+
+                case 'Monthly':
+                    // For monthly, get September data
+                    measureActuals.forEach(actual => {
+                        if (actual.month === 'September') {
+                            const fy = actual.fiscalYear ? actual.fiscalYear.replace(' ', '') : '';
+                            if (fyData.hasOwnProperty(fy)) {
+                                fyData[fy].target = actual.target || measure.currentTarget || '';
+                                fyData[fy].actual = actual.actual || '';
+                            }
+                        }
+                    });
+                    break;
+            }
+
+            // Add fiscal year data to row
+            fiscalYears.forEach(fy => {
+                row.push(fyData[fy].target);
+                row.push(fyData[fy].actual);
+            });
+
+            // Add row to CSV
+            csvContent += row.join(',') + '\n';
+        });
+
+        // Create and download CSV file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        // Format filename with current date
+        const now = new Date();
+        const dateStr = String(now.getMonth() + 1).padStart(2, '0') +
+                       String(now.getDate()).padStart(2, '0') +
+                       now.getFullYear();
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', `TOPS_EndOfYear_Export_${dateStr}.csv`);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        hideLoading();
+
+    } catch (error) {
+        console.error('End of Year export failed:', error);
+        alert('Export failed: ' + error.message);
+        hideLoading();
+    }
 }
 
 function getFormattedDate() {
