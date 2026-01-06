@@ -3,102 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Module - Treasury Organization Performance System</title>
+    <title>Admin Module</title>
     <style>
-      * {
-        box-sizing: border-box;
-      }
-
       body {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 0;
+        padding: 20px;
         background-color: #f5f5f5;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      /* Header styles */
-      .header {
-        background-color: #00538b;
-        padding: 16px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .header-title {
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-        margin: 0;
-      }
-
-      .header-nav {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .header-nav a {
-        color: white;
-        text-decoration: none;
-        font-size: 14px;
-        padding: 4px 8px;
-      }
-
-      .header-nav a:hover {
-        text-decoration: underline;
-      }
-
-      .header-nav a.active {
-        text-decoration: underline;
-      }
-
-      .nav-divider {
-        color: white;
-        opacity: 0.7;
-      }
-
-      /* Main content */
-      .main-content {
-        flex: 1;
-        padding: 40px 24px;
-        max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
       }
 
       .page-title {
         text-align: center;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: bold;
         margin-bottom: 48px;
         color: #333;
       }
 
-      /* Card grid */
       .card-grid {
         display: flex;
         justify-content: center;
         gap: 32px;
         flex-wrap: wrap;
+        max-width: 800px;
+        margin: 0 auto;
       }
 
       .admin-card {
         background-color: white;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         padding: 32px;
         width: 300px;
         text-align: center;
         border: 1px solid #e0e0e0;
-        transition: box-shadow 0.3s ease;
-      }
-
-      .admin-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
       .card-title {
@@ -115,74 +53,40 @@
         line-height: 1.5;
       }
 
-      .btn {
+      .btn-primary {
+        background-color: #0066cc;
+        color: white;
         padding: 10px 24px;
         border-radius: 4px;
+        border: none;
         cursor: pointer;
         font-size: 14px;
-        border: none;
         text-decoration: none;
         display: inline-block;
       }
 
-      .btn-primary {
-        background-color: #00538b;
-        color: white;
-      }
-
       .btn-primary:hover {
-        background-color: #004070;
-      }
-
-      /* Footer styles */
-      .footer {
-        background-color: #1a2e3b;
-        color: white;
-        padding: 20px 24px;
-        font-size: 14px;
-        margin-top: auto;
+        background-color: #0052a3;
       }
     </style>
   </head>
   <body>
-    <!-- Header -->
-    <header class="header">
-      <h1 class="header-title">Treasury Organization Performance System</h1>
-      <nav class="header-nav">
-        <a href="/">Home</a>
-        <span class="nav-divider">|</span>
-        <a href="/measures">Measures</a>
-        <span class="nav-divider">|</span>
-        <a href="/data-visualizations">Data Visualizations</a>
-        <span class="nav-divider">|</span>
-        <a href="/sign-in">Sign In</a>
-      </nav>
-    </header>
+    <h1 class="page-title">Admin Module</h1>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <h2 class="page-title">Admin Module</h2>
-
-      <div class="card-grid">
-        <!-- Manage Users Card -->
-        <div class="admin-card">
-          <h3 class="card-title">Manage Users</h3>
-          <p class="card-description">Manage TOPS system user access.</p>
-          <a href="/manage-users" class="btn btn-primary">Click Here</a>
-        </div>
-
-        <!-- Manage Reporting Windows Card -->
-        <div class="admin-card">
-          <h3 class="card-title">Manage Reporting Windows</h3>
-          <p class="card-description">Manage opened and closed reporting windows for Measure Actuals.</p>
-          <a href="/manage-reporting-windows" class="btn btn-primary">Click Here</a>
-        </div>
+    <div class="card-grid">
+      <!-- Manage Users Card -->
+      <div class="admin-card">
+        <h2 class="card-title">Manage Users</h2>
+        <p class="card-description">Manage TOPS system user access.</p>
+        <a href="/manage-users" class="btn-primary">Click Here</a>
       </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-      SAMPLE FOOTER FOR CONTACTS/STATEMENTS/ETC. INFO IS TBD
-    </footer>
+      <!-- Manage Reporting Windows Card -->
+      <div class="admin-card">
+        <h2 class="card-title">Manage Reporting Windows</h2>
+        <p class="card-description">Manage opened and closed reporting windows for Measure Actuals.</p>
+        <a href="/manage-reporting-windows" class="btn-primary">Click Here</a>
+      </div>
+    </div>
   </body>
 </html>
