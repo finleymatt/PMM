@@ -543,7 +543,43 @@
         filteredRows = [...allRows];
         renderPagination();
         showCurrentPage();
+
+        // Load roles for all contacts
+        loadContactRoles();
       });
+
+      // Load roles for all contacts via Web API
+      function loadContactRoles() {
+        var rows = document.querySelectorAll("#usersTableBody tr");
+        rows.forEach(function(row) {
+          var contactId = row.dataset.contactid;
+          if (!contactId) return;
+
+          webapi.safeAjax({
+            type: "GET",
+            url: "/_api/contacts(" + contactId + ")/mspp_webrole_contact?$select=mspp_webroleid,mspp_name",
+            success: function(response) {
+              if (response && response.value && response.value.length > 0) {
+                for (var i = 0; i < response.value.length; i++) {
+                  var roleId = response.value[i].mspp_webroleid;
+                  if (webRoles[roleId]) {
+                    row.dataset.roleid = roleId;
+                    row.dataset.rolename = webRoles[roleId];
+                    var roleCell = row.querySelector('.role-cell');
+                    if (roleCell) {
+                      roleCell.textContent = webRoles[roleId];
+                    }
+                    break;
+                  }
+                }
+              }
+            },
+            error: function(xhr) {
+              console.error("Error fetching roles for contact " + contactId, xhr);
+            }
+          });
+        });
+      }
 
       function showCurrentPage() {
         var start = (currentPage - 1) * itemsPerPage;
@@ -653,20 +689,51 @@
         document.getElementById("editUserName").value = row.dataset.firstname + " " + row.dataset.lastname;
         document.getElementById("editUserEmail").value = row.dataset.email;
 
-        // Set current role from data attributes
-        var currentRoleId = row.dataset.roleid || "";
-        document.getElementById("editUserRole").value = currentRoleId;
-        document.getElementById("currentRoleId").value = currentRoleId;
-
         // Set current organization
         var currentOrgId = row.dataset.orgid || "";
         document.getElementById("editUserOrg").value = currentOrgId;
         document.getElementById("currentOrgId").value = currentOrgId;
 
-        // Trigger role change handler to set org dropdown state
-        handleRoleChange();
+        // Reset role dropdown while loading
+        document.getElementById("editUserRole").value = "";
+        document.getElementById("currentRoleId").value = "";
 
-        openModal("editRoleModal");
+        // Fetch current role from Web API
+        webapi.safeAjax({
+          type: "GET",
+          url: "/_api/contacts(" + contactId + ")/mspp_webrole_contact?$select=mspp_webroleid,mspp_name",
+          success: function(response) {
+            var currentRoleId = "";
+            if (response && response.value && response.value.length > 0) {
+              // Find PMM Admin or PMM User role
+              for (var i = 0; i < response.value.length; i++) {
+                var roleId = response.value[i].mspp_webroleid;
+                if (webRoles[roleId]) {
+                  currentRoleId = roleId;
+                  // Update row data attribute
+                  row.dataset.roleid = roleId;
+                  row.dataset.rolename = webRoles[roleId];
+                  // Update table cell
+                  var roleCell = row.querySelector('.role-cell');
+                  if (roleCell) {
+                    roleCell.textContent = webRoles[roleId];
+                  }
+                  break;
+                }
+              }
+            }
+            document.getElementById("editUserRole").value = currentRoleId;
+            document.getElementById("currentRoleId").value = currentRoleId;
+            handleRoleChange();
+            openModal("editRoleModal");
+          },
+          error: function(xhr) {
+            console.error("Error fetching user roles:", xhr);
+            // Still open modal even if role fetch fails
+            handleRoleChange();
+            openModal("editRoleModal");
+          }
+        });
       }
 
       function saveUser(event) {
