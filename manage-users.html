@@ -340,51 +340,46 @@
   <!--include PortalWebAPI helper for WebAPI-->
   {% include 'portalwebapihelper' %}
 
-  <!-- Fetch all contacts that have any PMM web role assigned -->
+  <!-- Fetch web roles for PMM -->
+  {% fetchxml webRolesQuery %}
+  <fetch version="1.0" mapping="logical">
+    <entity name="adx_webrole">
+      <attribute name="adx_webroleid" />
+      <attribute name="adx_name" />
+      <filter>
+        <condition attribute="adx_name" operator="in">
+          <value>PMM Admin</value>
+          <value>PMM User</value>
+        </condition>
+      </filter>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  <!-- Fetch contacts with PMM web roles -->
   {% fetchxml contactsQuery %}
-  <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
+  <fetch version="1.0" mapping="logical">
     <entity name="contact">
       <attribute name="contactid" />
       <attribute name="firstname" />
       <attribute name="lastname" />
       <attribute name="emailaddress1" />
-      <filter type="and">
+      <filter>
         <condition attribute="statecode" operator="eq" value="0" />
       </filter>
       <order attribute="lastname" />
-      <order attribute="firstname" />
-      <!-- Organization lookup temporarily disabled for debugging
-      <link-entity name="cr335_organizationbuerau" from="cr335_organizationbuerauid" to="cr335_organizationbuerau" link-type="outer" alias="org">
-        <attribute name="cr335_name" />
-      </link-entity>
-      -->
       <link-entity name="adx_webrole_contact" from="contactid" to="contactid" link-type="inner">
         <link-entity name="adx_webrole" from="adx_webroleid" to="adx_webroleid" link-type="inner" alias="webrole">
           <attribute name="adx_webroleid" />
           <attribute name="adx_name" />
-          <filter type="or">
-            <condition attribute="adx_name" operator="eq" value="PMM Admin" />
-            <condition attribute="adx_name" operator="eq" value="PMM User" />
+          <filter>
+            <condition attribute="adx_name" operator="in">
+              <value>PMM Admin</value>
+              <value>PMM User</value>
+            </condition>
           </filter>
         </link-entity>
       </link-entity>
-    </entity>
-  </fetch>
-  {% endfetchxml %}
-
-  <!-- Fetch web roles for PMM -->
-  {% fetchxml webRolesQuery %}
-  <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
-    <entity name="adx_webrole">
-      <attribute name="adx_webroleid" />
-      <attribute name="adx_name" />
-      <filter type="and">
-        <condition attribute="statecode" operator="eq" value="0" />
-        <filter type="or">
-          <condition attribute="adx_name" operator="eq" value="PMM Admin" />
-          <condition attribute="adx_name" operator="eq" value="PMM User" />
-        </filter>
-      </filter>
     </entity>
   </fetch>
   {% endfetchxml %}
