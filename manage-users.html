@@ -340,25 +340,9 @@
   <!--include PortalWebAPI helper for WebAPI-->
   {% include 'portalwebapihelper' %}
 
-  <!-- Fetch web roles for PMM -->
-  {% fetchxml webRolesQuery %}
-  <fetch version="1.0" mapping="logical">
-    <entity name="adx_webrole">
-      <attribute name="adx_webroleid" />
-      <attribute name="adx_name" />
-      <filter>
-        <condition attribute="adx_name" operator="in">
-          <value>PMM Admin</value>
-          <value>PMM User</value>
-        </condition>
-      </filter>
-    </entity>
-  </fetch>
-  {% endfetchxml %}
-
-  <!-- Fetch contacts with PMM web roles -->
+  <!-- Fetch contacts only - debugging -->
   {% fetchxml contactsQuery %}
-  <fetch version="1.0" mapping="logical">
+  <fetch version="1.0" mapping="logical" count="50">
     <entity name="contact">
       <attribute name="contactid" />
       <attribute name="firstname" />
@@ -368,18 +352,6 @@
         <condition attribute="statecode" operator="eq" value="0" />
       </filter>
       <order attribute="lastname" />
-      <link-entity name="adx_webrole_contact" from="contactid" to="contactid" link-type="inner">
-        <link-entity name="adx_webrole" from="adx_webroleid" to="adx_webroleid" link-type="inner" alias="webrole">
-          <attribute name="adx_webroleid" />
-          <attribute name="adx_name" />
-          <filter>
-            <condition attribute="adx_name" operator="in">
-              <value>PMM Admin</value>
-              <value>PMM User</value>
-            </condition>
-          </filter>
-        </link-entity>
-      </link-entity>
     </entity>
   </fetch>
   {% endfetchxml %}
@@ -427,14 +399,12 @@
             <tr data-contactid="{{ contact.contactid }}"
                 data-firstname="{{ contact.firstname | escape }}"
                 data-lastname="{{ contact.lastname | escape }}"
-                data-email="{{ contact.emailaddress1 | escape }}"
-                data-roleid="{{ contact['webrole.adx_webroleid'] }}"
-                data-rolename="{{ contact['webrole.adx_name'] | escape }}">
+                data-email="{{ contact.emailaddress1 | escape }}">
               <td>{{ contact.firstname }}</td>
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
-              <td class="role-cell">{{ contact['webrole.adx_name'] }}</td>
-              <td><!-- {{ contact['org.cr335_name'] }} --></td>
+              <td class="role-cell">—</td>
+              <td>—</td>
               <td>
                 <div class="actions-cell">
                   <button class="edit-button" onclick="openEditRoleModal('{{ contact.contactid }}')">
@@ -500,12 +470,8 @@
     </div>
 
     <script>
-      // Web roles data from Liquid
-      var webRoles = {
-        {% for role in webRolesQuery.results.entities %}
-        "{{ role.adx_webroleid }}": "{{ role.adx_name }}"{% unless forloop.last %},{% endunless %}
-        {% endfor %}
-      };
+      // Web roles data - temporarily hardcoded for debugging
+      var webRoles = {};
 
       // Pagination state
       var allRows = [];
