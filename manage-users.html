@@ -456,9 +456,8 @@
             <label for="editUserRole">User Role</label>
             <select id="editUserRole" required>
               <option value="">Select User Role</option>
-              {% for role in webRolesQuery.results.entities %}
-              <option value="{{ role.adx_webroleid }}">{{ role.adx_name }}</option>
-              {% endfor %}
+              <option value="pmm-admin">PMM Admin</option>
+              <option value="pmm-user">PMM User</option>
             </select>
           </div>
           <div class="modal-footer">
