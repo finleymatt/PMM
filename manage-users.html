@@ -340,7 +340,7 @@
   <!--include PortalWebAPI helper for WebAPI-->
   {% include 'portalwebapihelper' %}
 
-  <!-- Fetch all contacts with portal access -->
+  <!-- Fetch all contacts that have any PMM web role assigned -->
   {% fetchxml contactsQuery %}
   <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
     <entity name="contact">
@@ -348,12 +348,21 @@
       <attribute name="firstname" />
       <attribute name="lastname" />
       <attribute name="emailaddress1" />
-      <attribute name="ecm_organization" />
       <filter type="and">
         <condition attribute="statecode" operator="eq" value="0" />
       </filter>
       <order attribute="lastname" />
       <order attribute="firstname" />
+      <link-entity name="adx_webrole_contact" from="contactid" to="contactid" link-type="inner">
+        <link-entity name="adx_webrole" from="adx_webroleid" to="adx_webroleid" link-type="inner" alias="webrole">
+          <attribute name="adx_webroleid" />
+          <attribute name="adx_name" />
+          <filter type="or">
+            <condition attribute="adx_name" operator="eq" value="PMM Admin" />
+            <condition attribute="adx_name" operator="eq" value="PMM User" />
+          </filter>
+        </link-entity>
+      </link-entity>
     </entity>
   </fetch>
   {% endfetchxml %}
@@ -371,25 +380,6 @@
           <condition attribute="adx_name" operator="eq" value="PMM User" />
         </filter>
       </filter>
-    </entity>
-  </fetch>
-  {% endfetchxml %}
-
-  <!-- Fetch contact-webrole associations -->
-  {% fetchxml contactRolesQuery %}
-  <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
-    <entity name="contact">
-      <attribute name="contactid" />
-      <link-entity name="adx_webrole_contact" from="contactid" to="contactid" link-type="inner">
-        <link-entity name="adx_webrole" from="adx_webroleid" to="adx_webroleid" link-type="inner" alias="role">
-          <attribute name="adx_webroleid" />
-          <attribute name="adx_name" />
-          <filter type="or">
-            <condition attribute="adx_name" operator="eq" value="PMM Admin" />
-            <condition attribute="adx_name" operator="eq" value="PMM User" />
-          </filter>
-        </link-entity>
-      </link-entity>
     </entity>
   </fetch>
   {% endfetchxml %}
@@ -428,7 +418,6 @@
               <th>Last Name</th>
               <th>Email</th>
               <th>User Role</th>
-              <th>Organization</th>
               <th style="width: 80px;"></th>
             </tr>
           </thead>
@@ -438,14 +427,12 @@
                 data-firstname="{{ contact.firstname | escape }}"
                 data-lastname="{{ contact.lastname | escape }}"
                 data-email="{{ contact.emailaddress1 | escape }}"
-                data-organization="{{ contact.ecm_organization | escape }}">
+                data-roleid="{{ contact['webrole.adx_webroleid'] }}"
+                data-rolename="{{ contact['webrole.adx_name'] | escape }}">
               <td>{{ contact.firstname }}</td>
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
-              <td class="role-cell" data-contactid="{{ contact.contactid }}">
-                <!-- Role will be populated by JavaScript -->
-              </td>
-              <td>{{ contact.ecm_organization }}</td>
+              <td class="role-cell">{{ contact['webrole.adx_name'] }}</td>
               <td>
                 <div class="actions-cell">
                   <button class="edit-button" onclick="openEditRoleModal('{{ contact.contactid }}')">
@@ -518,15 +505,6 @@
         {% endfor %}
       };
 
-      // Build contact-role mapping from Liquid query
-      var contactRoles = {};
-      {% for item in contactRolesQuery.results.entities %}
-      contactRoles["{{ item.contactid }}"] = {
-        roleId: "{{ item['role.adx_webroleid'] }}",
-        roleName: "{{ item['role.adx_name'] }}"
-      };
-      {% endfor %}
-
       // Pagination state
       var allRows = [];
       var filteredRows = [];
@@ -534,17 +512,6 @@
       var itemsPerPage = 20;
 
       document.addEventListener("DOMContentLoaded", function() {
-        // Populate role cells
-        var roleCells = document.querySelectorAll(".role-cell");
-        roleCells.forEach(function(cell) {
-          var contactId = cell.getAttribute("data-contactid");
-          if (contactRoles[contactId]) {
-            cell.textContent = contactRoles[contactId].roleName;
-          } else {
-            cell.textContent = "—";
-          }
-        });
-
         // Initialize pagination
         allRows = Array.from(document.querySelectorAll("#usersTableBody tr"));
         filteredRows = [...allRows];
@@ -660,14 +627,10 @@
         document.getElementById("editUserName").value = row.dataset.firstname + " " + row.dataset.lastname;
         document.getElementById("editUserEmail").value = row.dataset.email;
 
-        // Set current role
-        if (contactRoles[contactId]) {
-          document.getElementById("editUserRole").value = contactRoles[contactId].roleId;
-          document.getElementById("currentRoleId").value = contactRoles[contactId].roleId;
-        } else {
-          document.getElementById("editUserRole").value = "";
-          document.getElementById("currentRoleId").value = "";
-        }
+        // Set current role from data attributes
+        var currentRoleId = row.dataset.roleid || "";
+        document.getElementById("editUserRole").value = currentRoleId;
+        document.getElementById("currentRoleId").value = currentRoleId;
 
         openModal("editRoleModal");
       }
@@ -746,20 +709,15 @@
         // First disassociate old role, then associate new role
         disassociateRole(function() {
           associateRole(function() {
-            // Update local state
-            if (newRoleId) {
-              contactRoles[contactId] = {
-                roleId: newRoleId,
-                roleName: webRoles[newRoleId]
-              };
-            } else {
-              delete contactRoles[contactId];
-            }
-
-            // Update the table cell
-            var roleCell = document.querySelector('.role-cell[data-contactid="' + contactId + '"]');
-            if (roleCell) {
-              roleCell.textContent = newRoleId ? webRoles[newRoleId] : "—";
+            // Update the row data attributes and table cell
+            var row = document.querySelector('tr[data-contactid="' + contactId + '"]');
+            if (row) {
+              row.dataset.roleid = newRoleId || "";
+              row.dataset.rolename = newRoleId ? webRoles[newRoleId] : "";
+              var roleCell = row.querySelector('.role-cell');
+              if (roleCell) {
+                roleCell.textContent = newRoleId ? webRoles[newRoleId] : "—";
+              }
             }
 
             closeModal("editRoleModal");
