@@ -353,9 +353,11 @@
       </filter>
       <order attribute="lastname" />
       <order attribute="firstname" />
+      <!-- Organization lookup temporarily disabled for debugging
       <link-entity name="cr335_organizationbuerau" from="cr335_organizationbuerauid" to="cr335_organizationbuerau" link-type="outer" alias="org">
         <attribute name="cr335_name" />
       </link-entity>
+      -->
       <link-entity name="adx_webrole_contact" from="contactid" to="contactid" link-type="inner">
         <link-entity name="adx_webrole" from="adx_webroleid" to="adx_webroleid" link-type="inner" alias="webrole">
           <attribute name="adx_webroleid" />
@@ -437,7 +439,7 @@
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
               <td class="role-cell">{{ contact['webrole.adx_name'] }}</td>
-              <td>{{ contact['org.cr335_name'] }}</td>
+              <td><!-- {{ contact['org.cr335_name'] }} --></td>
               <td>
                 <div class="actions-cell">
                   <button class="edit-button" onclick="openEditRoleModal('{{ contact.contactid }}')">
