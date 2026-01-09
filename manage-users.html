@@ -340,6 +340,37 @@
   <!--include PortalWebAPI helper for WebAPI-->
   {% include 'portalwebapihelper' %}
 
+  <!-- Fetch all organizations for dropdown -->
+  {% fetchxml organizationsQuery %}
+  <fetch version="1.0" mapping="logical">
+    <entity name="cr335_organizationbuerau">
+      <attribute name="cr335_organizationbuerauid" />
+      <attribute name="cr335_name" />
+      <filter>
+        <condition attribute="statecode" operator="eq" value="0" />
+      </filter>
+      <order attribute="cr335_name" />
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  <!-- Fetch PMM web roles -->
+  {% fetchxml webRolesQuery %}
+  <fetch version="1.0" mapping="logical">
+    <entity name="adx_webrole">
+      <attribute name="adx_webroleid" />
+      <attribute name="adx_name" />
+      <filter type="and">
+        <condition attribute="statecode" operator="eq" value="0" />
+        <filter type="or">
+          <condition attribute="adx_name" operator="eq" value="PMM Admin" />
+          <condition attribute="adx_name" operator="eq" value="PMM User" />
+        </filter>
+      </filter>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
   <!-- Fetch contacts with organization -->
   {% fetchxml contactsQuery %}
   <fetch version="1.0" mapping="logical">
@@ -348,6 +379,7 @@
       <attribute name="firstname" />
       <attribute name="lastname" />
       <attribute name="emailaddress1" />
+      <attribute name="cr335_organizationbuerau" />
       <filter>
         <condition attribute="statecode" operator="eq" value="0" />
       </filter>
@@ -402,12 +434,14 @@
             <tr data-contactid="{{ contact.contactid }}"
                 data-firstname="{{ contact.firstname | escape }}"
                 data-lastname="{{ contact.lastname | escape }}"
-                data-email="{{ contact.emailaddress1 | escape }}">
+                data-email="{{ contact.emailaddress1 | escape }}"
+                data-orgid="{{ contact.cr335_organizationbuerau.Id }}"
+                data-orgname="{{ contact['org.cr335_name'] | escape }}">
               <td>{{ contact.firstname }}</td>
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
               <td class="role-cell">—</td>
-              <td>{{ contact['org.cr335_name'] }}</td>
+              <td class="org-cell">{{ contact['org.cr335_name'] }}</td>
               <td>
                 <div class="actions-cell">
                   <button class="edit-button" onclick="openEditRoleModal('{{ contact.contactid }}')">
@@ -441,12 +475,13 @@
     <div id="editRoleModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 class="modal-title">Edit User Role</h3>
+          <h3 class="modal-title">Edit User</h3>
           <button class="close-button" onclick="closeModal('editRoleModal')">&times;</button>
         </div>
-        <form id="editRoleForm" onsubmit="saveUserRole(event)">
+        <form id="editRoleForm" onsubmit="saveUser(event)">
           <input type="hidden" id="editContactId" />
           <input type="hidden" id="currentRoleId" />
+          <input type="hidden" id="currentOrgId" />
           <div class="form-group">
             <label>Name</label>
             <input type="text" id="editUserName" disabled />
@@ -457,11 +492,22 @@
           </div>
           <div class="form-group">
             <label for="editUserRole">User Role</label>
-            <select id="editUserRole" required>
+            <select id="editUserRole" required onchange="handleRoleChange()">
               <option value="">Select User Role</option>
-              <option value="pmm-admin">PMM Admin</option>
-              <option value="pmm-user">PMM User</option>
+              {% for role in webRolesQuery.results.entities %}
+              <option value="{{ role.adx_webroleid }}" data-rolename="{{ role.adx_name }}">{{ role.adx_name }}</option>
+              {% endfor %}
             </select>
+          </div>
+          <div class="form-group">
+            <label for="editUserOrg">Organization</label>
+            <select id="editUserOrg" disabled>
+              <option value="">Select Organization</option>
+              {% for org in organizationsQuery.results.entities %}
+              <option value="{{ org.cr335_organizationbuerauid }}">{{ org.cr335_name }}</option>
+              {% endfor %}
+            </select>
+            <small id="orgHelpText" style="color: #666; font-size: 12px; display: none;">Organization can only be changed for PMM User role.</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('editRoleModal')">Cancel</button>
@@ -472,8 +518,37 @@
     </div>
 
     <script>
-      // Web roles data - hardcoded for now
-      var webRoles = {};
+      // Web roles data from Liquid
+      var webRoles = {
+        {% for role in webRolesQuery.results.entities %}
+        "{{ role.adx_webroleid }}": "{{ role.adx_name }}"{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      };
+
+      // Find role ID by name
+      function getRoleIdByName(name) {
+        for (var id in webRoles) {
+          if (webRoles[id] === name) return id;
+        }
+        return null;
+      }
+
+      // Handle role change - enable/disable org dropdown
+      function handleRoleChange() {
+        var roleSelect = document.getElementById("editUserRole");
+        var orgSelect = document.getElementById("editUserOrg");
+        var helpText = document.getElementById("orgHelpText");
+        var selectedOption = roleSelect.options[roleSelect.selectedIndex];
+        var roleName = selectedOption ? selectedOption.getAttribute("data-rolename") : "";
+
+        if (roleName === "PMM User") {
+          orgSelect.disabled = false;
+          helpText.style.display = "none";
+        } else {
+          orgSelect.disabled = true;
+          helpText.style.display = "block";
+        }
+      }
 
       // Pagination state
       var allRows = [];
@@ -602,10 +677,18 @@
         document.getElementById("editUserRole").value = currentRoleId;
         document.getElementById("currentRoleId").value = currentRoleId;
 
+        // Set current organization
+        var currentOrgId = row.dataset.orgid || "";
+        document.getElementById("editUserOrg").value = currentOrgId;
+        document.getElementById("currentOrgId").value = currentOrgId;
+
+        // Trigger role change handler to set org dropdown state
+        handleRoleChange();
+
         openModal("editRoleModal");
       }
 
-      function saveUserRole(event) {
+      function saveUser(event) {
         event.preventDefault();
         var saveBtn = document.getElementById("saveRoleBtn");
         saveBtn.textContent = "Saving...";
@@ -614,17 +697,61 @@
         var contactId = document.getElementById("editContactId").value;
         var newRoleId = document.getElementById("editUserRole").value;
         var currentRoleId = document.getElementById("currentRoleId").value;
+        var newOrgId = document.getElementById("editUserOrg").value;
+        var currentOrgId = document.getElementById("currentOrgId").value;
 
-        if (newRoleId === currentRoleId) {
+        var roleChanged = newRoleId !== currentRoleId;
+        var orgChanged = newOrgId !== currentOrgId;
+
+        // Get role name for org dropdown logic
+        var roleSelect = document.getElementById("editUserRole");
+        var selectedOption = roleSelect.options[roleSelect.selectedIndex];
+        var roleName = selectedOption ? selectedOption.getAttribute("data-rolename") : "";
+
+        // Only allow org change for PMM User
+        if (roleName !== "PMM User") {
+          orgChanged = false;
+          newOrgId = currentOrgId;
+        }
+
+        if (!roleChanged && !orgChanged) {
           closeModal("editRoleModal");
           saveBtn.textContent = "Save";
           saveBtn.disabled = false;
           return;
         }
 
+        // Function to update organization
+        function updateOrganization(callback) {
+          if (!orgChanged) {
+            callback();
+            return;
+          }
+          var updateData = {};
+          if (newOrgId) {
+            updateData["cr335_organizationbuerau@odata.bind"] = "/cr335_organizationbueraus(" + newOrgId + ")";
+          } else {
+            updateData["cr335_organizationbuerau@odata.bind"] = null;
+          }
+          webapi.safeAjax({
+            type: "PATCH",
+            contentType: "application/json",
+            url: "/_api/contacts(" + contactId + ")",
+            data: JSON.stringify(updateData),
+            success: function() {
+              callback();
+            },
+            error: function(xhr) {
+              showErrorNotification("Error updating organization: " + (xhr.responseJSON?.error?.message || "Unknown error"));
+              saveBtn.textContent = "Save";
+              saveBtn.disabled = false;
+            }
+          });
+        }
+
         // Function to associate new role
         function associateRole(callback) {
-          if (!newRoleId) {
+          if (!newRoleId || !roleChanged) {
             callback();
             return;
           }
@@ -653,7 +780,7 @@
 
         // Function to disassociate old role
         function disassociateRole(callback) {
-          if (!currentRoleId) {
+          if (!currentRoleId || !roleChanged) {
             callback();
             return;
           }
@@ -676,24 +803,38 @@
           });
         }
 
-        // First disassociate old role, then associate new role
-        disassociateRole(function() {
-          associateRole(function() {
-            // Update the row data attributes and table cell
-            var row = document.querySelector('tr[data-contactid="' + contactId + '"]');
-            if (row) {
-              row.dataset.roleid = newRoleId || "";
-              row.dataset.rolename = newRoleId ? webRoles[newRoleId] : "";
-              var roleCell = row.querySelector('.role-cell');
-              if (roleCell) {
-                roleCell.textContent = newRoleId ? webRoles[newRoleId] : "—";
-              }
-            }
+        // Chain: update org -> disassociate old role -> associate new role
+        updateOrganization(function() {
+          disassociateRole(function() {
+            associateRole(function() {
+              // Update the row data attributes and table cells
+              var row = document.querySelector('tr[data-contactid="' + contactId + '"]');
+              if (row) {
+                row.dataset.roleid = newRoleId || "";
+                row.dataset.rolename = newRoleId ? webRoles[newRoleId] : "";
+                var roleCell = row.querySelector('.role-cell');
+                if (roleCell) {
+                  roleCell.textContent = newRoleId ? webRoles[newRoleId] : "—";
+                }
 
-            closeModal("editRoleModal");
-            showSuccessNotification("User role updated successfully");
-            saveBtn.textContent = "Save";
-            saveBtn.disabled = false;
+                // Update organization in row
+                if (orgChanged) {
+                  row.dataset.orgid = newOrgId || "";
+                  var orgSelect = document.getElementById("editUserOrg");
+                  var orgName = orgSelect.options[orgSelect.selectedIndex]?.text || "";
+                  row.dataset.orgname = orgName;
+                  var orgCell = row.querySelector('.org-cell');
+                  if (orgCell) {
+                    orgCell.textContent = orgName || "—";
+                  }
+                }
+              }
+
+              closeModal("editRoleModal");
+              showSuccessNotification("User successfully saved");
+              saveBtn.textContent = "Save";
+              saveBtn.disabled = false;
+            });
           });
         });
       }
