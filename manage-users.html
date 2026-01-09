@@ -354,26 +354,9 @@
   </fetch>
   {% endfetchxml %}
 
-  <!-- Fetch PMM web roles -->
-  {% fetchxml webRolesQuery %}
-  <fetch version="1.0" mapping="logical">
-    <entity name="mspp_webrole">
-      <attribute name="mspp_webroleid" />
-      <attribute name="mspp_name" />
-      <filter type="and">
-        <condition attribute="statecode" operator="eq" value="0" />
-        <filter type="or">
-          <condition attribute="mspp_name" operator="eq" value="PMM Admin" />
-          <condition attribute="mspp_name" operator="eq" value="PMM User" />
-        </filter>
-      </filter>
-    </entity>
-  </fetch>
-  {% endfetchxml %}
-
-  <!-- Fetch contacts with organization and web roles -->
+  <!-- Fetch contacts with organization -->
   {% fetchxml contactsQuery %}
-  <fetch version="1.0" mapping="logical" distinct="true">
+  <fetch version="1.0" mapping="logical">
     <entity name="contact">
       <attribute name="contactid" />
       <attribute name="firstname" />
@@ -384,19 +367,8 @@
         <condition attribute="statecode" operator="eq" value="0" />
       </filter>
       <order attribute="lastname" />
-      <order attribute="firstname" />
       <link-entity name="cr335_organizationbuerau" from="cr335_organizationbuerauid" to="cr335_organizationbuerau" link-type="outer" alias="org">
         <attribute name="cr335_name" />
-      </link-entity>
-      <link-entity name="mspp_webrole_contact" from="contactid" to="contactid" link-type="inner">
-        <link-entity name="mspp_webrole" from="mspp_webroleid" to="mspp_webroleid" link-type="inner" alias="webrole">
-          <attribute name="mspp_webroleid" />
-          <attribute name="mspp_name" />
-          <filter type="or">
-            <condition attribute="mspp_name" operator="eq" value="PMM Admin" />
-            <condition attribute="mspp_name" operator="eq" value="PMM User" />
-          </filter>
-        </link-entity>
       </link-entity>
     </entity>
   </fetch>
@@ -446,14 +418,12 @@
                 data-firstname="{{ contact.firstname | escape }}"
                 data-lastname="{{ contact.lastname | escape }}"
                 data-email="{{ contact.emailaddress1 | escape }}"
-                data-roleid="{{ contact['webrole.mspp_webroleid'] }}"
-                data-rolename="{{ contact['webrole.mspp_name'] | escape }}"
                 data-orgid="{{ contact.cr335_organizationbuerau.Id }}"
                 data-orgname="{{ contact['org.cr335_name'] | escape }}">
               <td>{{ contact.firstname }}</td>
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
-              <td class="role-cell">{{ contact['webrole.mspp_name'] }}</td>
+              <td class="role-cell">—</td>
               <td class="org-cell">{{ contact['org.cr335_name'] }}</td>
               <td>
                 <div class="actions-cell">
@@ -507,9 +477,8 @@
             <label for="editUserRole">User Role</label>
             <select id="editUserRole" required onchange="handleRoleChange()">
               <option value="">Select User Role</option>
-              {% for role in webRolesQuery.results.entities %}
-              <option value="{{ role.mspp_webroleid }}" data-rolename="{{ role.mspp_name }}">{{ role.mspp_name }}</option>
-              {% endfor %}
+              <option value="pmm-admin" data-rolename="PMM Admin">PMM Admin</option>
+              <option value="pmm-user" data-rolename="PMM User">PMM User</option>
             </select>
           </div>
           <div class="form-group">
@@ -531,11 +500,10 @@
     </div>
 
     <script>
-      // Web roles data from Liquid
+      // Web roles data (hardcoded since mspp_webrole is a virtual table)
       var webRoles = {
-        {% for role in webRolesQuery.results.entities %}
-        "{{ role.mspp_webroleid }}": "{{ role.mspp_name }}"{% unless forloop.last %},{% endunless %}
-        {% endfor %}
+        "pmm-admin": "PMM Admin",
+        "pmm-user": "PMM User"
       };
 
       // Find role ID by name
