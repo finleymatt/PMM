@@ -374,35 +374,9 @@
   </fetch>
   {% endfetchxml %}
 
-  <!-- Fetch environment variables for component IDs -->
-  {% fetchxml adminEnvVar %}
-  <fetch version="1.0" mapping="logical" top="1">
-    <entity name="environmentvariablevalue">
-      <attribute name="value" />
-      <link-entity name="environmentvariabledefinition" from="environmentvariabledefinitionid" to="environmentvariabledefinitionid" alias="def">
-        <filter>
-          <condition attribute="schemaname" operator="eq" value="ecm_PMMAdminComponentID" />
-        </filter>
-      </link-entity>
-    </entity>
-  </fetch>
-  {% endfetchxml %}
-
-  {% fetchxml userEnvVar %}
-  <fetch version="1.0" mapping="logical" top="1">
-    <entity name="environmentvariablevalue">
-      <attribute name="value" />
-      <link-entity name="environmentvariabledefinition" from="environmentvariabledefinitionid" to="environmentvariabledefinitionid" alias="def">
-        <filter>
-          <condition attribute="schemaname" operator="eq" value="ecm_PMMUserComponentID" />
-        </filter>
-      </link-entity>
-    </entity>
-  </fetch>
-  {% endfetchxml %}
-
-  {% assign pmmAdminComponentId = adminEnvVar.results.entities[0].value %}
-  {% assign pmmUserComponentId = userEnvVar.results.entities[0].value %}
+  <!-- PowerPageComponent IDs for web roles -->
+  {% assign pmmAdminComponentId = '79ae5fb7-80db-f011-8544-001dd830102c' %}
+  {% assign pmmUserComponentId = '003058bd-80db-f011-8544-001dd830102c' %}
 
   {% fetchxml adminRolesQuery %}
   <fetch version="1.0" mapping="logical">
