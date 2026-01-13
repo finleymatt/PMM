@@ -510,8 +510,24 @@
     </div>
 
     <script>
-      // Power Automate flow URL for role management
-      var ROLE_FLOW_URL = "https://prod-58.usgovtexas.logic.azure.us:443/workflows/7e5960861e7744b9bb7c8014092105c4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zekO8neuRsIX1vqxVNFAdi9ftTpZIcsaGI3j1GzLfDU";
+      // Power Automate flow URLs for role management (per environment)
+      var ROLE_FLOW_URLS = {
+        dev: "https://prod-58.usgovtexas.logic.azure.us:443/workflows/7e5960861e7744b9bb7c8014092105c4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zekO8neuRsIX1vqxVNFAdi9ftTpZIcsaGI3j1GzLfDU",
+        test: "REPLACE_WITH_TEST_FLOW_URL",
+        prod: "REPLACE_WITH_PROD_FLOW_URL"
+      };
+
+      // Determine environment from hostname
+      var hostname = window.location.hostname.toLowerCase();
+      var ROLE_FLOW_URL;
+      if (hostname.indexOf('topstest') !== -1) {
+        ROLE_FLOW_URL = ROLE_FLOW_URLS.test;
+      } else if (hostname.indexOf('topsprod') !== -1 || hostname.indexOf('tops.') !== -1) {
+        ROLE_FLOW_URL = ROLE_FLOW_URLS.prod;
+      } else {
+        // Default to dev (topsdev or localhost)
+        ROLE_FLOW_URL = ROLE_FLOW_URLS.dev;
+      }
 
       // Web roles data (hardcoded since mspp_webrole is a virtual table)
       var webRoles = {
