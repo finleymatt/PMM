@@ -375,8 +375,8 @@
   {% endfetchxml %}
 
   <!-- Build a lookup of contact emails to roles using Liquid -->
-  {% assign pmmAdminComponentId = 'PUT_ADMIN_COMPONENT_ID_HERE' %}
-  {% assign pmmUserComponentId = 'PUT_USER_COMPONENT_ID_HERE' %}
+  {% assign pmmAdminComponentId = settings['ecm_PMMAdminComponentID'] %}
+  {% assign pmmUserComponentId = settings['ecm_PMMUserComponentID'] %}
 
   {% fetchxml adminRolesQuery %}
   <fetch version="1.0" mapping="logical">
