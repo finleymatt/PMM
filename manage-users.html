@@ -374,6 +374,47 @@
   </fetch>
   {% endfetchxml %}
 
+  <!-- Build a lookup of contact emails to roles using Liquid -->
+  {% assign pmmAdminComponentId = 'PUT_ADMIN_COMPONENT_ID_HERE' %}
+  {% assign pmmUserComponentId = 'PUT_USER_COMPONENT_ID_HERE' %}
+
+  {% fetchxml adminRolesQuery %}
+  <fetch version="1.0" mapping="logical">
+    <entity name="contact">
+      <attribute name="contactid" />
+      <attribute name="emailaddress1" />
+      <link-entity name="powerpagecomponent" from="powerpagecomponentid" to="contactid" link-type="inner" alias="role" intersect="true">
+        <filter>
+          <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmAdminComponentId }}" />
+        </filter>
+      </link-entity>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  {% fetchxml userRolesQuery %}
+  <fetch version="1.0" mapping="logical">
+    <entity name="contact">
+      <attribute name="contactid" />
+      <attribute name="emailaddress1" />
+      <link-entity name="powerpagecomponent" from="powerpagecomponentid" to="contactid" link-type="inner" alias="role" intersect="true">
+        <filter>
+          <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmUserComponentId }}" />
+        </filter>
+      </link-entity>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  <!-- Build role lookup object -->
+  {% assign contactRoles = '' %}
+  {% for contact in adminRolesQuery.results.entities %}
+    {% assign contactRoles = contactRoles | append: contact.contactid | append: ':PMM Admin,' %}
+  {% endfor %}
+  {% for contact in userRolesQuery.results.entities %}
+    {% assign contactRoles = contactRoles | append: contact.contactid | append: ':PMM User,' %}
+  {% endfor %}
+
   <body>
     <!-- Notifications -->
     <div id="successNotification" class="notification success-notification">
@@ -414,16 +455,36 @@
           </thead>
           <tbody id="usersTableBody">
             {% for contact in contactsQuery.results.entities %}
+            {% assign thisContactRole = '' %}
+            {% assign thisContactRoleId = '' %}
+            {% if contactRoles contains contact.contactid %}
+              {% assign rolePairs = contactRoles | split: ',' %}
+              {% for pair in rolePairs %}
+                {% if pair contains contact.contactid %}
+                  {% assign parts = pair | split: ':' %}
+                  {% if parts[0] == contact.contactid %}
+                    {% assign thisContactRole = parts[1] %}
+                    {% if thisContactRole == 'PMM Admin' %}
+                      {% assign thisContactRoleId = 'de7c4434-77d9-f011-8544-001dd8073dce' %}
+                    {% elsif thisContactRole == 'PMM User' %}
+                      {% assign thisContactRoleId = '5eab7f3a-77d9-f011-8544-001dd8073dce' %}
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
             <tr data-contactid="{{ contact.contactid }}"
                 data-firstname="{{ contact.firstname | escape }}"
                 data-lastname="{{ contact.lastname | escape }}"
                 data-email="{{ contact.emailaddress1 | escape }}"
                 data-orgid="{{ contact.cr335_organizationbuerau.Id }}"
-                data-orgname="{{ contact['org.cr335_name'] | escape }}">
+                data-orgname="{{ contact['org.cr335_name'] | escape }}"
+                data-roleid="{{ thisContactRoleId }}"
+                data-rolename="{{ thisContactRole }}">
               <td>{{ contact.firstname }}</td>
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
-              <td class="role-cell">—</td>
+              <td class="role-cell">{% if thisContactRole != '' %}{{ thisContactRole }}{% else %}—{% endif %}</td>
               <td class="org-cell">{{ contact['org.cr335_name'] }}</td>
               <td>
                 <div class="actions-cell">
