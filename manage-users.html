@@ -380,13 +380,13 @@
 
   {% fetchxml adminRolesQuery %}
   <fetch version="1.0" mapping="logical">
-    <entity name="contact">
-      <attribute name="contactid" />
-      <attribute name="emailaddress1" />
-      <link-entity name="powerpagecomponent" from="powerpagecomponentid" to="contactid" link-type="inner" alias="role" intersect="true">
-        <filter>
-          <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmAdminComponentId }}" />
-        </filter>
+    <entity name="powerpagecomponent">
+      <attribute name="powerpagecomponentid" />
+      <filter>
+        <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmAdminComponentId }}" />
+      </filter>
+      <link-entity name="contact" from="contactid" to="powerpagecomponentid" link-type="inner" alias="c" intersect="true">
+        <attribute name="contactid" />
       </link-entity>
     </entity>
   </fetch>
@@ -394,13 +394,13 @@
 
   {% fetchxml userRolesQuery %}
   <fetch version="1.0" mapping="logical">
-    <entity name="contact">
-      <attribute name="contactid" />
-      <attribute name="emailaddress1" />
-      <link-entity name="powerpagecomponent" from="powerpagecomponentid" to="contactid" link-type="inner" alias="role" intersect="true">
-        <filter>
-          <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmUserComponentId }}" />
-        </filter>
+    <entity name="powerpagecomponent">
+      <attribute name="powerpagecomponentid" />
+      <filter>
+        <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmUserComponentId }}" />
+      </filter>
+      <link-entity name="contact" from="contactid" to="powerpagecomponentid" link-type="inner" alias="c" intersect="true">
+        <attribute name="contactid" />
       </link-entity>
     </entity>
   </fetch>
@@ -408,11 +408,11 @@
 
   <!-- Build role lookup object -->
   {% assign contactRoles = '' %}
-  {% for contact in adminRolesQuery.results.entities %}
-    {% assign contactRoles = contactRoles | append: contact.contactid | append: ':PMM Admin,' %}
+  {% for item in adminRolesQuery.results.entities %}
+    {% assign contactRoles = contactRoles | append: item['c.contactid'] | append: ':PMM Admin,' %}
   {% endfor %}
-  {% for contact in userRolesQuery.results.entities %}
-    {% assign contactRoles = contactRoles | append: contact.contactid | append: ':PMM User,' %}
+  {% for item in userRolesQuery.results.entities %}
+    {% assign contactRoles = contactRoles | append: item['c.contactid'] | append: ':PMM User,' %}
   {% endfor %}
 
   <body>
