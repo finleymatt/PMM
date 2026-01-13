@@ -500,19 +500,14 @@
     </div>
 
     <script>
+      // Power Automate flow URL for role management
+      var ROLE_FLOW_URL = "https://prod-58.usgovtexas.logic.azure.us:443/workflows/7e5960861e7744b9bb7c8014092105c4/triggers/manual/paths/invoke?api-version=2016-06-01";
+
       // Web roles data (hardcoded since mspp_webrole is a virtual table)
       var webRoles = {
         "de7c4434-77d9-f011-8544-001dd8073dce": "PMM Admin",
         "5eab7f3a-77d9-f011-8544-001dd8073dce": "PMM User"
       };
-
-      // Find role ID by name
-      function getRoleIdByName(name) {
-        for (var id in webRoles) {
-          if (webRoles[id] === name) return id;
-        }
-        return null;
-      }
 
       // Handle role change - enable/disable org dropdown
       function handleRoleChange() {
@@ -543,43 +538,7 @@
         filteredRows = [...allRows];
         renderPagination();
         showCurrentPage();
-
-        // Load roles for all contacts
-        loadContactRoles();
       });
-
-      // Load roles for all contacts via Web API
-      function loadContactRoles() {
-        var rows = document.querySelectorAll("#usersTableBody tr");
-        rows.forEach(function(row) {
-          var contactId = row.dataset.contactid;
-          if (!contactId) return;
-
-          webapi.safeAjax({
-            type: "GET",
-            url: "/_api/contacts(" + contactId + ")/mspp_webrole_contact?$select=mspp_webroleid,mspp_name",
-            success: function(response) {
-              if (response && response.value && response.value.length > 0) {
-                for (var i = 0; i < response.value.length; i++) {
-                  var roleId = response.value[i].mspp_webroleid;
-                  if (webRoles[roleId]) {
-                    row.dataset.roleid = roleId;
-                    row.dataset.rolename = webRoles[roleId];
-                    var roleCell = row.querySelector('.role-cell');
-                    if (roleCell) {
-                      roleCell.textContent = webRoles[roleId];
-                    }
-                    break;
-                  }
-                }
-              }
-            },
-            error: function(xhr) {
-              console.error("Error fetching roles for contact " + contactId, xhr);
-            }
-          });
-        });
-      }
 
       function showCurrentPage() {
         var start = (currentPage - 1) * itemsPerPage;
@@ -694,46 +653,13 @@
         document.getElementById("editUserOrg").value = currentOrgId;
         document.getElementById("currentOrgId").value = currentOrgId;
 
-        // Reset role dropdown while loading
-        document.getElementById("editUserRole").value = "";
-        document.getElementById("currentRoleId").value = "";
+        // Set current role from data attribute (if previously saved)
+        var currentRoleId = row.dataset.roleid || "";
+        document.getElementById("editUserRole").value = currentRoleId;
+        document.getElementById("currentRoleId").value = currentRoleId;
 
-        // Fetch current role from Web API
-        webapi.safeAjax({
-          type: "GET",
-          url: "/_api/contacts(" + contactId + ")/mspp_webrole_contact?$select=mspp_webroleid,mspp_name",
-          success: function(response) {
-            var currentRoleId = "";
-            if (response && response.value && response.value.length > 0) {
-              // Find PMM Admin or PMM User role
-              for (var i = 0; i < response.value.length; i++) {
-                var roleId = response.value[i].mspp_webroleid;
-                if (webRoles[roleId]) {
-                  currentRoleId = roleId;
-                  // Update row data attribute
-                  row.dataset.roleid = roleId;
-                  row.dataset.rolename = webRoles[roleId];
-                  // Update table cell
-                  var roleCell = row.querySelector('.role-cell');
-                  if (roleCell) {
-                    roleCell.textContent = webRoles[roleId];
-                  }
-                  break;
-                }
-              }
-            }
-            document.getElementById("editUserRole").value = currentRoleId;
-            document.getElementById("currentRoleId").value = currentRoleId;
-            handleRoleChange();
-            openModal("editRoleModal");
-          },
-          error: function(xhr) {
-            console.error("Error fetching user roles:", xhr);
-            // Still open modal even if role fetch fails
-            handleRoleChange();
-            openModal("editRoleModal");
-          }
-        });
+        handleRoleChange();
+        openModal("editRoleModal");
       }
 
       function saveUser(event) {
@@ -769,7 +695,7 @@
           return;
         }
 
-        // Function to update organization
+        // Function to update organization via Portal Web API
         function updateOrganization(callback) {
           if (!orgChanged) {
             callback();
@@ -797,92 +723,66 @@
           });
         }
 
-        // Function to associate new role
-        function associateRole(callback) {
-          if (!newRoleId || !roleChanged) {
+        // Function to update role via Power Automate flow
+        function updateRole(callback) {
+          if (!roleChanged) {
             callback();
             return;
           }
-          webapi.safeAjax({
+
+          $.ajax({
             type: "POST",
+            url: ROLE_FLOW_URL,
             contentType: "application/json",
-            url: "/_api/contacts(" + contactId + ")/mspp_webrole_contact/$ref",
             data: JSON.stringify({
-              "@odata.id": "{{ request.url | base }}/_api/mspp_webroles(" + newRoleId + ")"
+              contactId: contactId,
+              newRoleId: newRoleId || "",
+              oldRoleId: currentRoleId || "",
+              action: "assignRole"
             }),
-            success: function() {
+            success: function(response) {
+              console.log("Role update success:", response);
               callback();
             },
-            error: function(xhr) {
-              // 409 means already associated, treat as success
-              if (xhr.status === 409) {
-                callback();
-              } else {
-                showErrorNotification("Error assigning role: " + (xhr.responseJSON?.error?.message || "Unknown error"));
-                saveBtn.textContent = "Save";
-                saveBtn.disabled = false;
-              }
-            }
-          });
-        }
-
-        // Function to disassociate old role
-        function disassociateRole(callback) {
-          if (!currentRoleId || !roleChanged) {
-            callback();
-            return;
-          }
-          webapi.safeAjax({
-            type: "DELETE",
-            url: "/_api/contacts(" + contactId + ")/mspp_webrole_contact(" + currentRoleId + ")/$ref",
-            success: function() {
-              callback();
-            },
-            error: function(xhr) {
-              // 404 means not associated, treat as success
-              if (xhr.status === 404) {
-                callback();
-              } else {
-                showErrorNotification("Error removing old role: " + (xhr.responseJSON?.error?.message || "Unknown error"));
-                saveBtn.textContent = "Save";
-                saveBtn.disabled = false;
-              }
-            }
-          });
-        }
-
-        // Chain: update org -> disassociate old role -> associate new role
-        updateOrganization(function() {
-          disassociateRole(function() {
-            associateRole(function() {
-              // Update the row data attributes and table cells
-              var row = document.querySelector('tr[data-contactid="' + contactId + '"]');
-              if (row) {
-                row.dataset.roleid = newRoleId || "";
-                row.dataset.rolename = newRoleId ? webRoles[newRoleId] : "";
-                var roleCell = row.querySelector('.role-cell');
-                if (roleCell) {
-                  roleCell.textContent = newRoleId ? webRoles[newRoleId] : "—";
-                }
-
-                // Update organization in row
-                if (orgChanged) {
-                  row.dataset.orgid = newOrgId || "";
-                  var orgSelect = document.getElementById("editUserOrg");
-                  var orgName = orgSelect.options[orgSelect.selectedIndex]?.text || "";
-                  row.dataset.orgname = orgName;
-                  var orgCell = row.querySelector('.org-cell');
-                  if (orgCell) {
-                    orgCell.textContent = orgName || "—";
-                  }
-                }
-              }
-
-              closeModal("editRoleModal");
-              showSuccessNotification("User successfully saved");
+            error: function(xhr, status, error) {
+              console.error("Role update error:", xhr, status, error);
+              showErrorNotification("Error updating role: " + (error || "Unknown error"));
               saveBtn.textContent = "Save";
               saveBtn.disabled = false;
-            });
+            }
+          });
+        }
+
+        // Chain: update org -> update role
+        updateOrganization(function() {
+          updateRole(function() {
+            // Update the row data attributes and table cells
+            var row = document.querySelector('tr[data-contactid="' + contactId + '"]');
+            if (row) {
+              row.dataset.roleid = newRoleId || "";
+              row.dataset.rolename = newRoleId ? webRoles[newRoleId] : "";
+              var roleCell = row.querySelector('.role-cell');
+              if (roleCell) {
+                roleCell.textContent = newRoleId ? webRoles[newRoleId] : "—";
+              }
+
+              // Update organization in row
+              if (orgChanged) {
+                row.dataset.orgid = newOrgId || "";
+                var orgSelect = document.getElementById("editUserOrg");
+                var orgName = orgSelect.options[orgSelect.selectedIndex]?.text || "";
+                row.dataset.orgname = orgName;
+                var orgCell = row.querySelector('.org-cell');
+                if (orgCell) {
+                  orgCell.textContent = orgName || "—";
+                }
+              }
+            }
+
+            closeModal("editRoleModal");
+            showSuccessNotification("User successfully saved");
+            saveBtn.textContent = "Save";
+            saveBtn.disabled = false;
           });
         });
       }
