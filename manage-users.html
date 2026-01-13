@@ -380,28 +380,24 @@
 
   {% fetchxml adminRolesQuery %}
   <fetch version="1.0" mapping="logical">
-    <entity name="powerpagecomponent">
+    <entity name="powerpagecomponent_mspp_webrole_contact">
+      <attribute name="contactid" />
       <attribute name="powerpagecomponentid" />
       <filter>
         <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmAdminComponentId }}" />
       </filter>
-      <link-entity name="contact" from="contactid" to="powerpagecomponentid" link-type="inner" alias="c" intersect="true">
-        <attribute name="contactid" />
-      </link-entity>
     </entity>
   </fetch>
   {% endfetchxml %}
 
   {% fetchxml userRolesQuery %}
   <fetch version="1.0" mapping="logical">
-    <entity name="powerpagecomponent">
+    <entity name="powerpagecomponent_mspp_webrole_contact">
+      <attribute name="contactid" />
       <attribute name="powerpagecomponentid" />
       <filter>
         <condition attribute="powerpagecomponentid" operator="eq" value="{{ pmmUserComponentId }}" />
       </filter>
-      <link-entity name="contact" from="contactid" to="powerpagecomponentid" link-type="inner" alias="c" intersect="true">
-        <attribute name="contactid" />
-      </link-entity>
     </entity>
   </fetch>
   {% endfetchxml %}
@@ -409,10 +405,10 @@
   <!-- Build role lookup object -->
   {% assign contactRoles = '' %}
   {% for item in adminRolesQuery.results.entities %}
-    {% assign contactRoles = contactRoles | append: item['c.contactid'] | append: ':PMM Admin,' %}
+    {% assign contactRoles = contactRoles | append: item.contactid | append: ':PMM Admin,' %}
   {% endfor %}
   {% for item in userRolesQuery.results.entities %}
-    {% assign contactRoles = contactRoles | append: item['c.contactid'] | append: ':PMM User,' %}
+    {% assign contactRoles = contactRoles | append: item.contactid | append: ':PMM User,' %}
   {% endfor %}
 
   <body>
