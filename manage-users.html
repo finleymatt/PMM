@@ -475,6 +475,7 @@
         <form id="editRoleForm" onsubmit="saveUser(event)">
           <input type="hidden" id="editContactId" />
           <input type="hidden" id="currentRoleId" />
+          <input type="hidden" id="currentRoleName" />
           <input type="hidden" id="currentOrgId" />
           <div class="form-group">
             <label>Name</label>
@@ -682,8 +683,10 @@
 
         // Set current role from data attribute (if previously saved)
         var currentRoleId = row.dataset.roleid || "";
+        var currentRoleName = row.dataset.rolename || "";
         document.getElementById("editUserRole").value = currentRoleId;
         document.getElementById("currentRoleId").value = currentRoleId;
+        document.getElementById("currentRoleName").value = currentRoleName;
 
         handleRoleChange();
         openModal("editRoleModal");
@@ -698,6 +701,7 @@
         var contactId = document.getElementById("editContactId").value;
         var newRoleId = document.getElementById("editUserRole").value;
         var currentRoleId = document.getElementById("currentRoleId").value;
+        var oldRoleName = document.getElementById("currentRoleName").value;
         var newOrgId = document.getElementById("editUserOrg").value;
         var currentOrgId = document.getElementById("currentOrgId").value;
 
@@ -733,6 +737,7 @@
               newRoleId: newRoleId || "",
               oldRoleId: currentRoleId || "",
               roleName: roleName || "",
+              oldRoleName: oldRoleName || "",
               organizationId: newOrgId || "",
               action: "assignRole"
             }),
