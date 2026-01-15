@@ -364,8 +364,9 @@
       <attribute name="emailaddress1" />
       <attribute name="cr335_organizationbuerau" />
       <attribute name="ecm_role" />
-      <filter>
+      <filter type="and">
         <condition attribute="statecode" operator="eq" value="0" />
+        <condition attribute="createdon" operator="on-or-before" value='{{ "now" | date: "yyyy-MM-dd HH:mm:ss" }}'/>
       </filter>
       <order attribute="lastname" />
       <link-entity name="cr335_organizationbuerau" from="cr335_organizationbuerauid" to="cr335_organizationbuerau" link-type="outer" alias="org">
