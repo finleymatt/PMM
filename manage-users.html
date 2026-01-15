@@ -751,33 +751,11 @@
 
         // Call flow to update role and organization
         updateViaFlow(function() {
-          // Update the row data attributes and table cells
-          var row = document.querySelector('tr[data-contactid="' + contactId + '"]');
-          if (row) {
-            row.dataset.roleid = newRoleId || "";
-            row.dataset.rolename = newRoleId ? webRoles[newRoleId] : "";
-            var roleCell = row.querySelector('.role-cell');
-            if (roleCell) {
-              roleCell.textContent = newRoleId ? webRoles[newRoleId] : "—";
-            }
-
-            // Update organization in row
-            if (orgChanged) {
-              row.dataset.orgid = newOrgId || "";
-              var orgSelect = document.getElementById("editUserOrg");
-              var orgName = orgSelect.options[orgSelect.selectedIndex]?.text || "";
-              row.dataset.orgname = orgName;
-              var orgCell = row.querySelector('.org-cell');
-              if (orgCell) {
-                orgCell.textContent = orgName || "—";
-              }
-            }
-          }
-
-          closeModal("editRoleModal");
           showSuccessNotification("User successfully saved");
-          saveBtn.textContent = "Save";
-          saveBtn.disabled = false;
+          // Refresh page to show updated data
+          setTimeout(function() {
+            window.location.reload();
+          }, 1000);
         });
       }
 
