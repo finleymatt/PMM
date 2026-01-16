@@ -493,15 +493,14 @@
               <option value="5eab7f3a-77d9-f011-8544-001dd8073dce" data-rolename="PMM User">PMM User</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="orgFormGroup" style="display: none;">
             <label for="editUserOrg">Organization</label>
-            <select id="editUserOrg" disabled>
+            <select id="editUserOrg">
               <option value="">Select Organization</option>
               {% for org in organizationsQuery.results.entities %}
               <option value="{{ org.cr335_organizationbuerauid }}">{{ org.cr335_name }}</option>
               {% endfor %}
             </select>
-            <small id="orgHelpText" style="color: #666; font-size: 12px; display: none;">Organization can only be changed for PMM User role.</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('editRoleModal')">Cancel</button>
@@ -537,20 +536,17 @@
         "5eab7f3a-77d9-f011-8544-001dd8073dce": "PMM User"
       };
 
-      // Handle role change - enable/disable org dropdown
+      // Handle role change - show/hide org dropdown
       function handleRoleChange() {
         var roleSelect = document.getElementById("editUserRole");
-        var orgSelect = document.getElementById("editUserOrg");
-        var helpText = document.getElementById("orgHelpText");
+        var orgFormGroup = document.getElementById("orgFormGroup");
         var selectedOption = roleSelect.options[roleSelect.selectedIndex];
         var roleName = selectedOption ? selectedOption.getAttribute("data-rolename") : "";
 
         if (roleName === "PMM User") {
-          orgSelect.disabled = false;
-          helpText.style.display = "none";
+          orgFormGroup.style.display = "block";
         } else {
-          orgSelect.disabled = true;
-          helpText.style.display = "block";
+          orgFormGroup.style.display = "none";
         }
       }
 
