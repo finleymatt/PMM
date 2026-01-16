@@ -540,13 +540,16 @@
       function handleRoleChange() {
         var roleSelect = document.getElementById("editUserRole");
         var orgFormGroup = document.getElementById("orgFormGroup");
+        var orgSelect = document.getElementById("editUserOrg");
         var selectedOption = roleSelect.options[roleSelect.selectedIndex];
         var roleName = selectedOption ? selectedOption.getAttribute("data-rolename") : "";
 
         if (roleName === "PMM User") {
           orgFormGroup.style.display = "block";
+          orgSelect.required = true;
         } else {
           orgFormGroup.style.display = "none";
+          orgSelect.required = false;
         }
       }
 
