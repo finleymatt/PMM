@@ -28,6 +28,27 @@
         margin-bottom: 24px;
       }
 
+      .access-denied {
+        text-align: center;
+        padding: 60px 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        margin: 60px auto;
+      }
+
+      .access-denied h1 {
+        color: #cc0000;
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      .access-denied p {
+        color: #666;
+        font-size: 16px;
+      }
+
       /* Toolbar */
       .toolbar {
         display: flex;
@@ -376,7 +397,18 @@
   </fetch>
   {% endfetchxml %}
 
+  <!-- Check if user has PMM Admin role -->
+  {% assign is_admin = false %}
+  {% if user %}
+    {% for role in user.roles %}
+      {% if role.name == 'PMM Admin' %}
+        {% assign is_admin = true %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
   <body>
+    {% if is_admin %}
     <!-- Notifications -->
     <div id="successNotification" class="notification success-notification">
       <span class="notification-icon">✓</span>
@@ -792,5 +824,13 @@
         setTimeout(function() { notif.classList.remove("show"); }, 5000);
       }
     </script>
+    {% else %}
+    <!-- Access Denied Message -->
+    <div class="access-denied">
+      <h1>Access Denied</h1>
+      <p>You do not have permission to access this page. This page is only available to PMM Administrators.</p>
+      <p><a href="/">Return to Home</a></p>
+    </div>
+    {% endif %}
   </body>
 </html>
