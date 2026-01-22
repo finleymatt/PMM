@@ -400,11 +400,9 @@
   <!-- Check if user has PMM Admin role -->
   {% assign is_admin = false %}
   {% if user %}
-    {% for role in user.roles %}
-      {% if role.name == 'PMM Admin' %}
-        {% assign is_admin = true %}
-      {% endif %}
-    {% endfor %}
+    {% if user.roles contains 'PMM Admin' %}
+      {% assign is_admin = true %}
+    {% endif %}
   {% endif %}
 
   <body>
@@ -450,10 +448,13 @@
             {% for contact in contactsQuery.results.entities %}
             {% assign thisContactRole = contact.ecm_role %}
             {% assign thisContactRoleId = '' %}
+            {% assign thisContactRoleDisplay = '' %}
             {% if thisContactRole == 'PMM Admin' %}
               {% assign thisContactRoleId = 'de7c4434-77d9-f011-8544-001dd8073dce' %}
+              {% assign thisContactRoleDisplay = 'TOPS Admin' %}
             {% elsif thisContactRole == 'PMM User' %}
               {% assign thisContactRoleId = '5eab7f3a-77d9-f011-8544-001dd8073dce' %}
+              {% assign thisContactRoleDisplay = 'TOPS User' %}
             {% endif %}
             <tr data-contactid="{{ contact.contactid }}"
                 data-firstname="{{ contact.firstname | escape }}"
@@ -466,7 +467,7 @@
               <td>{{ contact.firstname }}</td>
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
-              <td class="role-cell">{% if thisContactRole != blank %}{{ thisContactRole }}{% else %}—{% endif %}</td>
+              <td class="role-cell">{% if thisContactRoleDisplay != blank %}{{ thisContactRoleDisplay }}{% else %}—{% endif %}</td>
               <td class="org-cell">{{ contact['org.cr335_name'] }}</td>
               <td>
                 <div class="actions-cell">
@@ -521,8 +522,8 @@
             <label for="editUserRole">User Role</label>
             <select id="editUserRole" required onchange="handleRoleChange()">
               <option value="">Select User Role</option>
-              <option value="de7c4434-77d9-f011-8544-001dd8073dce" data-rolename="PMM Admin">PMM Admin</option>
-              <option value="5eab7f3a-77d9-f011-8544-001dd8073dce" data-rolename="PMM User">PMM User</option>
+              <option value="de7c4434-77d9-f011-8544-001dd8073dce" data-rolename="PMM Admin">TOPS Admin</option>
+              <option value="5eab7f3a-77d9-f011-8544-001dd8073dce" data-rolename="PMM User">TOPS User</option>
             </select>
           </div>
           <div class="form-group" id="orgFormGroup" style="display: none;">
@@ -563,9 +564,10 @@
       }
 
       // Web roles data (hardcoded since mspp_webrole is a virtual table)
+      // Display names are TOPS Admin/User, backend names are PMM Admin/User
       var webRoles = {
-        "de7c4434-77d9-f011-8544-001dd8073dce": "PMM Admin",
-        "5eab7f3a-77d9-f011-8544-001dd8073dce": "PMM User"
+        "de7c4434-77d9-f011-8544-001dd8073dce": "TOPS Admin",
+        "5eab7f3a-77d9-f011-8544-001dd8073dce": "TOPS User"
       };
 
       // Handle role change - show/hide org dropdown
