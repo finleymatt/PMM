@@ -548,7 +548,7 @@
       var ROLE_FLOW_URLS = {
         dev: "https://prod-58.usgovtexas.logic.azure.us:443/workflows/7e5960861e7744b9bb7c8014092105c4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zekO8neuRsIX1vqxVNFAdi9ftTpZIcsaGI3j1GzLfDU",
         test: "https://prod-25.usgovtexas.logic.azure.us:443/workflows/68378d1e919741ef80602ad6b56c5a1e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=WHStyF2sAwfY7CLd28S60PacKpWoofl4Hb2OjRzRih8",
-        prod: "REPLACE_WITH_PROD_FLOW_URL"
+        prod: "https://prod-42.usgovtexas.logic.azure.us:443/workflows/1583ad51d0614370a3f53eb4a420d615/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rXyfQzG4wopc-HGaAnr2B-SeH0SxKNEezzdIg0XCLVE"
       };
 
       // Determine environment from hostname
@@ -556,7 +556,7 @@
       var ROLE_FLOW_URL;
       if (hostname.indexOf('topstest') !== -1) {
         ROLE_FLOW_URL = ROLE_FLOW_URLS.test;
-      } else if (hostname.indexOf('topsprod') !== -1 || hostname.indexOf('tops.') !== -1) {
+      } else if (hostname === 'tops.high.powerappsportals.us') {
         ROLE_FLOW_URL = ROLE_FLOW_URLS.prod;
       } else {
         // Default to dev (topsdev or localhost)
