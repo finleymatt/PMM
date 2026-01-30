@@ -1037,6 +1037,15 @@
       </div>
     </div>
 
+    <!-- Hidden data store: text fields stored in HTML context to prevent JS string literal breaks from newlines/quotes -->
+    <div id="actualsTextData" style="display:none">
+      {% if measureActuals.results.entities.size > 0 %}
+        {% for actual in measureActuals.results.entities %}
+        <textarea id="dataNarrative_{{ actual.ecm_measureactualid }}">{{ actual.ecm_optionalnarrative | escape }}</textarea>
+        {% endfor %}
+      {% endif %}
+    </div>
+
     <script>
       // Store measure actuals data for YTD calculations
       var measureActualsData = [];
@@ -1216,7 +1225,7 @@
                 ecm_actualytd: "{{ actual.ecm_actualytd }}",
                 ecm_target: "{{ actual.ecm_target }}",
                 ecm_targetmet: "{{ actual.ecm_targetmet }}",
-                ecm_optionalnarrative: "{{ actual.ecm_optionalnarrative }}",
+                ecm_optionalnarrative: (document.getElementById("dataNarrative_{{ actual.ecm_measureactualid }}") || {}).value || "",
                 ecm_status: "{{ actual.ecm_status }}"
               }{% unless forloop.last %},{% endunless %}
             {% endfor %}
