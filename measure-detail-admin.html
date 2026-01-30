@@ -1450,6 +1450,20 @@
       </div>
     </div>
 
+    <!-- Hidden data store: text fields stored in HTML context to prevent JS string literal breaks from newlines/quotes -->
+    <div id="measureTextData" style="display:none">
+      <textarea id="dataName">{{ measureRecord.ecm_name | escape }}</textarea>
+      <textarea id="dataCalcMethod">{{ measureRecord.ecm_calculationmethod | escape }}</textarea>
+      <textarea id="dataUsage">{{ measureRecord.ecm_usage | escape }}</textarea>
+    </div>
+    <div id="actualsTextData" style="display:none">
+      {% if measureActuals.results.entities.size > 0 %}
+        {% for actual in measureActuals.results.entities %}
+        <textarea id="dataNarrative_{{ actual.ecm_measureactualid }}">{{ actual.ecm_optionalnarrative | escape }}</textarea>
+        {% endfor %}
+      {% endif %}
+    </div>
+
     <script>
       // Store measure actuals data for YTD calculations
       var measureActualsData = [];
@@ -1629,7 +1643,7 @@
                 ecm_actualytd: "{{ actual.ecm_actualytd }}",
                 ecm_target: "{{ actual.ecm_target }}",
                 ecm_targetmet: "{{ actual.ecm_targetmet }}",
-                ecm_optionalnarrative: "{{ actual.ecm_optionalnarrative }}",
+                ecm_optionalnarrative: (document.getElementById("dataNarrative_{{ actual.ecm_measureactualid }}") || {}).value || "",
                 ecm_status: "{{ actual.ecm_status }}"
               }{% unless forloop.last %},{% endunless %}
             {% endfor %}
@@ -1803,7 +1817,7 @@
 
       function openEditDefinitionModal() {
         openModal("editDefinitionModal");
-        document.getElementById("editName").value = "{{ measureRecord.ecm_name | escape }}";
+        document.getElementById("editName").value = document.getElementById("dataName").value;
         setSelectValue("editType", "{{ measureRecord.ecm_type | escape }}");
         setSelectValue("editStatus", "{{ measureRecord.ecm_status | escape }}");
         setSelectValue("editOrganization", "{{ measureRecord.ecm_organization | escape }}");
@@ -1811,9 +1825,9 @@
         setSelectValue("editCoreOperationMeasure", "{{ measureRecord.ecm_coreoperationmeasure | escape }}");
         setSelectValue("editDesiredTrend", "{{ measureRecord.ecm_desiredtrend | escape }}");
         document.getElementById("editTarget").value = "{{ measureRecord.ecm_target }}";
-        var usageValues = "{{ measureRecord.ecm_usage | escape }}".split(",");
+        var usageValues = document.getElementById("dataUsage").value.split(",");
         populateUsageTags(usageValues);
-        document.getElementById("editCalcMethod").value = "{{ measureRecord.ecm_calculationmethod | escape }}";
+        document.getElementById("editCalcMethod").value = document.getElementById("dataCalcMethod").value;
         setSelectValue("editStrategicPlanAlignment", "{{ measureRecord.ecm_fy2630alignment | escape }}");
         setSelectValue("editFy2630Objective", "{{ measureRecord.ecm_fy2630objective | escape }}");
         handleEditStrategicPlanChange();
