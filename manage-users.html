@@ -409,11 +409,11 @@
     {% if is_admin %}
     <!-- Notifications -->
     <div id="successNotification" class="notification success-notification">
-      <span class="notification-icon">✓</span>
+      <span class="notification-icon">&#10003;</span>
       <span class="notification-message" id="successMessage">User role updated successfully</span>
     </div>
     <div id="errorNotification" class="notification error-notification">
-      <span class="notification-icon">✕</span>
+      <span class="notification-icon">&#10005;</span>
       <span class="notification-message" id="errorMessage">An error occurred</span>
     </div>
 
@@ -449,10 +449,10 @@
             {% assign thisContactRole = contact.ecm_role %}
             {% assign thisContactRoleId = '' %}
             {% assign thisContactRoleDisplay = '' %}
-            {% if thisContactRole == 'PMM Admin' %}
+            {% if thisContactRole == 'TOPS Admin' %}
               {% assign thisContactRoleId = 'de7c4434-77d9-f011-8544-001dd8073dce' %}
-              {% assign thisContactRoleDisplay = 'TOPS Admin' %}
-            {% elsif thisContactRole == 'PMM User' %}
+              {% assign thisContactRoleDisplay = 'TOPS Site Owner' %}
+            {% elsif thisContactRole == 'TOPS User' %}
               {% assign thisContactRoleId = '5eab7f3a-77d9-f011-8544-001dd8073dce' %}
               {% assign thisContactRoleDisplay = 'TOPS User' %}
             {% endif %}
@@ -467,7 +467,7 @@
               <td>{{ contact.firstname }}</td>
               <td>{{ contact.lastname }}</td>
               <td>{{ contact.emailaddress1 }}</td>
-              <td class="role-cell">{% if thisContactRoleDisplay != blank %}{{ thisContactRoleDisplay }}{% else %}—{% endif %}</td>
+              <td class="role-cell">{% if thisContactRoleDisplay != blank %}{{ thisContactRoleDisplay }}{% else %}&mdash;{% endif %}</td>
               <td class="org-cell">{{ contact['org.cr335_name'] }}</td>
               <td>
                 <div class="actions-cell">
@@ -522,7 +522,7 @@
             <label for="editUserRole">User Role</label>
             <select id="editUserRole" required onchange="handleRoleChange()">
               <option value="">Select User Role</option>
-              <option value="de7c4434-77d9-f011-8544-001dd8073dce" data-rolename="PMM Admin">TOPS Admin</option>
+              <option value="de7c4434-77d9-f011-8544-001dd8073dce" data-rolename="PMM Admin">TOPS Site Owner</option>
               <option value="5eab7f3a-77d9-f011-8544-001dd8073dce" data-rolename="PMM User">TOPS User</option>
             </select>
           </div>
@@ -564,9 +564,9 @@
       }
 
       // Web roles data (hardcoded since mspp_webrole is a virtual table)
-      // Display names are TOPS Admin/User, backend names are PMM Admin/User
+      // Display names: TOPS Site Owner / TOPS User; backend names: PMM Admin / PMM User
       var webRoles = {
-        "de7c4434-77d9-f011-8544-001dd8073dce": "TOPS Admin",
+        "de7c4434-77d9-f011-8544-001dd8073dce": "TOPS Site Owner",
         "5eab7f3a-77d9-f011-8544-001dd8073dce": "TOPS User"
       };
 
