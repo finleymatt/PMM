@@ -527,7 +527,7 @@
       // Replace these with the actual HTTP trigger URLs for each environment.
       // ============================================================
       var FLOW_URL_DEV =
-        "https://prod-00.westus.logic.azure.com:443/workflows/DEV_WORKFLOW_ID_PLACEHOLDER/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DEV_SIG_PLACEHOLDER";
+        "https://prod-50.usgovtexas.logic.azure.us:443/workflows/19f8e53d7d6440848abc7f2c938ae68f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6DeCyrQO69OJqQ-gjMfVidfQVzvL4vQuxe8dkRnT5Qg";
       var FLOW_URL_TEST =
         "https://prod-00.westus.logic.azure.com:443/workflows/TEST_WORKFLOW_ID_PLACEHOLDER/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TEST_SIG_PLACEHOLDER";
       var FLOW_URL_PROD =
@@ -752,10 +752,9 @@
       // ============================================================
       function callToggleFlow(windowData, newState) {
         var payload = {
-          reportingFrequency: windowData.frequency,
           fiscalYear: windowData.fiscalYear,
           quarter: windowData.quarter,
-          openToBureaus: newState,
+          reportingFrequency: windowData.frequency,
         };
 
         $.ajax({
