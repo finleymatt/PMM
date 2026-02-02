@@ -423,17 +423,18 @@
             </label>
             <select id="fiscalYear">
               <option value="">Select Fiscal Year</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
               <option value="FY25">FY25</option>
               <option value="FY26">FY26</option>
               <option value="FY27">FY27</option>
               <option value="FY28">FY28</option>
               <option value="FY29">FY29</option>
               <option value="FY30">FY30</option>
-              <option value="FY31">FY31</option>
-              <option value="FY32">FY32</option>
-              <option value="FY33">FY33</option>
-              <option value="FY34">FY34</option>
-              <option value="FY35">FY35</option>
             </select>
           </div>
           <div class="filter-group">
@@ -515,8 +516,8 @@
       // ============================================================
       var reportingWindows = [];
 
-      // Generate Annually windows: FY25 through FY35
-      for (var y = 25; y <= 35; y++) {
+      // Generate Annually windows: FY19 through FY30
+      for (var y = 19; y <= 30; y++) {
         reportingWindows.push({
           frequency: "Annually",
           fiscalYear: "FY" + y,
@@ -525,8 +526,8 @@
         });
       }
 
-      // Generate Quarterly windows: FY25 through FY35, Q1-Q4
-      for (var y = 25; y <= 35; y++) {
+      // Generate Quarterly windows: FY19 through FY30, Q1-Q4
+      for (var y = 19; y <= 30; y++) {
         for (var q = 1; q <= 4; q++) {
           reportingWindows.push({
             frequency: "Quarterly",
@@ -628,10 +629,14 @@
           fyRequired.style.display = "none";
         }
 
+        var quarterSelect = document.getElementById("quarter");
         if (frequency === "Quarterly") {
           qRequired.style.display = "inline";
+          quarterSelect.disabled = false;
         } else {
           qRequired.style.display = "none";
+          quarterSelect.disabled = true;
+          quarterSelect.value = "";
         }
 
         // Show/hide Clear Search link
