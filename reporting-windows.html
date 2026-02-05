@@ -735,6 +735,7 @@
           fiscalYear: windowData.fiscalYear,
           quarter: windowData.quarter,
           reportingFrequency: windowData.frequency,
+          status: newState ? "Open" : "Closed",
         };
 
         $.ajax({
