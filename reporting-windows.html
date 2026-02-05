@@ -522,9 +522,16 @@
       var FLOW_URL_PROD =
         "https://prod-00.westus.logic.azure.com:443/workflows/PROD_WORKFLOW_ID_PLACEHOLDER/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PROD_SIG_PLACEHOLDER";
 
-      // Set the active environment flow URL here.
-      // Change this value to FLOW_URL_TEST or FLOW_URL_PROD when deploying.
-      var ACTIVE_FLOW_URL = FLOW_URL_DEV;
+      // Determine the active flow URL based on the portal hostname.
+      var hostname = window.location.hostname;
+      var ACTIVE_FLOW_URL;
+      if (hostname.indexOf("topsdev") === 0) {
+        ACTIVE_FLOW_URL = FLOW_URL_DEV;
+      } else if (hostname.indexOf("topstest") === 0) {
+        ACTIVE_FLOW_URL = FLOW_URL_TEST;
+      } else {
+        ACTIVE_FLOW_URL = FLOW_URL_PROD;
+      }
 
       // ============================================================
       // Reporting Windows Data
