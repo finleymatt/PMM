@@ -399,6 +399,21 @@
   <!--include PortalWebAPI helper for WebAPI-->
   {% include 'portalwebapihelper' %}
 
+  {% fetchxml reportingWindowRecords %}
+  <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
+    <entity name="ecm_reportingwindows">
+      <attribute name="ecm_reportingwindowsid" />
+      <attribute name="ecm_fiscalyear" />
+      <attribute name="ecm_quarter" />
+      <attribute name="ecm_reportingfrequency" />
+      <attribute name="ecm_status" />
+      <filter type="and">
+        <condition attribute="statecode" operator="eq" value="0" />
+      </filter>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
   <body>
     <!-- Page Content -->
     <div class="page-container">
@@ -514,29 +529,17 @@
       // ============================================================
       // Reporting Windows Data
       // ============================================================
-      var reportingWindows = [];
-
-      // Generate Annually windows: FY19 through FY30
-      for (var y = 19; y <= 30; y++) {
-        reportingWindows.push({
-          frequency: "Annually",
-          fiscalYear: "FY" + y,
-          quarter: "",
-          openToBureaus: false,
-        });
-      }
-
-      // Generate Quarterly windows: FY19 through FY30, Q1-Q4
-      for (var y = 19; y <= 30; y++) {
-        for (var q = 1; q <= 4; q++) {
-          reportingWindows.push({
-            frequency: "Quarterly",
-            fiscalYear: "FY" + y,
-            quarter: "Q" + q,
-            openToBureaus: false,
-          });
-        }
-      }
+      var reportingWindows = [
+        {% for record in reportingWindowRecords.results.entities %}
+        {
+          id: "{{ record.ecm_reportingwindowsid }}",
+          frequency: "{{ record.ecm_reportingfrequency }}",
+          fiscalYear: "{{ record.ecm_fiscalyear }}",
+          quarter: "{{ record.ecm_quarter }}",
+          openToBureaus: "{{ record.ecm_status }}" === "Open"
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
 
       // ============================================================
       // Pending toggle state (used during confirmation)
@@ -592,7 +595,7 @@
 
         var html = "";
         windows.forEach(function (w, index) {
-          var windowKey = w.frequency + "|" + w.fiscalYear + "|" + w.quarter;
+          var windowKey = w.id;
           var checkedAttr = w.openToBureaus ? "checked" : "";
           var statusText = w.openToBureaus ? "On" : "Off";
 
@@ -660,18 +663,9 @@
       // ============================================================
       // Toggle Handling
       // ============================================================
-      function findWindow(windowKey) {
-        var parts = windowKey.split("|");
-        var frequency = parts[0];
-        var fiscalYear = parts[1];
-        var quarter = parts[2];
-
+      function findWindow(windowId) {
         for (var i = 0; i < reportingWindows.length; i++) {
-          if (
-            reportingWindows[i].frequency === frequency &&
-            reportingWindows[i].fiscalYear === fiscalYear &&
-            reportingWindows[i].quarter === quarter
-          ) {
+          if (reportingWindows[i].id === windowId) {
             return reportingWindows[i];
           }
         }
@@ -730,6 +724,7 @@
       // ============================================================
       function callToggleFlow(windowData, newState) {
         var payload = {
+          id: windowData.id,
           fiscalYear: windowData.fiscalYear,
           quarter: windowData.quarter,
           reportingFrequency: windowData.frequency,
