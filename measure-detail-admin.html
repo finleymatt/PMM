@@ -940,7 +940,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="number" id="target" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -999,7 +999,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="number" id="target" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1043,7 +1043,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="number" id="target" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1110,7 +1110,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="number" id="target" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1174,7 +1174,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="number" id="editTargetValue" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1216,7 +1216,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="number" id="editTargetValue" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1254,7 +1254,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="number" id="editTargetValue" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1296,7 +1296,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="number" id="editTargetValue" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -2087,6 +2087,8 @@
             break;
         }
 
+        var targetValue = document.getElementById("editTargetValue").value;
+        if (targetValue) record.ecm_target = targetValue;
         var targetMetSelection = document.getElementById("editTargetMet").value;
         if (targetMetSelection) record.ecm_targetmet = targetMetSelection;
         var narrative = document.getElementById("editNarrative").value;
