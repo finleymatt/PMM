@@ -8,7 +8,6 @@
       * {
         box-sizing: border-box;
       }
-
       body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -18,7 +17,6 @@
         flex-direction: column;
         min-height: 100vh;
       }
-
       /* Header */
       .site-header {
         background-color: #003366;
@@ -27,41 +25,34 @@
         justify-content: space-between;
         align-items: center;
       }
-
       .site-header .site-title {
         color: white;
         font-size: 20px;
         font-weight: bold;
         margin: 0;
       }
-
       .site-header nav a {
         color: white;
         text-decoration: none;
         margin-left: 8px;
         font-size: 15px;
       }
-
       .site-header nav a:hover {
         text-decoration: underline;
       }
-
       .site-header nav a.active {
         text-decoration: underline;
         font-weight: bold;
       }
-
       .site-header nav .separator {
         color: white;
         margin: 0 4px;
       }
-
       /* Main content area */
       .page-container {
         flex: 1;
         padding: 40px 80px;
       }
-
       .page-title {
         text-align: center;
         font-size: 24px;
@@ -69,22 +60,18 @@
         margin: 0 0 32px 0;
         color: #333;
       }
-
       /* Filter section */
       .filter-section {
         margin-bottom: 24px;
       }
-
       .filter-row {
         display: flex;
         gap: 24px;
         margin-bottom: 8px;
       }
-
       .filter-group {
         flex: 1;
       }
-
       .filter-group label {
         display: block;
         font-size: 14px;
@@ -92,12 +79,10 @@
         color: #333;
         margin-bottom: 6px;
       }
-
       .filter-group label .required {
         color: #cc0000;
         font-weight: bold;
       }
-
       .filter-group select {
         width: 100%;
         padding: 8px 12px;
@@ -108,12 +93,10 @@
         color: #333;
         appearance: auto;
       }
-
       .filter-group select:disabled {
         background-color: #f0f0f0;
         color: #999;
       }
-
       .clear-search {
         display: none;
         color: #0066cc;
@@ -122,11 +105,9 @@
         text-decoration: none;
         margin-top: 4px;
       }
-
       .clear-search:hover {
         text-decoration: underline;
       }
-
       /* Table section */
       .section {
         background-color: white;
@@ -134,28 +115,23 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         overflow: hidden;
       }
-
       .section-header {
         background-color: #d6e4f0;
         padding: 12px 16px;
       }
-
       .section-title {
         font-size: 15px;
         font-weight: bold;
         margin: 0;
         color: #333;
       }
-
       .table-container {
         overflow-x: auto;
       }
-
       table {
         width: 100%;
         border-collapse: collapse;
       }
-
       thead th {
         background-color: #e8eef4;
         padding: 10px 16px;
@@ -165,7 +141,6 @@
         color: #333;
         border-bottom: 1px solid #ddd;
       }
-
       tbody td {
         padding: 12px 16px;
         text-align: center;
@@ -173,7 +148,6 @@
         color: #333;
         border-bottom: 1px solid #eee;
       }
-
       .no-records {
         padding: 40px 16px;
         text-align: center;
@@ -181,7 +155,6 @@
         font-size: 14px;
         font-style: italic;
       }
-
       /* Toggle switch */
       .toggle-cell {
         display: flex;
@@ -189,7 +162,6 @@
         justify-content: center;
         gap: 8px;
       }
-
       .toggle-switch {
         position: relative;
         display: inline-block;
@@ -197,13 +169,11 @@
         height: 24px;
         flex-shrink: 0;
       }
-
       .toggle-switch input {
         opacity: 0;
         width: 0;
         height: 0;
       }
-
       .toggle-slider {
         position: absolute;
         cursor: pointer;
@@ -215,7 +185,6 @@
         border-radius: 24px;
         transition: background-color 0.3s;
       }
-
       .toggle-slider:before {
         position: absolute;
         content: "";
@@ -227,21 +196,17 @@
         border-radius: 50%;
         transition: transform 0.3s;
       }
-
       .toggle-switch input:checked + .toggle-slider {
         background-color: #0066cc;
       }
-
       .toggle-switch input:checked + .toggle-slider:before {
         transform: translateX(20px);
       }
-
       .toggle-label {
         font-size: 14px;
         color: #333;
         min-width: 24px;
       }
-
       /* Modal */
       .modal {
         display: none;
@@ -253,7 +218,6 @@
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 1000;
       }
-
       .modal-content {
         position: relative;
         background-color: white;
@@ -264,7 +228,6 @@
         width: 90%;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
-
       .modal-header {
         display: flex;
         justify-content: space-between;
@@ -273,13 +236,11 @@
         padding-bottom: 16px;
         border-bottom: 1px solid #ddd;
       }
-
       .modal-title {
         font-size: 20px;
         font-weight: bold;
         margin: 0;
       }
-
       .close-button {
         background: none;
         border: none;
@@ -287,22 +248,18 @@
         cursor: pointer;
         color: #666;
       }
-
       .close-button:hover {
         color: #333;
       }
-
       .modal-body {
         margin-bottom: 20px;
       }
-
       .modal-body p {
         margin: 0;
         font-size: 14px;
         color: #333;
         line-height: 1.5;
       }
-
       .modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -310,7 +267,6 @@
         padding-top: 16px;
         border-top: 1px solid #ddd;
       }
-
       .btn {
         padding: 8px 20px;
         border-radius: 4px;
@@ -318,30 +274,24 @@
         font-size: 14px;
         border: none;
       }
-
       .btn:hover {
         opacity: 0.9;
       }
-
       .btn-secondary {
         background-color: white;
         border: 1px solid #ddd;
         color: #333;
       }
-
       .btn-secondary:hover {
         background-color: #f5f5f5;
       }
-
       .btn-primary {
         background-color: #0066cc;
         color: white;
       }
-
       .btn-primary:hover {
         background-color: #0055aa;
       }
-
       /* Notification toasts */
       .notification {
         position: fixed;
@@ -356,28 +306,23 @@
         max-width: 400px;
         animation: slideIn 0.3s ease-out forwards;
       }
-
       .success-notification {
         background-color: #e7f7ee;
         border-left: 4px solid #34c759;
         color: #2a7c44;
       }
-
       .error-notification {
         background-color: #ffeeee;
         border-left: 4px solid #ff3b30;
         color: #cc2f26;
       }
-
       .notification-icon {
         margin-right: 10px;
         font-size: 18px;
       }
-
       .notification-message {
         font-size: 14px;
       }
-
       @keyframes slideIn {
         from {
           transform: translateX(100%);
@@ -388,22 +333,32 @@
           opacity: 1;
         }
       }
-
     </style>
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Include webapi.js or equivalent -->
     <script src="/path/to/webapi.js"></script>
   </head>
-
   <!--include PortalWebAPI helper for WebAPI-->
   {% include 'portalwebapihelper' %}
-
+  {% fetchxml reportingWindowRecords %}
+  <fetch version="1.0" mapping="logical" no-lock="false" distinct="true">
+    <entity name="ecm_reportingwindows">
+      <attribute name="ecm_reportingwindowsid" />
+      <attribute name="ecm_fiscalyear" />
+      <attribute name="ecm_quarter" />
+      <attribute name="ecm_reportingfrequency" />
+      <attribute name="ecm_status" />
+      <filter type="and">
+        <condition attribute="statecode" operator="eq" value="0" />
+      </filter>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
   <body>
     <!-- Page Content -->
     <div class="page-container">
       <h1 class="page-title">Manage Reporting Windows</h1>
-
       <!-- Filter Section -->
       <div class="filter-section">
         <div class="filter-row">
@@ -452,7 +407,6 @@
         </div>
         <a href="#" id="clearSearch" class="clear-search" onclick="clearFilters(); return false;">Clear Search</a>
       </div>
-
       <!-- Available Reporting Windows Table -->
       <div class="section">
         <div class="section-header">
@@ -477,7 +431,6 @@
         </div>
       </div>
     </div>
-
     <!-- Confirmation Modal -->
     <div id="confirmToggleModal" class="modal">
       <div class="modal-content">
@@ -494,7 +447,6 @@
         </div>
       </div>
     </div>
-
     <script>
       // ============================================================
       // Power Automate Flow URL Placeholders
@@ -505,44 +457,37 @@
       var FLOW_URL_TEST =
         "https://prod-44.usgovtexas.logic.azure.us:443/workflows/d129b8dfd1e24042a50039bebf849aef/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=316bxuB-KrVp3vdXZO9l9XO0-gqsRidGjvroRNxaz9Y";
       var FLOW_URL_PROD =
-        "https://prod-06.usgovtexas.logic.azure.us:443/workflows/fbb86870ffdf4dedb461edb517fa7b9b/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ZQU4T0Kc2sk4Snxa_s5FzEnVdtGSpOdEV4YrGkZbIiA";
-
-      // Set the active environment flow URL here.
-      // Change this value to FLOW_URL_TEST or FLOW_URL_PROD when deploying.
-      var ACTIVE_FLOW_URL = FLOW_URL_PROD;
-
+        "https://prod-00.westus.logic.azure.com:443/workflows/PROD_WORKFLOW_ID_PLACEHOLDER/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PROD_SIG_PLACEHOLDER";
+      // Determine the active flow URL based on the portal hostname.
+      var hostname = window.location.hostname;
+      var ACTIVE_FLOW_URL;
+      if (hostname.indexOf("topsdev") === 0) {
+        ACTIVE_FLOW_URL = FLOW_URL_DEV;
+      } else if (hostname.indexOf("topstest") === 0) {
+        ACTIVE_FLOW_URL = FLOW_URL_TEST;
+      } else {
+        ACTIVE_FLOW_URL = FLOW_URL_PROD;
+      }
       // ============================================================
       // Reporting Windows Data
       // ============================================================
-      var reportingWindows = [];
-
-      // Generate Annually windows: FY19 through FY30
-      for (var y = 19; y <= 30; y++) {
-        reportingWindows.push({
-          frequency: "Annually",
-          fiscalYear: "FY" + y,
-          quarter: "",
-          openToBureaus: false,
-        });
-      }
-
-      // Generate Quarterly windows: FY19 through FY30, Q1-Q4
-      for (var y = 19; y <= 30; y++) {
-        for (var q = 1; q <= 4; q++) {
-          reportingWindows.push({
-            frequency: "Quarterly",
-            fiscalYear: "FY" + y,
-            quarter: "Q" + q,
-            openToBureaus: false,
-          });
-        }
-      }
-
+      var reportingWindows = [
+        {% for record in reportingWindowRecords.results.entities %}
+        {
+          id: "{{ record.ecm_reportingwindowsid }}",
+          frequency: "{{ record.ecm_reportingfrequency }}",
+          fiscalYear: "{{ record.ecm_fiscalyear }}",
+          quarter: "{{ record.ecm_quarter }}",
+          openToBureaus: "{{ record.ecm_status }}" === "Open"
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
+      console.log("reportingWindows loaded:", reportingWindows.length, "records");
+      console.log(JSON.stringify(reportingWindows, null, 2));
       // ============================================================
       // Pending toggle state (used during confirmation)
       // ============================================================
       var pendingToggle = null;
-
       // ============================================================
       // Filter Logic
       // ============================================================
@@ -550,17 +495,14 @@
         var frequency = document.getElementById("reportingFrequency").value;
         var fiscalYear = document.getElementById("fiscalYear").value;
         var quarter = document.getElementById("quarter").value;
-
         // Require frequency and fiscal year at minimum
         if (!frequency || !fiscalYear) {
           return [];
         }
-
         // Require quarter when frequency is Quarterly
         if (frequency === "Quarterly" && !quarter) {
           return [];
         }
-
         return reportingWindows.filter(function (w) {
           if (w.frequency !== frequency) return false;
           if (w.fiscalYear !== fiscalYear) return false;
@@ -568,34 +510,28 @@
           return true;
         });
       }
-
       function renderTable() {
         var tbody = document.getElementById("reportingWindowsBody");
         var windows = getFilteredWindows();
-
         if (windows.length === 0) {
           tbody.innerHTML =
             '<tr><td colspan="4" class="no-records">No matching record found.</td></tr>';
           return;
         }
-
         // Sort: by fiscal year (ascending), then by quarter (ascending)
         windows.sort(function (a, b) {
           var fyA = parseInt(a.fiscalYear.replace("FY", ""));
           var fyB = parseInt(b.fiscalYear.replace("FY", ""));
           if (fyA !== fyB) return fyA - fyB;
-
           var qA = a.quarter ? parseInt(a.quarter.replace("Q", "")) : 0;
           var qB = b.quarter ? parseInt(b.quarter.replace("Q", "")) : 0;
           return qA - qB;
         });
-
         var html = "";
         windows.forEach(function (w, index) {
-          var windowKey = w.frequency + "|" + w.fiscalYear + "|" + w.quarter;
+          var windowKey = w.id;
           var checkedAttr = w.openToBureaus ? "checked" : "";
           var statusText = w.openToBureaus ? "On" : "Off";
-
           html +=
             "<tr>" +
             "<td>" + w.frequency + "</td>" +
@@ -610,25 +546,20 @@
             "</div></td>" +
             "</tr>";
         });
-
         tbody.innerHTML = html;
       }
-
       function updateFilterState() {
         var frequency = document.getElementById("reportingFrequency").value;
         var fiscalYear = document.getElementById("fiscalYear").value;
         var quarter = document.getElementById("quarter").value;
-
         // Show/hide required asterisks based on frequency selection
         var fyRequired = document.getElementById("fyRequired");
         var qRequired = document.getElementById("qRequired");
-
         if (frequency) {
           fyRequired.style.display = "inline";
         } else {
           fyRequired.style.display = "none";
         }
-
         var quarterSelect = document.getElementById("quarter");
         if (frequency === "Quarterly") {
           qRequired.style.display = "inline";
@@ -638,7 +569,6 @@
           quarterSelect.disabled = true;
           quarterSelect.value = "";
         }
-
         // Show/hide Clear Search link
         var clearSearch = document.getElementById("clearSearch");
         if (frequency || fiscalYear || quarter) {
@@ -646,95 +576,72 @@
         } else {
           clearSearch.style.display = "none";
         }
-
         renderTable();
       }
-
       function clearFilters() {
         document.getElementById("reportingFrequency").value = "";
         document.getElementById("fiscalYear").value = "";
         document.getElementById("quarter").value = "";
         updateFilterState();
       }
-
       // ============================================================
       // Toggle Handling
       // ============================================================
-      function findWindow(windowKey) {
-        var parts = windowKey.split("|");
-        var frequency = parts[0];
-        var fiscalYear = parts[1];
-        var quarter = parts[2];
-
+      function findWindow(windowId) {
         for (var i = 0; i < reportingWindows.length; i++) {
-          if (
-            reportingWindows[i].frequency === frequency &&
-            reportingWindows[i].fiscalYear === fiscalYear &&
-            reportingWindows[i].quarter === quarter
-          ) {
+          if (reportingWindows[i].id === windowId) {
             return reportingWindows[i];
           }
         }
         return null;
       }
-
       function onToggleChange(checkbox, windowKey) {
         var newState = checkbox.checked;
         var w = findWindow(windowKey);
         if (!w) return;
-
         // Revert checkbox to previous state until confirmed
         checkbox.checked = w.openToBureaus;
-
         // Store pending toggle info
         pendingToggle = {
           windowKey: windowKey,
           newState: newState,
           window: w,
         };
-
         // Build confirmation message
         var action = newState ? "open" : "close";
         var windowDesc = w.frequency + " - " + w.fiscalYear;
         if (w.quarter) {
           windowDesc += " " + w.quarter;
         }
-
         document.getElementById("confirmToggleMessage").textContent =
           "Are you sure you want to " + action + " the reporting window (" + windowDesc + ") to bureaus?";
-
         // Show modal
         document.getElementById("confirmToggleModal").style.display = "block";
       }
-
       function confirmToggle() {
         if (!pendingToggle) return;
-
         var w = pendingToggle.window;
         var newState = pendingToggle.newState;
-
         // Close modal
         document.getElementById("confirmToggleModal").style.display = "none";
-
         // Call the flow via HTTP request
         callToggleFlow(w, newState);
       }
-
       function cancelToggle() {
         pendingToggle = null;
         document.getElementById("confirmToggleModal").style.display = "none";
       }
-
       // ============================================================
       // Flow HTTP Request
       // ============================================================
       function callToggleFlow(windowData, newState) {
         var payload = {
+          id: windowData.id,
           fiscalYear: windowData.fiscalYear,
           quarter: windowData.quarter,
           reportingFrequency: windowData.frequency,
+          status: newState ? "Open" : "Closed",
         };
-
         $.ajax({
           type: "POST",
           url: ACTIVE_FLOW_URL,
@@ -744,14 +651,13 @@
             // Update local state
             windowData.openToBureaus = newState;
             renderTable();
-
             var action = newState ? "opened" : "closed";
             var windowDesc = windowData.frequency + " - " + windowData.fiscalYear;
             if (windowData.quarter) {
               windowDesc += " " + windowData.quarter;
             }
             showSuccessNotification(
-              "Reporting window (" + windowDesc + ") has been " + action + " to bureaus."
+              "Reporting window (" + windowDesc + ") has been " + action + " to bureaus. Changes may take up to 10 minutes to reflect in the system."
             );
           },
           error: function (xhr, textStatus, errorThrown) {
@@ -763,10 +669,8 @@
             showErrorNotification(errorMsg);
           },
         });
-
         pendingToggle = null;
       }
-
       // ============================================================
       // Notifications
       // ============================================================
@@ -787,7 +691,6 @@
           notification.style.display = "none";
         }, 5000);
       }
-
       function showErrorNotification(message) {
         var notification = document.getElementById("errorNotification");
         if (!notification) {
@@ -805,7 +708,6 @@
           notification.style.display = "none";
         }, 5000);
       }
-
       // ============================================================
       // Event Listeners
       // ============================================================
@@ -818,7 +720,6 @@
             document.getElementById("quarter").value = "";
             updateFilterState();
           });
-
         document
           .getElementById("fiscalYear")
           .addEventListener("change", function () {
@@ -829,18 +730,15 @@
             }
             updateFilterState();
           });
-
         document
           .getElementById("quarter")
           .addEventListener("change", updateFilterState);
-
         // Close modal on outside click
         window.addEventListener("click", function (event) {
           if (event.target.classList.contains("modal")) {
             cancelToggle();
           }
         });
-
         // Initial render
         updateFilterState();
       });
