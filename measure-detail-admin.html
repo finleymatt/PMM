@@ -589,7 +589,7 @@
       <div class="section-header">
         <h2 class="section-title">Actual</h2>
         <div class="action-buttons">
-          {% if measureRecord.ecm_reportingfrequency == 'Annually' or measureRecord.ecm_reportingfrequency == 'Monthly' %}
+          {% if measureRecord.ecm_reportingfrequency == 'Annually' or measureRecord.ecm_reportingfrequency == 'Monthly' or measureRecord.ecm_reportingfrequency == 'Quarterly (Count)' or measureRecord.ecm_reportingfrequency == 'Quarterly (Year-to-Date)' %}
           <button class="btn-new" onclick="openAddResultModal()">New</button>
           {% endif %}
         </div>
@@ -899,10 +899,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
+              <option value="FY 19">FY 19</option>
+              <option value="FY 20">FY 20</option>
+              <option value="FY 21">FY 21</option>
               <option value="FY 22">FY 22</option>
               <option value="FY 23">FY 23</option>
               <option value="FY 24">FY 24</option>
               <option value="FY 25">FY 25</option>
+              <option value="FY 26">FY 26</option>
+              <option value="FY 27">FY 27</option>
+              <option value="FY 28">FY 28</option>
+              <option value="FY 29">FY 29</option>
+              <option value="FY 30">FY 30</option>
             </select>
           </div>
           <div class="form-group">
@@ -939,8 +947,13 @@
             <input type="text" id="actualYTD" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
-            <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <label for="target">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="target" step="any" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -967,10 +980,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
+              <option value="FY 19">FY 19</option>
+              <option value="FY 20">FY 20</option>
+              <option value="FY 21">FY 21</option>
               <option value="FY 22">FY 22</option>
               <option value="FY 23">FY 23</option>
               <option value="FY 24">FY 24</option>
               <option value="FY 25">FY 25</option>
+              <option value="FY 26">FY 26</option>
+              <option value="FY 27">FY 27</option>
+              <option value="FY 28">FY 28</option>
+              <option value="FY 29">FY 29</option>
+              <option value="FY 30">FY 30</option>
             </select>
           </div>
           <div class="form-group">
@@ -998,8 +1019,13 @@
             <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
-            <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <label for="target">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="target" step="any" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1026,10 +1052,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
+              <option value="FY 19">FY 19</option>
+              <option value="FY 20">FY 20</option>
+              <option value="FY 21">FY 21</option>
               <option value="FY 22">FY 22</option>
               <option value="FY 23">FY 23</option>
               <option value="FY 24">FY 24</option>
               <option value="FY 25">FY 25</option>
+              <option value="FY 26">FY 26</option>
+              <option value="FY 27">FY 27</option>
+              <option value="FY 28">FY 28</option>
+              <option value="FY 29">FY 29</option>
+              <option value="FY 30">FY 30</option>
             </select>
           </div>
           <div class="form-group">
@@ -1042,8 +1076,13 @@
             <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
-            <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <label for="target">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="target" step="any" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1070,10 +1109,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
+              <option value="FY 19">FY 19</option>
+              <option value="FY 20">FY 20</option>
+              <option value="FY 21">FY 21</option>
               <option value="FY 22">FY 22</option>
               <option value="FY 23">FY 23</option>
               <option value="FY 24">FY 24</option>
               <option value="FY 25">FY 25</option>
+              <option value="FY 26">FY 26</option>
+              <option value="FY 27">FY 27</option>
+              <option value="FY 28">FY 28</option>
+              <option value="FY 29">FY 29</option>
+              <option value="FY 30">FY 30</option>
             </select>
           </div>
           <div class="form-group">
@@ -1109,8 +1156,13 @@
             <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
-            <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <label for="target">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="target" step="any" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1173,8 +1225,13 @@
             <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
-            <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <label for="editTargetValue">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="editTargetValue" step="any" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1215,8 +1272,13 @@
             <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
-            <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <label for="editTargetValue">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="editTargetValue" step="any" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1253,8 +1315,13 @@
             <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
-            <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <label for="editTargetValue">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="editTargetValue" step="any" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1295,8 +1362,13 @@
             <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
-            <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <label for="editTargetValue">
+              <span class="tooltip-label">
+                Target
+                <span class="tooltip-text">Defaults to the Measure target. You may override this value for this specific reporting period.</span>
+              </span>
+            </label>
+            <input type="number" id="editTargetValue" step="any" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -2087,6 +2159,8 @@
             break;
         }
 
+        var editTarget = document.getElementById("editTargetValue").value;
+        if (editTarget !== "") record.ecm_target = editTarget;
         var targetMetSelection = document.getElementById("editTargetMet").value;
         if (targetMetSelection) record.ecm_targetmet = targetMetSelection;
         var narrative = document.getElementById("editNarrative").value;
