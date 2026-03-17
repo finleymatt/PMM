@@ -510,6 +510,7 @@
       <attribute name="ecm_month" />
       <attribute name="ecm_optionalnarrative" />
       <attribute name="ecm_status" />
+      <attribute name="ecm_measurereportingfrequency" />
       <filter type="and">
         <condition attribute="ecm_measure" operator="eq" value="{{measGUID}}" />
       </filter>
@@ -1997,6 +1998,7 @@
         var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
         var record = {};
         record["ecm_Measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
+        record.ecm_measurereportingfrequency = reportingFrequency;
 
         switch (reportingFrequency) {
           case "Quarterly (Count)":
