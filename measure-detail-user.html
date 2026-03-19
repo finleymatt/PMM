@@ -1177,7 +1177,7 @@
           var currentQuarterNum = quarterMap[currentQuarter];
           var currentActualValue = parseFloat(currentActual) || 0;
 
-          var apiUrl = "/_api/ecm_measureactuals?$select=ecm_actual,ecm_quarter,ecm_measureactualid,ecm_fiscalyear&$filter=ecm_measure eq '" + measGUID + "' and ecm_fiscalyear eq '" + fiscalYear + "'";
+          var apiUrl = "/_api/ecm_measureactuals?$select=ecm_actual,ecm_quarter,ecm_measureactualid,ecm_fiscalyear&$filter=_ecm_measure_value eq '" + measGUID + "' and ecm_fiscalyear eq '" + fiscalYear + "'";
 
           webapi.safeAjax({
             type: "GET",
@@ -1417,8 +1417,10 @@
             submitButton.disabled = false;
             var errorMessage = "Error adding result. Please check the console for details.";
             if (xhr.responseJSON && xhr.responseJSON.error) {
-              errorMessage = xhr.responseJSON.error.message || errorMessage;
+              var err = xhr.responseJSON.error;
+              errorMessage = (err.innererror && err.innererror.message) || err.message || errorMessage;
             }
+            console.error("Add result error:", xhr.responseJSON);
             showErrorNotification(errorMessage);
           },
         });
@@ -1472,9 +1474,11 @@
             submitButton.textContent = originalText;
             submitButton.disabled = false;
             var errorMessage = "Error updating result. Please try again.";
-            if (xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) {
-              errorMessage = xhr.responseJSON.error.message;
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+              var err = xhr.responseJSON.error;
+              errorMessage = (err.innererror && err.innererror.message) || err.message || errorMessage;
             }
+            console.error("Edit result error:", xhr.responseJSON);
             showErrorNotification(errorMessage);
           },
         });
