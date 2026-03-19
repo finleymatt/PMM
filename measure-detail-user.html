@@ -1328,7 +1328,7 @@
         var measGUID = "{{ measGUID }}";
         var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
         var record = {};
-        record["ecm_Measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
+        record["ecm_measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
         record.ecm_measurereportingfrequency = reportingFrequency;
 
         switch (reportingFrequency) {
