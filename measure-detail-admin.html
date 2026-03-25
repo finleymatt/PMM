@@ -1183,6 +1183,15 @@
             <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
+            <label for="editActualYTD">
+              <span class="tooltip-label">
+                Actual (YTD)
+                <span class="tooltip-text">Year-to-date actual value (auto-calculated).</span>
+              </span>
+            </label>
+            <input type="text" id="editActualYTD" disabled />
+          </div>
+          <div class="form-group">
             <label for="editTargetValue">Target</label>
             <input type="number" id="editTargetValue" disabled />
           </div>
@@ -1862,6 +1871,14 @@
               document.getElementById("editTargetValue").value = cells[2].textContent.trim() || "{{ measureRecord.ecm_target }}";
               setSelectValue("editTargetMet", cells[3].textContent.trim());
               document.getElementById("editNarrative").value = cells[4] ? cells[4].textContent.trim() : "";
+            } else if (reportingFrequency === "Quarterly (Count)") {
+              document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
+              document.getElementById("editQuarter").value = cells[1].textContent.trim();
+              document.getElementById("editActual").value = cells[2].textContent.trim();
+              if (document.getElementById("editActualYTD")) document.getElementById("editActualYTD").value = cells[3].textContent.trim();
+              document.getElementById("editTargetValue").value = cells[4].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              setSelectValue("editTargetMet", cells[5].textContent.trim());
+              document.getElementById("editNarrative").value = cells[6] ? cells[6].textContent.trim() : "";
             } else {
               document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
               if (document.getElementById("editQuarter")) document.getElementById("editQuarter").value = cells[1].textContent.trim();
