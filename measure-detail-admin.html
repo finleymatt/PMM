@@ -946,7 +946,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1013,7 +1013,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1065,7 +1065,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1213,7 +1213,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1255,7 +1255,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1293,7 +1293,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -2134,6 +2134,8 @@
             break;
         }
 
+        var editTargetValue = document.getElementById("editTargetValue").value;
+        if (editTargetValue) record.ecm_target = editTargetValue;
         var targetMetSelection = document.getElementById("editTargetMet").value;
         if (targetMetSelection) record.ecm_targetmet = targetMetSelection;
         var narrative = document.getElementById("editNarrative").value;
