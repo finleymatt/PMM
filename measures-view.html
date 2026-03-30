@@ -621,7 +621,7 @@
             <span>🔍</span> Filter
         </button>
         <button class="reset-filters-btn" onclick="resetAllFilters()">Reset Filters</button>
-        <input type="text" class="search-box" placeholder="Search by name, organization, type, frequency, or status...">
+        <input type="text" class="search-box" placeholder="Search by name, organization, usage, type, frequency, or status...">
             <select id="reportingFreqFilter" class="form-control" style="width: 200px; padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; height: 32px;">
             <option value="">All Reporting Frequencies</option>
             <option value="Monthly">Monthly</option>
@@ -662,6 +662,7 @@
 <attribute name="statecode"/>
 <attribute name="ecm_target"/>
 <attribute name="ecm_status"/>
+<attribute name="ecm_usage"/>
 <attribute name="ecm_desiredtrend"/>
 <attribute name="ecm_coreoperationmeasure"/>
 <attribute name="ecm_fy2630alignment"/>
@@ -725,6 +726,13 @@
                         <span class="sort-arrow down"></span>
                     </span>
                 </th>
+                <th class="sortable-header" data-column="usage">
+                    Usage
+                    <span class="sort-arrows">
+                        <span class="sort-arrow up"></span>
+                        <span class="sort-arrow down"></span>
+                    </span>
+                </th>
                 <th class="sortable-header" data-column="type">
                     Type
                     <span class="sort-arrows">
@@ -753,6 +761,7 @@
             <tr data-id="{{ measure.ecm_measureid }}">
                 <td><a href="#" class="measure-name" onclick="navigateToMeasureDetail('{{ measure.ecm_measureid }}'); return false;">{{ measure.ecm_name }}</a></td>
                 <td>{{ measure.ecm_organization }}</td>
+                <td>{{ measure.ecm_usage }}</td>
                 <td>{{ measure.ecm_type }}</td>
                 <td>{{ measure.ecm_reportingfrequency }}</td>
                 <td>{{ measure.ecm_status }}</td>
@@ -999,6 +1008,36 @@
         </div>
 
         <div class="filter-section">
+            <h4>Usage</h4>
+            <div class="filter-checkbox-group" id="usageFilters">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-afr" value="AFR/APR">
+                    <label for="usage-afr">AFR/APR</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-qpr" value="Budget">
+                    <label for="usage-qpr">Budget</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-budget" value="QPR/SOAR">
+                    <label for="usage-budget">QPR/SOAR (Internal)</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-gsd" value="Government Service Delivery">
+                    <label for="usage-gsd">Government Service Delivery</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-critical" value="Critical Program/Project">
+                    <label for="usage-critical">Critical Program/Project</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="usage-pma" value="PMA">
+                    <label for="usage-pma">PMA</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
             <h4>Type</h4>
             <div class="filter-checkbox-group" id="typeFilters">
                 <div class="filter-checkbox">
@@ -1132,6 +1171,14 @@
             if (checkbox) checkbox.checked = true;
         });
 
+        // Restore usage checkboxes
+        if (activeFilters.usage) {
+            activeFilters.usage.forEach(usage => {
+                const checkbox = document.querySelector(`#usageFilters input[value="${usage}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+
         // Restore type checkboxes
         activeFilters.type.forEach(type => {
             const checkbox = document.querySelector(`#typeFilters input[value="${type}"]`);
@@ -1172,6 +1219,7 @@
         // Clear advanced filters
         activeFilters = {
             organization: [],
+            usage: [],
             type: [],
             frequency: [],
             status: []
@@ -1209,6 +1257,7 @@
     // Filter functionality
     let activeFilters = {
         organization: [],
+        usage: [],
         type: [],
         frequency: [],
         status: []
@@ -1301,6 +1350,7 @@
     // Reset active filters
     activeFilters = {
         organization: [],
+        usage: [],
         type: [],
         frequency: [],
         status: []
@@ -1313,6 +1363,7 @@
     function applyFilters() {
     // Collect selected filters
     activeFilters.organization = Array.from(document.querySelectorAll('#organizationFilters input:checked')).map(cb => cb.value);
+    activeFilters.usage = Array.from(document.querySelectorAll('#usageFilters input:checked')).map(cb => cb.value);
     activeFilters.type = Array.from(document.querySelectorAll('#typeFilters input:checked')).map(cb => cb.value);
     activeFilters.frequency = Array.from(document.querySelectorAll('#frequencyFilters input:checked')).map(cb => cb.value);
     activeFilters.status = Array.from(document.querySelectorAll('#statusFilters input:checked')).map(cb => cb.value);
@@ -1329,15 +1380,17 @@
         filteredRows = allRows.filter(row => {
             const cells = row.getElementsByTagName('td');
             const organization = cells[1] ? cells[1].textContent.trim() : '';
-            const type = cells[2] ? cells[2].textContent.trim() : '';
-            const frequency = cells[3] ? cells[3].textContent.trim() : '';
-            const status = cells[4] ? cells[4].textContent.trim() : '';
+            const usage = cells[2] ? cells[2].textContent.trim() : '';
+            const type = cells[3] ? cells[3].textContent.trim() : '';
+            const frequency = cells[4] ? cells[4].textContent.trim() : '';
+            const status = cells[5] ? cells[5].textContent.trim() : '';
 
             // Apply search filter
             const searchTerm = document.querySelector('.search-box').value.toLowerCase();
             const matchesSearch = !searchTerm ||
                 cells[0].textContent.toLowerCase().includes(searchTerm) ||
                 organization.toLowerCase().includes(searchTerm) ||
+                usage.toLowerCase().includes(searchTerm) ||
                 type.toLowerCase().includes(searchTerm) ||
                 frequency.toLowerCase().includes(searchTerm) ||
                 status.toLowerCase().includes(searchTerm);
@@ -1348,11 +1401,12 @@
 
             // Apply advanced filters
             const matchesOrg = activeFilters.organization.length === 0 || activeFilters.organization.includes(organization);
+            const matchesUsage = activeFilters.usage.length === 0 || activeFilters.usage.some(u => usage.includes(u));
             const matchesType = activeFilters.type.length === 0 || activeFilters.type.includes(type);
             const matchesFreq = activeFilters.frequency.length === 0 || activeFilters.frequency.includes(frequency);
             const matchesStatus = activeFilters.status.length === 0 || activeFilters.status.includes(status);
 
-            return matchesSearch && matchesFrequency && matchesOrg && matchesType && matchesFreq && matchesStatus;
+            return matchesSearch && matchesFrequency && matchesOrg && matchesUsage && matchesType && matchesFreq && matchesStatus;
         });
 
         // Apply sorting
@@ -1376,9 +1430,10 @@
         switch (column) {
             case 'name': return cells[0] ? cells[0].textContent.trim() : '';
             case 'organization': return cells[1] ? cells[1].textContent.trim() : '';
-            case 'type': return cells[2] ? cells[2].textContent.trim() : '';
-            case 'frequency': return cells[3] ? cells[3].textContent.trim() : '';
-            case 'status': return cells[4] ? cells[4].textContent.trim() : '';
+            case 'usage': return cells[2] ? cells[2].textContent.trim() : '';
+            case 'type': return cells[3] ? cells[3].textContent.trim() : '';
+            case 'frequency': return cells[4] ? cells[4].textContent.trim() : '';
+            case 'status': return cells[5] ? cells[5].textContent.trim() : '';
             default: return '';
         }
     }
@@ -1706,14 +1761,16 @@ function getVisibleTableData() {
         // Get text content from each column
         const name = cells[0] ? cells[0].textContent.toLowerCase() : '';
         const organization = cells[1] ? cells[1].textContent.toLowerCase() : '';
-        const type = cells[2] ? cells[2].textContent.toLowerCase() : '';
-        const frequency = cells[3] ? cells[3].textContent : '';
-        const status = cells[4] ? cells[4].textContent.toLowerCase() : '';
+        const usage = cells[2] ? cells[2].textContent.toLowerCase() : '';
+        const type = cells[3] ? cells[3].textContent.toLowerCase() : '';
+        const frequency = cells[4] ? cells[4].textContent : '';
+        const status = cells[5] ? cells[5].textContent.toLowerCase() : '';
 
         // Apply search filter across all searchable columns
         const matchesSearch = !searchTerm ||
             name.includes(searchTerm) ||
             organization.includes(searchTerm) ||
+            usage.includes(searchTerm) ||
             type.includes(searchTerm) ||
             frequency.toLowerCase().includes(searchTerm) ||
             status.includes(searchTerm);
@@ -2342,14 +2399,16 @@ function filterTable(searchTerm, reportingFreq) {
         // Get text content from each column
         const name = cells[0] ? cells[0].textContent.toLowerCase() : '';
         const organization = cells[1] ? cells[1].textContent.toLowerCase() : '';
-        const type = cells[2] ? cells[2].textContent.toLowerCase() : '';
-        const frequency = cells[3] ? cells[3].textContent : '';
-        const status = cells[4] ? cells[4].textContent.toLowerCase() : '';
+        const usage = cells[2] ? cells[2].textContent.toLowerCase() : '';
+        const type = cells[3] ? cells[3].textContent.toLowerCase() : '';
+        const frequency = cells[4] ? cells[4].textContent : '';
+        const status = cells[5] ? cells[5].textContent.toLowerCase() : '';
 
         // Apply search filter across all searchable columns
         const matchesSearch = !searchTerm ||
             name.includes(searchTerm) ||
             organization.includes(searchTerm) ||
+            usage.includes(searchTerm) ||
             type.includes(searchTerm) ||
             frequency.toLowerCase().includes(searchTerm) ||
             status.includes(searchTerm);
