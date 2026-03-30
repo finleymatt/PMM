@@ -1472,12 +1472,12 @@ function getAnnualActualsDataFromLiquid() {
         {% for measure in measureDefinitions.results.entities %}
         {% if measure.ecm_reportingfrequency == 'Annually' %}
         {
-            measureId: {{ measure.ecm_id | default: "" | json }},
-            measureName: {{ measure.ecm_name | default: "" | json }},
-            organization: {{ measure.ecm_organization | default: "" | json }},
-            reportingFrequency: {{ measure.ecm_reportingfrequency | default: "" | json }},
-            currentTarget: {{ measure.ecm_target | default: "" | json }},
-            measureGuid: {{ measure.ecm_measureid | default: "" | json }}
+            measureId: "{{ measure.ecm_id }}",
+            measureName: "{{ measure.ecm_name | escape }}",
+            organization: "{{ measure.ecm_organization }}",
+            reportingFrequency: "{{ measure.ecm_reportingfrequency }}",
+            currentTarget: "{{ measure.ecm_target }}",
+            measureGuid: "{{ measure.ecm_measureid }}"
         }{% unless forloop.last %},{% endunless %}
         {% endif %}
         {% endfor %}
@@ -1487,11 +1487,11 @@ function getAnnualActualsDataFromLiquid() {
     const actualsData = [
         {% for actual in allMeasureActuals.results.entities %}
         {
-            measureGuid: {{ actual.measure_guid | default: "" | json }},
-            fiscalYear: {{ actual.ecm_fiscalyear | default: "" | json }},
-            quarter: {{ actual.ecm_quarter | default: "" | json }},
-            actual: {{ actual.ecm_actual | default: "" | json }},
-            target: {{ actual.ecm_target | default: "" | json }}
+            measureGuid: "{{ actual.measure_guid }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear }}",
+            quarter: "{{ actual.ecm_quarter }}",
+            actual: "{{ actual.ecm_actual }}",
+            target: "{{ actual.ecm_target }}"
         }{% unless forloop.last %},{% endunless %}
         {% endfor %}
     ];
@@ -1531,12 +1531,12 @@ function getQuarterlyYTDActualsDataFromLiquid() {
         {% for measure in measureDefinitions.results.entities %}
         {% if measure.ecm_reportingfrequency == 'Quarterly (Year-to-Date)' %}
         {
-            measureId: {{ measure.ecm_id | default: "" | json }},
-            measureName: {{ measure.ecm_name | default: "" | json }},
-            organization: {{ measure.ecm_organization | default: "" | json }},
-            reportingFrequency: {{ measure.ecm_reportingfrequency | default: "" | json }},
-            currentTarget: {{ measure.ecm_target | default: "" | json }},
-            measureGuid: {{ measure.ecm_measureid | default: "" | json }}
+            measureId: "{{ measure.ecm_id }}",
+            measureName: "{{ measure.ecm_name | escape }}",
+            organization: "{{ measure.ecm_organization }}",
+            reportingFrequency: "{{ measure.ecm_reportingfrequency }}",
+            currentTarget: "{{ measure.ecm_target }}",
+            measureGuid: "{{ measure.ecm_measureid }}"
         }{% unless forloop.last %},{% endunless %}
         {% endif %}
         {% endfor %}
@@ -1546,11 +1546,11 @@ function getQuarterlyYTDActualsDataFromLiquid() {
     const actualsData = [
         {% for actual in allMeasureActuals.results.entities %}
         {
-            measureGuid: {{ actual.measure_guid | default: "" | json }},
-            fiscalYear: {{ actual.ecm_fiscalyear | default: "" | json }},
-            quarter: {{ actual.ecm_quarter | default: "" | json }},
-            actual: {{ actual.ecm_actual | default: "" | json }},
-            target: {{ actual.ecm_target | default: "" | json }}
+            measureGuid: "{{ actual.measure_guid }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear }}",
+            quarter: "{{ actual.ecm_quarter }}",
+            actual: "{{ actual.ecm_actual }}",
+            target: "{{ actual.ecm_target }}"
         }{% unless forloop.last %},{% endunless %}
         {% endfor %}
     ];
@@ -1595,12 +1595,12 @@ function getQuarterlyCountActualsDataFromLiquid() {
         {% for measure in measureDefinitions.results.entities %}
         {% if measure.ecm_reportingfrequency == 'Quarterly (Count)' %}
         {
-            measureId: {{ measure.ecm_id | default: "" | json }},
-            measureName: {{ measure.ecm_name | default: "" | json }},
-            organization: {{ measure.ecm_organization | default: "" | json }},
-            reportingFrequency: {{ measure.ecm_reportingfrequency | default: "" | json }},
-            currentTarget: {{ measure.ecm_target | default: "" | json }},
-            measureGuid: {{ measure.ecm_measureid | default: "" | json }}
+            measureId: "{{ measure.ecm_id }}",
+            measureName: "{{ measure.ecm_name | escape }}",
+            organization: "{{ measure.ecm_organization }}",
+            reportingFrequency: "{{ measure.ecm_reportingfrequency }}",
+            currentTarget: "{{ measure.ecm_target }}",
+            measureGuid: "{{ measure.ecm_measureid }}"
         }{% unless forloop.last %},{% endunless %}
         {% endif %}
         {% endfor %}
@@ -1610,11 +1610,11 @@ function getQuarterlyCountActualsDataFromLiquid() {
     const actualsData = [
         {% for actual in allMeasureActuals.results.entities %}
         {
-            measureGuid: {{ actual.measure_guid | default: "" | json }},
-            fiscalYear: {{ actual.ecm_fiscalyear | default: "" | json }},
-            quarter: {{ actual.ecm_quarter | default: "" | json }},
-            actual: {{ actual.ecm_actual | default: "" | json }},
-            target: {{ actual.ecm_target | default: "" | json }}
+            measureGuid: "{{ actual.measure_guid }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear }}",
+            quarter: "{{ actual.ecm_quarter }}",
+            actual: "{{ actual.ecm_actual }}",
+            target: "{{ actual.ecm_target }}"
         }{% unless forloop.last %},{% endunless %}
         {% endfor %}
     ];
@@ -1658,12 +1658,12 @@ function debugActualsData() {
     const actualsData = [
         {% for actual in allMeasureActuals.results.entities %}
         {
-            measureGuid: {{ actual.measure_guid | default: "" | json }},
-            measureGuidDirect: {{ actual.ecm_measure | default: "" | json }},
-            fiscalYear: {{ actual.ecm_fiscalyear | default: "" | json }},
-            quarter: {{ actual.ecm_quarter | default: "" | json }},
-            actual: {{ actual.ecm_actual | default: "" | json }},
-            target: {{ actual.ecm_target | default: "" | json }}
+            measureGuid: "{{ actual.measure_guid }}",
+            measureGuidDirect: "{{ actual.ecm_measure }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear }}",
+            quarter: "{{ actual.ecm_quarter }}",
+            actual: "{{ actual.ecm_actual }}",
+            target: "{{ actual.ecm_target }}"
         }{% unless forloop.last %},{% endunless %}
         {% endfor %}
     ];
@@ -1728,19 +1728,14 @@ function getVisibleTableData() {
     const existingMeasures = [
         {% for measure in measureDefinitions.results.entities %}
         {
-            ecm_measureid: {{ measure.ecm_measureid | default: "" | json }},
-            ecm_organization: {{ measure.ecm_organization | default: "" | json }},
-            ecm_id: {{ measure.ecm_id | default: "" | json }},
-            ecm_name: {{ measure.ecm_name | default: "" | json }},
-            ecm_type: {{ measure.ecm_type | default: "" | json }},
-            ecm_status: {{ measure.ecm_status | default: "" | json }},
-            ecm_reportingfrequency: {{ measure.ecm_reportingfrequency | default: "" | json }},
-            ecm_target: {{ measure.ecm_target | default: "" | json }},
-            ecm_desiredtrend: {{ measure.ecm_desiredtrend | default: "" | json }},
-            ecm_coreoperationmeasure: {{ measure.ecm_coreoperationmeasure | default: "" | json }},
-            ecm_fy2630alignment: {{ measure.ecm_fy2630alignment | default: "" | json }},
-            ecm_fy2630objective: {{ measure.ecm_fy2630objective | default: "" | json }},
-            ecm_calculationmethod: {{ measure.ecm_calculationmethod | default: "" | json }}
+            ecm_measureid: "{{ measure.ecm_measureid }}",
+            ecm_organization: "{{ measure.ecm_organization }}",
+            ecm_id: "{{ measure.ecm_id }}",
+            ecm_name: "{{ measure.ecm_name | escape }}",
+            ecm_type: "{{ measure.ecm_type }}",
+            ecm_status: "{{ measure.ecm_status }}",
+            ecm_reportingfrequency: "{{ measure.ecm_reportingfrequency }}",
+            ecm_target: "{{ measure.ecm_target }}"
         }{% unless forloop.last %},{% endunless %}
         {% endfor %}
     ];
@@ -1751,6 +1746,7 @@ function getVisibleTableData() {
         'FY26-30 Strategic Plan Alignment', 'FY26-30 Objective', 'Definition'
     ];
 
+    // Get basic data from Liquid (safe fields only)
     const data = filteredRows.map(row => {
         const measureId = row.getAttribute('data-id');
         const measureData = existingMeasures.find(m => m.ecm_measureid === measureId) || {};
@@ -1763,15 +1759,15 @@ function getVisibleTableData() {
             measureData.ecm_status || '',
             measureData.ecm_reportingfrequency || '',
             measureData.ecm_target || '',
-            measureData.ecm_desiredtrend || '',
-            measureData.ecm_coreoperationmeasure || '',
-            measureData.ecm_fy2630alignment || '',
-            measureData.ecm_fy2630objective || '',
-            measureData.ecm_calculationmethod || ''
+            '', // Desired Trend - will be populated via API
+            '', // Core Operation Measure - will be populated via API
+            '', // FY26-30 Strategic Plan Alignment - will be populated via API
+            '', // FY26-30 Objective - will be populated via API
+            ''  // Definition - will be populated via API
         ];
     });
 
-    return { headers, data };
+    return { headers, data, measureIds: filteredRows.map(row => row.getAttribute('data-id')) };
 }
 
 function fetchCompleteDataForMeasures(measureIds) {
@@ -1816,9 +1812,28 @@ function exportTable(format) {
     // Update loading message to reflect that we're exporting all data
     document.querySelector('.loading-content p').textContent = 'Preparing export of all filtered records...';
 
-    setTimeout(() => {
+    setTimeout(async () => {
         try {
-            const { headers, data } = getVisibleTableData();
+            const { headers, data, measureIds } = getVisibleTableData();
+
+            // Fetch additional fields via Web API
+            if (measureIds && measureIds.length > 0) {
+                document.querySelector('.loading-content p').textContent = 'Fetching complete measure data...';
+                const completeData = await fetchCompleteDataForMeasures(measureIds);
+
+                // Merge the API data into the export data
+                data.forEach((row, index) => {
+                    const measureId = measureIds[index];
+                    const apiData = completeData.find(m => m.ecm_measureid === measureId);
+                    if (apiData) {
+                        row[7] = apiData.ecm_desiredtrend || '';
+                        row[8] = apiData.ecm_coreoperationmeasure || '';
+                        row[9] = apiData.ecm_fy2630alignment || '';
+                        row[10] = apiData.ecm_fy2630objective || '';
+                        row[11] = apiData.ecm_calculationmethod || '';
+                    }
+                });
+            }
 
             // Show count of records being exported
             console.log(`Exporting ${data.length} records`);
@@ -1925,12 +1940,12 @@ async function exportEndOfYearMetrics() {
         const measuresData = [
             {% for measure in measureDefinitions.results.entities %}
             {
-                measureId: {{ measure.ecm_id | default: "" | json }},
-                measureName: {{ measure.ecm_name | default: "" | json }},
-                organization: {{ measure.ecm_organization | default: "" | json }},
-                reportingFrequency: {{ measure.ecm_reportingfrequency | default: "" | json }},
-                currentTarget: {{ measure.ecm_target | default: "" | json }},
-                measureGuid: {{ measure.ecm_measureid | default: "" | json }}
+                measureId: "{{ measure.ecm_id }}",
+                measureName: "{{ measure.ecm_name | escape }}",
+                organization: "{{ measure.ecm_organization }}",
+                reportingFrequency: "{{ measure.ecm_reportingfrequency }}",
+                currentTarget: "{{ measure.ecm_target }}",
+                measureGuid: "{{ measure.ecm_measureid }}"
             }{% unless forloop.last %},{% endunless %}
             {% endfor %}
         ];
@@ -1939,13 +1954,13 @@ async function exportEndOfYearMetrics() {
         const actualsData = [
             {% for actual in allMeasureActuals.results.entities %}
             {
-                measureGuid: {{ actual.measure_guid | default: "" | json }},
-                fiscalYear: {{ actual.ecm_fiscalyear | default: "" | json }},
-                quarter: {{ actual.ecm_quarter | default: "" | json }},
-                month: {{ actual.ecm_month | default: "" | json }},
-                actual: {{ actual.ecm_actual | default: "" | json }},
-                actualYTD: {{ actual.ecm_actualytd | default: "" | json }},
-                target: {{ actual.ecm_target | default: "" | json }}
+                measureGuid: "{{ actual.measure_guid }}",
+                fiscalYear: "{{ actual.ecm_fiscalyear }}",
+                quarter: "{{ actual.ecm_quarter }}",
+                month: "{{ actual.ecm_month }}",
+                actual: "{{ actual.ecm_actual }}",
+                actualYTD: "{{ actual.ecm_actualytd }}",
+                target: "{{ actual.ecm_target }}"
             }{% unless forloop.last %},{% endunless %}
             {% endfor %}
         ];
