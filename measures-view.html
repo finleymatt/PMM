@@ -1771,35 +1771,47 @@ function getVisibleTableData() {
 }
 
 function fetchCompleteDataForMeasures(measureIds) {
-    console.log("Fetching data for measure IDs:", measureIds);
+    console.log("Fetching data for measure IDs:", measureIds.length, "records");
 
     if (measureIds.length === 0) {
         console.log("No measure IDs to fetch");
         return Promise.resolve([]);
     }
 
-    // Create filter condition for the measure IDs
-    const idFilter = measureIds.map(id => `ecm_measureid eq '${id}'`).join(' or ');
+    // Batch requests to avoid URL length limits (50 IDs per batch)
+    const batchSize = 50;
+    const batches = [];
+    for (let i = 0; i < measureIds.length; i += batchSize) {
+        batches.push(measureIds.slice(i, i + batchSize));
+    }
 
-    const apiUrl = `/_api/ecm_measures?$select=ecm_measureid,ecm_organization,ecm_id,ecm_name,ecm_type,ecm_status,ecm_reportingfrequency,ecm_target,ecm_desiredtrend,ecm_coreoperationmeasure,ecm_fy2630alignment,ecm_fy2630objective,ecm_calculationmethod&$filter=${idFilter}`;
+    const fetchBatch = (ids) => {
+        // Create filter condition for the measure IDs
+        const idFilter = ids.map(id => `ecm_measureid eq ${id}`).join(' or ');
 
-    console.log("API URL:", apiUrl);
+        const apiUrl = `/_api/ecm_measures?$select=ecm_measureid,ecm_desiredtrend,ecm_coreoperationmeasure,ecm_fy2630alignment,ecm_fy2630objective,ecm_calculationmethod&$filter=${encodeURIComponent(idFilter)}`;
 
-    return new Promise((resolve, reject) => {
-        webapi.safeAjax({
-            type: "GET",
-            url: apiUrl,
-            success: function(data) {
-                console.log("API response:", data);
-                resolve(data.value || []);
-            },
-            error: function(xhr) {
-                console.error("Error fetching complete measure data:", xhr);
-                console.error("Error response:", xhr.responseText);
-                resolve([]); // Return empty array on error to prevent export failure
-            }
+        console.log("Fetching batch of", ids.length, "measures");
+
+        return new Promise((resolve) => {
+            webapi.safeAjax({
+                type: "GET",
+                url: apiUrl,
+                success: function(data) {
+                    console.log("Batch response:", data.value ? data.value.length : 0, "records");
+                    resolve(data.value || []);
+                },
+                error: function(xhr) {
+                    console.error("Error fetching measure data:", xhr.status, xhr.statusText);
+                    resolve([]); // Return empty array on error to prevent export failure
+                }
+            });
         });
-    });
+    };
+
+    // Execute all batches and combine results
+    return Promise.all(batches.map(fetchBatch))
+        .then(results => results.flat());
 }
 
 function exportTable(format) {
@@ -1821,11 +1833,18 @@ function exportTable(format) {
                 document.querySelector('.loading-content p').textContent = 'Fetching complete measure data...';
                 const completeData = await fetchCompleteDataForMeasures(measureIds);
 
+                console.log("Total API records fetched:", completeData.length);
+                if (completeData.length > 0) {
+                    console.log("Sample API record:", completeData[0]);
+                }
+
                 // Merge the API data into the export data
+                let matchCount = 0;
                 data.forEach((row, index) => {
                     const measureId = measureIds[index];
                     const apiData = completeData.find(m => m.ecm_measureid === measureId);
                     if (apiData) {
+                        matchCount++;
                         row[7] = apiData.ecm_desiredtrend || '';
                         row[8] = apiData.ecm_coreoperationmeasure || '';
                         row[9] = apiData.ecm_fy2630alignment || '';
@@ -1833,6 +1852,7 @@ function exportTable(format) {
                         row[11] = apiData.ecm_calculationmethod || '';
                     }
                 });
+                console.log("Matched", matchCount, "of", data.length, "records");
             }
 
             // Show count of records being exported
