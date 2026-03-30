@@ -664,6 +664,11 @@
 <attribute name="statecode"/>
 <attribute name="ecm_target"/>
 <attribute name="ecm_status"/>
+<attribute name="ecm_desiredtrend"/>
+<attribute name="ecm_coreoperationmeasure"/>
+<attribute name="ecm_fy2630alignment"/>
+<attribute name="ecm_fy2630objective"/>
+<attribute name="ecm_calculationmethod"/>
 <filter type="and">
   {% if isBasicUser and userOrganization != "" %}
   <condition attribute="ecm_organization" operator="eq" value="{{ userOrganization }}" />
@@ -915,6 +920,7 @@
                    <option value="Budget">Budget</option>
                    <option value="Government Service Delivery">Government Service Delivery</option>
                    <option value="Critical Program/Project">Critical Program/Project</option>
+                   <option value="PMA">PMA</option>
                </select>
            </div>
            <div class="form-group">
