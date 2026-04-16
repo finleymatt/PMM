@@ -1555,7 +1555,8 @@ function getAnnualActualsDataFromLiquid() {
         'Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target',
         'FY19 Target', 'FY19 Actual', 'FY20 Target', 'FY20 Actual', 'FY21 Target', 'FY21 Actual',
         'FY22 Target', 'FY22 Actual', 'FY23 Target', 'FY23 Actual', 'FY24 Target', 'FY24 Actual',
-        'FY25 Target', 'FY25 Actual'
+        'FY25 Target', 'FY25 Actual', 'FY26 Target', 'FY26 Actual', 'FY27 Target', 'FY27 Actual',
+        'FY28 Target', 'FY28 Actual', 'FY29 Target', 'FY29 Actual', 'FY30 Target', 'FY30 Actual'
     ];
 
     const data = measuresData.map(measure => {
@@ -1567,7 +1568,7 @@ function getAnnualActualsDataFromLiquid() {
             measure.currentTarget
         ];
 
-        const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+        const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25', 'FY26', 'FY27', 'FY28', 'FY29', 'FY30'];
         fiscalYears.forEach(fy => {
             const fyActual = actualsData.find(a => a.measureGuid === measure.measureGuid && a.fiscalYear === fy);
             row.push(fyActual ? fyActual.target : '');
@@ -1612,7 +1613,7 @@ function getQuarterlyYTDActualsDataFromLiquid() {
 
     const headers = ['Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target'];
 
-    const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+    const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25', 'FY26', 'FY27', 'FY28', 'FY29', 'FY30'];
     const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
 
     fiscalYears.forEach(fy => {
@@ -1676,7 +1677,7 @@ function getQuarterlyCountActualsDataFromLiquid() {
 
     const headers = ['Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target'];
 
-    const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+    const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25', 'FY26', 'FY27', 'FY28', 'FY29', 'FY30'];
     const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
 
     fiscalYears.forEach(fy => {
@@ -2043,7 +2044,7 @@ async function exportEndOfYearMetrics() {
         ];
 
         // Initialize CSV with headers
-        let csvContent = 'ID,Name,Organization,Reporting Frequency,FY19 Target,FY19 Actual,FY20 Target,FY20 Actual,FY21 Target,FY21 Actual,FY22 Target,FY22 Actual,FY23 Target,FY23 Actual,FY24 Target,FY24 Actual,FY25 Target,FY25 Actual\n';
+        let csvContent = 'ID,Name,Organization,Reporting Frequency,FY19 Target,FY19 Actual,FY20 Target,FY20 Actual,FY21 Target,FY21 Actual,FY22 Target,FY22 Actual,FY23 Target,FY23 Actual,FY24 Target,FY24 Actual,FY25 Target,FY25 Actual,FY26 Target,FY26 Actual,FY27 Target,FY27 Actual,FY28 Target,FY28 Actual,FY29 Target,FY29 Actual,FY30 Target,FY30 Actual\n';
 
         // Process each measure
         measuresData.forEach(measure => {
@@ -2057,7 +2058,7 @@ async function exportEndOfYearMetrics() {
 
             // Initialize fiscal year data
             const fyData = {};
-            const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25'];
+            const fiscalYears = ['FY19', 'FY20', 'FY21', 'FY22', 'FY23', 'FY24', 'FY25', 'FY26', 'FY27', 'FY28', 'FY29', 'FY30'];
             fiscalYears.forEach(fy => {
                 fyData[fy] = { target: '', actual: '' };
             });
@@ -2175,7 +2176,8 @@ function getAnnualActualsData() {
             'Measure ID', 'Measure Name', 'Organization', 'Reporting Frequency', 'Current Target',
             'FY19 Target', 'FY19 Actual', 'FY20 Target', 'FY20 Actual', 'FY21 Target', 'FY21 Actual',
             'FY22 Target', 'FY22 Actual', 'FY23 Target', 'FY23 Actual', 'FY24 Target', 'FY24 Actual',
-            'FY25 Target', 'FY25 Actual'
+            'FY25 Target', 'FY25 Actual', 'FY26 Target', 'FY26 Actual', 'FY27 Target', 'FY27 Actual',
+            'FY28 Target', 'FY28 Actual', 'FY29 Target', 'FY29 Actual', 'FY30 Target', 'FY30 Actual'
         ];
 
         return { headers, data };

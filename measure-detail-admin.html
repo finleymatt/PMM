@@ -821,8 +821,9 @@
               <option value="AFR/APR">AFR/APR</option>
               <option value="QPR/SOAR">QPR/SOAR (Internal)</option>
               <option value="Budget">Budget</option>
-              <option value="Critical Program/Project">Critical Program/Project</option>
               <option value="Government Service Delivery">Government Service Delivery</option>
+              <option value="Critical Program/Project">Critical Program/Project</option>
+              <option value="PMA">PMA</option>
             </select>
           </div>
           <div class="form-group">
@@ -1922,7 +1923,7 @@
             showSuccessNotification(successMessage);
             if (itemType === "definition") {
               setTimeout(function () {
-                window.location.href = "https://topstest.high.powerappsportals.us/";
+                window.location.href = window.location.origin + "/";
               }, 2000);
             } else {
               setTimeout(function () {
