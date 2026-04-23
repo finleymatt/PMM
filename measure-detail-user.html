@@ -214,6 +214,13 @@
         min-height: 80px;
       }
 
+      .char-hint {
+        display: block;
+        margin-top: 4px;
+        color: #666;
+        font-size: 12px;
+      }
+
       .modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -841,7 +848,8 @@
           {% endcase %}
           <div class="form-group">
             <label for="narrative">Optional Narrative</label>
-            <textarea id="narrative"></textarea>
+            <textarea id="narrative" maxlength="4000"></textarea>
+            <small class="char-hint">Maximum 4000 characters</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('addResultModal')">Cancel</button>
@@ -1027,7 +1035,8 @@
           {% endcase %}
           <div class="form-group">
             <label for="editNarrative">Optional Narrative</label>
-            <textarea id="editNarrative"></textarea>
+            <textarea id="editNarrative" maxlength="4000"></textarea>
+            <small class="char-hint">Maximum 4000 characters</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('editActualModal')">Cancel</button>
