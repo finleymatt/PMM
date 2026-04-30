@@ -589,9 +589,7 @@
       <div class="section-header">
         <h2 class="section-title">Actual</h2>
         <div class="action-buttons">
-          {% if measureRecord.ecm_reportingfrequency == 'Annually' or measureRecord.ecm_reportingfrequency == 'Monthly' %}
           <button class="btn-new" onclick="openAddResultModal()">New</button>
-          {% endif %}
         </div>
       </div>
       <div class="table-container">
@@ -899,10 +897,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -940,7 +946,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -967,10 +973,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -999,7 +1013,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1026,10 +1040,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -1043,7 +1065,7 @@
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1070,10 +1092,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -1173,8 +1203,17 @@
             <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
           </div>
           <div class="form-group">
+            <label for="editActualYTD">
+              <span class="tooltip-label">
+                Actual (YTD)
+                <span class="tooltip-text">Year-to-date actual value (auto-calculated).</span>
+              </span>
+            </label>
+            <input type="text" id="editActualYTD" disabled />
+          </div>
+          <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1216,7 +1255,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1254,7 +1293,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1837,6 +1876,14 @@
               document.getElementById("editTargetValue").value = cells[2].textContent.trim() || "{{ measureRecord.ecm_target }}";
               setSelectValue("editTargetMet", cells[3].textContent.trim());
               document.getElementById("editNarrative").value = cells[4] ? cells[4].textContent.trim() : "";
+            } else if (reportingFrequency === "Quarterly (Count)") {
+              document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
+              document.getElementById("editQuarter").value = cells[1].textContent.trim();
+              document.getElementById("editActual").value = cells[2].textContent.trim();
+              if (document.getElementById("editActualYTD")) document.getElementById("editActualYTD").value = cells[3].textContent.trim();
+              document.getElementById("editTargetValue").value = cells[4].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              setSelectValue("editTargetMet", cells[5].textContent.trim());
+              document.getElementById("editNarrative").value = cells[6] ? cells[6].textContent.trim() : "";
             } else {
               document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
               if (document.getElementById("editQuarter")) document.getElementById("editQuarter").value = cells[1].textContent.trim();
@@ -2087,6 +2134,8 @@
             break;
         }
 
+        var editTargetValue = document.getElementById("editTargetValue").value;
+        if (editTargetValue) record.ecm_target = editTargetValue;
         var targetMetSelection = document.getElementById("editTargetMet").value;
         if (targetMetSelection) record.ecm_targetmet = targetMetSelection;
         var narrative = document.getElementById("editNarrative").value;
