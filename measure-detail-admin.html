@@ -792,7 +792,7 @@
                 <span class="tooltip-text">Enter the desired numeric value for this measure.</span>
               </span>
             </label>
-            <input type="number" id="editTarget" value="10000" step="0.0001" min="-999999999.9999" max="999999999.9999" required />
+            <input type="text" id="editTarget" value="10000" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editDesiredTrend">
@@ -942,7 +942,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="actualYTD">
@@ -951,11 +951,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actualYTD" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="actualYTD" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1018,11 +1018,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1070,11 +1070,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="text" id="target" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1145,11 +1145,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1210,7 +1210,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editActualYTD">
@@ -1223,7 +1223,7 @@
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1261,11 +1261,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1299,11 +1299,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1341,11 +1341,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1520,14 +1520,11 @@
       {% endif %}
 
       // Utility Functions
-      function validateDecimalInput(value, maxDecimals = 4) {
+      function validateDecimalInput(value) {
         var cleaned = value.replace(/[^-\d.]/g, "");
         var parts = cleaned.split(".");
         if (parts.length > 2) {
           cleaned = parts[0] + "." + parts.slice(1).join("");
-        }
-        if (parts.length === 2 && parts[1].length > maxDecimals) {
-          cleaned = parts[0] + "." + parts[1].substring(0, maxDecimals);
         }
         return cleaned;
       }
@@ -2241,7 +2238,7 @@
           usageSelect.addEventListener("change", handleUsageSelectChange);
         }
 
-        var decimalInputs = ["editActual", "editActualYTD", "actual", "actualYTD"];
+        var decimalInputs = ["editActual", "editActualYTD", "editTargetValue", "actual", "actualYTD", "target"];
         decimalInputs.forEach(function (inputId) {
           var input = document.getElementById(inputId);
           if (input) {
