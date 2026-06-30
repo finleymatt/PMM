@@ -214,6 +214,13 @@
         min-height: 80px;
       }
 
+      .char-hint {
+        display: block;
+        margin-top: 4px;
+        color: #666;
+        font-size: 12px;
+      }
+
       .modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -610,10 +617,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -638,7 +653,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="actualYTD">
@@ -647,7 +662,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actualYTD" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="actualYTD" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
@@ -678,10 +693,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -706,7 +729,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
@@ -737,10 +760,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -750,7 +781,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
@@ -781,10 +812,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -817,7 +856,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
@@ -841,7 +880,8 @@
           {% endcase %}
           <div class="form-group">
             <label for="narrative">Optional Narrative</label>
-            <textarea id="narrative"></textarea>
+            <textarea id="narrative" maxlength="4000"></textarea>
+            <small class="char-hint">Maximum 4000 characters</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('addResultModal')">Cancel</button>
@@ -881,7 +921,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
@@ -923,7 +963,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
@@ -961,7 +1001,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
@@ -1003,7 +1043,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
@@ -1027,7 +1067,8 @@
           {% endcase %}
           <div class="form-group">
             <label for="editNarrative">Optional Narrative</label>
-            <textarea id="editNarrative"></textarea>
+            <textarea id="editNarrative" maxlength="4000"></textarea>
+            <small class="char-hint">Maximum 4000 characters</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('editActualModal')">Cancel</button>
@@ -1035,6 +1076,15 @@
           </div>
         </form>
       </div>
+    </div>
+
+    <!-- Hidden data store: text fields stored in HTML context to prevent JS string literal breaks from newlines/quotes -->
+    <div id="actualsTextData" style="display:none">
+      {% if measureActuals.results.entities.size > 0 %}
+        {% for actual in measureActuals.results.entities %}
+        <textarea id="dataNarrative_{{ actual.ecm_measureactualid }}">{{ actual.ecm_optionalnarrative | escape }}</textarea>
+        {% endfor %}
+      {% endif %}
     </div>
 
     <script>
@@ -1054,14 +1104,11 @@
       {% endif %}
 
       // Utility Functions
-      function validateDecimalInput(value, maxDecimals = 4) {
+      function validateDecimalInput(value) {
         var cleaned = value.replace(/[^-\d.]/g, "");
         var parts = cleaned.split(".");
         if (parts.length > 2) {
           cleaned = parts[0] + "." + parts.slice(1).join("");
-        }
-        if (parts.length === 2 && parts[1].length > maxDecimals) {
-          cleaned = parts[0] + "." + parts[1].substring(0, maxDecimals);
         }
         return cleaned;
       }
@@ -1216,7 +1263,7 @@
                 ecm_actualytd: "{{ actual.ecm_actualytd }}",
                 ecm_target: "{{ actual.ecm_target }}",
                 ecm_targetmet: "{{ actual.ecm_targetmet }}",
-                ecm_optionalnarrative: "{{ actual.ecm_optionalnarrative }}",
+                ecm_optionalnarrative: (document.getElementById("dataNarrative_{{ actual.ecm_measureactualid }}") || {}).value || "",
                 ecm_status: "{{ actual.ecm_status }}"
               }{% unless forloop.last %},{% endunless %}
             {% endfor %}
