@@ -214,6 +214,13 @@
         min-height: 80px;
       }
 
+      .char-hint {
+        display: block;
+        margin-top: 4px;
+        color: #666;
+        font-size: 12px;
+      }
+
       .modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -589,9 +596,7 @@
       <div class="section-header">
         <h2 class="section-title">Actual</h2>
         <div class="action-buttons">
-          {% if measureRecord.ecm_reportingfrequency == 'Annually' or measureRecord.ecm_reportingfrequency == 'Monthly' %}
           <button class="btn-new" onclick="openAddResultModal()">New</button>
-          {% endif %}
         </div>
       </div>
       <div class="table-container">
@@ -787,7 +792,7 @@
                 <span class="tooltip-text">Enter the desired numeric value for this measure.</span>
               </span>
             </label>
-            <input type="number" id="editTarget" value="10000" step="0.0001" min="-999999999.9999" max="999999999.9999" required />
+            <input type="text" id="editTarget" value="10000" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editDesiredTrend">
@@ -813,7 +818,7 @@
             <label for="editUsage">
               <span class="tooltip-label">
                 Usage *
-                <span class="tooltip-text">Select the reports to which this measure contributes. Note: If you wish the measure to remain internal to Treasury, please select only "QPR/SOAR (Internal)". All other fields contribute to an external report.</span>
+                <span class="tooltip-text">Select the reports to which this measure contributes. Hold Ctrl (or Cmd on Mac) and click to select multiple items, or click one item then Shift+click another to select everything in between. Note: If you wish the measure to remain internal to Treasury, please select only "QPR/SOAR (Internal)". All other fields contribute to an external report.</span>
               </span>
             </label>
             <div class="usage-tags-container"></div>
@@ -821,8 +826,10 @@
               <option value="AFR/APR">AFR/APR</option>
               <option value="QPR/SOAR">QPR/SOAR (Internal)</option>
               <option value="Budget">Budget</option>
-              <option value="Critical Program/Project">Critical Program/Project</option>
               <option value="Government Service Delivery">Government Service Delivery</option>
+              <option value="Critical Program/Project">Critical Program/Project</option>
+              <option value="PMA">PMA</option>
+              <option value="Milestone">Milestone</option>
             </select>
           </div>
           <div class="form-group">
@@ -899,10 +906,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -927,7 +942,7 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="actualYTD">
@@ -936,11 +951,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actualYTD" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" />
+            <input type="text" id="actualYTD" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -967,10 +982,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -995,11 +1018,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1026,10 +1049,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -1039,11 +1070,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1070,10 +1101,18 @@
             </label>
             <select id="fiscalYear" required>
               <option value="">Select Fiscal Year</option>
-              <option value="FY 22">FY 22</option>
-              <option value="FY 23">FY 23</option>
-              <option value="FY 24">FY 24</option>
-              <option value="FY 25">FY 25</option>
+              <option value="FY19">FY19</option>
+              <option value="FY20">FY20</option>
+              <option value="FY21">FY21</option>
+              <option value="FY22">FY22</option>
+              <option value="FY23">FY23</option>
+              <option value="FY24">FY24</option>
+              <option value="FY25">FY25</option>
+              <option value="FY26">FY26</option>
+              <option value="FY27">FY27</option>
+              <option value="FY28">FY28</option>
+              <option value="FY29">FY29</option>
+              <option value="FY30">FY30</option>
             </select>
           </div>
           <div class="form-group">
@@ -1106,11 +1145,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="actual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="actual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="target">Target</label>
-            <input type="number" id="target" readonly />
+            <input type="text" id="target" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="targetMet">
@@ -1130,7 +1169,8 @@
           {% endcase %}
           <div class="form-group">
             <label for="narrative">Optional Narrative</label>
-            <textarea id="narrative"></textarea>
+            <textarea id="narrative" maxlength="4000"></textarea>
+            <small class="char-hint">Maximum 4000 characters</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('addResultModal')">Cancel</button>
@@ -1170,11 +1210,20 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
+          </div>
+          <div class="form-group">
+            <label for="editActualYTD">
+              <span class="tooltip-label">
+                Actual (YTD)
+                <span class="tooltip-text">Year-to-date actual value (auto-calculated).</span>
+              </span>
+            </label>
+            <input type="text" id="editActualYTD" disabled />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1212,11 +1261,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1250,11 +1299,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1292,11 +1341,11 @@
                 <span class="tooltip-text">Enter the measure performance data for this reporting period.</span>
               </span>
             </label>
-            <input type="text" id="editActual" pattern="^-?\d*\.?\d{0,4}$" title="Please enter a number with up to 4 decimal places" required />
+            <input type="text" id="editActual" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" required />
           </div>
           <div class="form-group">
             <label for="editTargetValue">Target</label>
-            <input type="number" id="editTargetValue" disabled />
+            <input type="text" id="editTargetValue" pattern="^-?\d*\.?\d*$" maxlength="4000" title="Please enter a number" />
           </div>
           <div class="form-group">
             <label for="editTargetMet">
@@ -1316,7 +1365,8 @@
           {% endcase %}
           <div class="form-group">
             <label for="editNarrative">Optional Narrative</label>
-            <textarea id="editNarrative"></textarea>
+            <textarea id="editNarrative" maxlength="4000"></textarea>
+            <small class="char-hint">Maximum 4000 characters</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('editActualModal')">Cancel</button>
@@ -1439,6 +1489,20 @@
       </div>
     </div>
 
+    <!-- Hidden data store: text fields stored in HTML context to prevent JS string literal breaks from newlines/quotes -->
+    <div id="measureTextData" style="display:none">
+      <textarea id="dataName">{{ measureRecord.ecm_name | escape }}</textarea>
+      <textarea id="dataCalcMethod">{{ measureRecord.ecm_calculationmethod | escape }}</textarea>
+      <textarea id="dataUsage">{{ measureRecord.ecm_usage | escape }}</textarea>
+    </div>
+    <div id="actualsTextData" style="display:none">
+      {% if measureActuals.results.entities.size > 0 %}
+        {% for actual in measureActuals.results.entities %}
+        <textarea id="dataNarrative_{{ actual.ecm_measureactualid }}">{{ actual.ecm_optionalnarrative | escape }}</textarea>
+        {% endfor %}
+      {% endif %}
+    </div>
+
     <script>
       // Store measure actuals data for YTD calculations
       var measureActualsData = [];
@@ -1456,14 +1520,11 @@
       {% endif %}
 
       // Utility Functions
-      function validateDecimalInput(value, maxDecimals = 4) {
+      function validateDecimalInput(value) {
         var cleaned = value.replace(/[^-\d.]/g, "");
         var parts = cleaned.split(".");
         if (parts.length > 2) {
           cleaned = parts[0] + "." + parts.slice(1).join("");
-        }
-        if (parts.length === 2 && parts[1].length > maxDecimals) {
-          cleaned = parts[0] + "." + parts[1].substring(0, maxDecimals);
         }
         return cleaned;
       }
@@ -1618,7 +1679,7 @@
                 ecm_actualytd: "{{ actual.ecm_actualytd }}",
                 ecm_target: "{{ actual.ecm_target }}",
                 ecm_targetmet: "{{ actual.ecm_targetmet }}",
-                ecm_optionalnarrative: "{{ actual.ecm_optionalnarrative }}",
+                ecm_optionalnarrative: (document.getElementById("dataNarrative_{{ actual.ecm_measureactualid }}") || {}).value || "",
                 ecm_status: "{{ actual.ecm_status }}"
               }{% unless forloop.last %},{% endunless %}
             {% endfor %}
@@ -1792,7 +1853,7 @@
 
       function openEditDefinitionModal() {
         openModal("editDefinitionModal");
-        document.getElementById("editName").value = "{{ measureRecord.ecm_name | escape }}";
+        document.getElementById("editName").value = document.getElementById("dataName").value;
         setSelectValue("editType", "{{ measureRecord.ecm_type | escape }}");
         setSelectValue("editStatus", "{{ measureRecord.ecm_status | escape }}");
         setSelectValue("editOrganization", "{{ measureRecord.ecm_organization | escape }}");
@@ -1800,9 +1861,9 @@
         setSelectValue("editCoreOperationMeasure", "{{ measureRecord.ecm_coreoperationmeasure | escape }}");
         setSelectValue("editDesiredTrend", "{{ measureRecord.ecm_desiredtrend | escape }}");
         document.getElementById("editTarget").value = "{{ measureRecord.ecm_target }}";
-        var usageValues = "{{ measureRecord.ecm_usage | escape }}".split(",");
+        var usageValues = document.getElementById("dataUsage").value.split(",");
         populateUsageTags(usageValues);
-        document.getElementById("editCalcMethod").value = "{{ measureRecord.ecm_calculationmethod | escape }}";
+        document.getElementById("editCalcMethod").value = document.getElementById("dataCalcMethod").value;
         setSelectValue("editStrategicPlanAlignment", "{{ measureRecord.ecm_fy2630alignment | escape }}");
         setSelectValue("editFy2630Objective", "{{ measureRecord.ecm_fy2630objective | escape }}");
         handleEditStrategicPlanChange();
@@ -1837,6 +1898,14 @@
               document.getElementById("editTargetValue").value = cells[2].textContent.trim() || "{{ measureRecord.ecm_target }}";
               setSelectValue("editTargetMet", cells[3].textContent.trim());
               document.getElementById("editNarrative").value = cells[4] ? cells[4].textContent.trim() : "";
+            } else if (reportingFrequency === "Quarterly (Count)") {
+              document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
+              document.getElementById("editQuarter").value = cells[1].textContent.trim();
+              document.getElementById("editActual").value = cells[2].textContent.trim();
+              if (document.getElementById("editActualYTD")) document.getElementById("editActualYTD").value = cells[3].textContent.trim();
+              document.getElementById("editTargetValue").value = cells[4].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              setSelectValue("editTargetMet", cells[5].textContent.trim());
+              document.getElementById("editNarrative").value = cells[6] ? cells[6].textContent.trim() : "";
             } else {
               document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
               if (document.getElementById("editQuarter")) document.getElementById("editQuarter").value = cells[1].textContent.trim();
@@ -1922,7 +1991,7 @@
             showSuccessNotification(successMessage);
             if (itemType === "definition") {
               setTimeout(function () {
-                window.location.href = "https://topstest.high.powerappsportals.us/";
+                window.location.href = window.location.origin + "/";
               }, 2000);
             } else {
               setTimeout(function () {
@@ -2087,6 +2156,8 @@
             break;
         }
 
+        var editTargetValue = document.getElementById("editTargetValue").value;
+        if (editTargetValue) record.ecm_target = editTargetValue;
         var targetMetSelection = document.getElementById("editTargetMet").value;
         if (targetMetSelection) record.ecm_targetmet = targetMetSelection;
         var narrative = document.getElementById("editNarrative").value;
@@ -2167,7 +2238,7 @@
           usageSelect.addEventListener("change", handleUsageSelectChange);
         }
 
-        var decimalInputs = ["editActual", "editActualYTD", "actual", "actualYTD"];
+        var decimalInputs = ["editActual", "editActualYTD", "editTargetValue", "actual", "actualYTD", "target"];
         decimalInputs.forEach(function (inputId) {
           var input = document.getElementById(inputId);
           if (input) {
