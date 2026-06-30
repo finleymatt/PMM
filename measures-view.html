@@ -813,13 +813,14 @@
                <label for="measureType">
                  <span class="tooltip-label">
                    Type *
-                   <span class="tooltip-text">Select "Measure" or "Indicator". Note: Indicators do not have targets.</span>
+                   <span class="tooltip-text">Select "Measure", "Indicator", or "Milestone". Note: Indicators do not have targets. Milestones do not have targets.</span>
                  </span>
                </label>
                <select id="measureType" required>
                    <option value="">Select Measure Type</option>
                    <option value="Measure">Measure</option>
                    <option value="Indicator">Indicator</option>
+                   <option value="Milestone">Milestone</option>
                </select>
            </div>
            <div class="form-group">
@@ -905,6 +906,7 @@
                    <option value="Decreasing">Decreasing</option>
                    <option value="Maintain">Maintain</option>
                    <option value="N/A (Indicator)">N/A (Indicator)</option>
+                   <option value="N/A (Milestone)">N/A (Milestone)</option>
                </select>
            </div>
            <div class="form-group">
@@ -1450,15 +1452,20 @@
     const measureType = document.getElementById('measureType').value;
     const targetField = document.getElementById('target');
     const targetAsterisk = document.getElementById('targetAsterisk');
+    const desiredTrendField = document.getElementById('desiredTrend');
 
-    if (measureType === 'Indicator') {
-        // Make target not required for Indicators
+    if (measureType === 'Indicator' || measureType === 'Milestone') {
         targetField.required = false;
         targetAsterisk.style.display = 'none';
     } else {
-        // Make target required for Measures (default state)
         targetField.required = true;
         targetAsterisk.style.display = 'inline';
+    }
+
+    if (measureType === 'Milestone') {
+        if (!desiredTrendField.value || desiredTrendField.value === '') {
+            desiredTrendField.value = 'N/A (Milestone)';
+        }
     }
 }
 
