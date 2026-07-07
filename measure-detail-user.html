@@ -445,7 +445,7 @@
   {% endfetchxml %}
 
   <body>
-    <div class="breadcrumb"><a href="/Measures/">Measures</a> &gt; {{ measureRecord.ecm_name }}</div>
+    <div class="breadcrumb"><a href="/Measures/">Measures</a> &gt; {{ measureRecord.ecm_name | escape }}</div>
 
     <!-- Measure Definition Section - Basic User has VIEW ONLY access (no edit/delete buttons) -->
     <div class="section">
@@ -455,43 +455,43 @@
       </div>
       <div class="definition-grid">
         <div class="field-label">ID</div>
-        <div class="field-value">{{ measureRecord.ecm_id }}</div>
+        <div class="field-value">{{ measureRecord.ecm_id | escape }}</div>
 
         <div class="field-label">Name</div>
-        <div class="field-value">{{ measureRecord.ecm_name }}</div>
+        <div class="field-value">{{ measureRecord.ecm_name | escape }}</div>
 
         <div class="field-label">Type</div>
-        <div class="field-value">{{ measureRecord.ecm_type }}</div>
+        <div class="field-value">{{ measureRecord.ecm_type | escape }}</div>
 
         <div class="field-label">Status</div>
-        <div class="field-value">{{ measureRecord.ecm_status }}</div>
+        <div class="field-value">{{ measureRecord.ecm_status | escape }}</div>
 
         <div class="field-label">Organization</div>
-        <div class="field-value">{{ measureRecord.ecm_organization }}</div>
+        <div class="field-value">{{ measureRecord.ecm_organization | escape }}</div>
 
         <div class="field-label">Reporting Frequency</div>
-        <div class="field-value">{{ measureRecord.ecm_reportingfrequency }}</div>
+        <div class="field-value">{{ measureRecord.ecm_reportingfrequency | escape }}</div>
 
         <div class="field-label">Target</div>
-        <div class="field-value">{{ measureRecord.ecm_target }}</div>
+        <div class="field-value">{{ measureRecord.ecm_target | escape }}</div>
 
         <div class="field-label">Desired Trend</div>
-        <div class="field-value">{{ measureRecord.ecm_desiredtrend }}</div>
+        <div class="field-value">{{ measureRecord.ecm_desiredtrend | escape }}</div>
 
         <div class="field-label">Core Operation Measure</div>
-        <div class="field-value">{{ measureRecord.ecm_coreoperationmeasure }}</div>
+        <div class="field-value">{{ measureRecord.ecm_coreoperationmeasure | escape }}</div>
 
         <div class="field-label">Usage</div>
-        <div class="field-value">{{ measureRecord.ecm_usage }}</div>
+        <div class="field-value">{{ measureRecord.ecm_usage | escape }}</div>
 
         <div class="field-label">FY26-30 Strategic Plan Alignment</div>
-        <div class="field-value">{{ measureRecord.ecm_fy2630alignment }}</div>
+        <div class="field-value">{{ measureRecord.ecm_fy2630alignment | escape }}</div>
 
         <div class="field-label">FY26-30 Objective</div>
-        <div class="field-value">{{ measureRecord.ecm_fy2630objective }}</div>
+        <div class="field-value">{{ measureRecord.ecm_fy2630objective | escape }}</div>
 
         <div class="field-label">Definition</div>
-        <div class="field-value">{{ measureRecord.ecm_calculationmethod }}</div>
+        <div class="field-value">{{ measureRecord.ecm_calculationmethod | escape }}</div>
       </div>
     </div>
 
@@ -568,23 +568,23 @@
           <tbody>
             <tr>
               <td>Data Collection</td>
-              <td>{{ measureRecord.ecm_datacollection }}</td>
+              <td>{{ measureRecord.ecm_datacollection | escape }}</td>
             </tr>
             <tr>
               <td>Data Validation</td>
-              <td>{{ measureRecord.ecm_datavalidation }}</td>
+              <td>{{ measureRecord.ecm_datavalidation | escape }}</td>
             </tr>
             <tr>
               <td>Strategic Alignment</td>
-              <td>{{ measureRecord.ecm_strategicalignment }}</td>
+              <td>{{ measureRecord.ecm_strategicalignment | escape }}</td>
             </tr>
             <tr>
               <td>Intuitiveness</td>
-              <td>{{ measureRecord.ecm_intuitiveness }}</td>
+              <td>{{ measureRecord.ecm_intuitiveness | escape }}</td>
             </tr>
             <tr>
               <td>Usefulness</td>
-              <td>{{ measureRecord.ecm_usefulness }}</td>
+              <td>{{ measureRecord.ecm_usefulness | escape }}</td>
             </tr>
             <tr>
               <td><strong>Weighted Total Rating</strong></td>
@@ -1094,11 +1094,11 @@
       {% if measureActuals.results.entities.size > 0 %}
         {% for actual in measureActuals.results.entities %}
           measureActualsData.push({
-            id: "{{ actual.ecm_measureactualid }}",
-            fiscalYear: "{{ actual.ecm_fiscalyear }}",
-            quarter: "{{ actual.ecm_quarter }}",
-            actual: "{{ actual.ecm_actual }}",
-            actualYTD: "{{ actual.ecm_actualytd }}"
+            id: {{ actual.ecm_measureactualid | json }},
+            fiscalYear: {{ actual.ecm_fiscalyear | json }},
+            quarter: {{ actual.ecm_quarter | json }},
+            actual: {{ actual.ecm_actual | json }},
+            actualYTD: {{ actual.ecm_actualytd | json }}
           });
         {% endfor %}
       {% endif %}
@@ -1186,7 +1186,7 @@
 
       function getYTDValue(fiscalYear, currentQuarter, currentActual, actualId) {
         return new Promise(function (resolve, reject) {
-          var measGUID = "{{ measGUID }}";
+          var measGUID = {{ measGUID | json }};
           var quarterMap = { Q1: 1, Q2: 2, Q3: 3, Q4: 4 };
           var currentQuarterNum = quarterMap[currentQuarter];
           var currentActualValue = parseFloat(currentActual) || 0;
@@ -1250,21 +1250,21 @@
       }
 
       function populateSortedTable() {
-        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+        var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
         var actualsData = [
           {% if measureActuals.results.entities.size > 0 %}
             {% for actual in measureActuals.results.entities %}
               {
-                ecm_measureactualid: "{{ actual.ecm_measureactualid }}",
-                ecm_fiscalyear: "{{ actual.ecm_fiscalyear }}",
-                ecm_quarter: "{{ actual.ecm_quarter }}",
-                ecm_month: "{{ actual.ecm_month }}",
-                ecm_actual: "{{ actual.ecm_actual }}",
-                ecm_actualytd: "{{ actual.ecm_actualytd }}",
-                ecm_target: "{{ actual.ecm_target }}",
-                ecm_targetmet: "{{ actual.ecm_targetmet }}",
-                ecm_optionalnarrative: (document.getElementById("dataNarrative_{{ actual.ecm_measureactualid }}") || {}).value || "",
-                ecm_status: "{{ actual.ecm_status }}"
+                ecm_measureactualid: {{ actual.ecm_measureactualid | json }},
+                ecm_fiscalyear: {{ actual.ecm_fiscalyear | json }},
+                ecm_quarter: {{ actual.ecm_quarter | json }},
+                ecm_month: {{ actual.ecm_month | json }},
+                ecm_actual: {{ actual.ecm_actual | json }},
+                ecm_actualytd: {{ actual.ecm_actualytd | json }},
+                ecm_target: {{ actual.ecm_target | json }},
+                ecm_targetmet: {{ actual.ecm_targetmet | json }},
+                ecm_optionalnarrative: (document.getElementById("dataNarrative_" + {{ actual.ecm_measureactualid | json }}) || {}).value || "",
+                ecm_status: {{ actual.ecm_status | json }}
               }{% unless forloop.last %},{% endunless %}
             {% endfor %}
           {% endif %}
@@ -1279,44 +1279,67 @@
           return;
         }
 
+        function makeCell(text) {
+          var td = document.createElement("td");
+          td.textContent = text || "";
+          return td;
+        }
+
         tbody.innerHTML = "";
         sortedActuals.forEach(function (actual) {
           var row = document.createElement("tr");
           row.setAttribute("data-id", actual.ecm_measureactualid);
           row.setAttribute("data-status", actual.ecm_status);
 
-          var rowHTML = "";
           switch (reportingFrequency) {
             case "Quarterly (Count)":
-              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_quarter + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_actualytd + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              row.appendChild(makeCell(actual.ecm_fiscalyear));
+              row.appendChild(makeCell(actual.ecm_quarter));
+              row.appendChild(makeCell(actual.ecm_actual));
+              row.appendChild(makeCell(actual.ecm_actualytd));
+              row.appendChild(makeCell(actual.ecm_target));
+              row.appendChild(makeCell(actual.ecm_targetmet));
+              row.appendChild(makeCell(actual.ecm_optionalnarrative));
               break;
             case "Quarterly (Year-to-Date)":
-              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_quarter + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              row.appendChild(makeCell(actual.ecm_fiscalyear));
+              row.appendChild(makeCell(actual.ecm_quarter));
+              row.appendChild(makeCell(actual.ecm_actual));
+              row.appendChild(makeCell(actual.ecm_target));
+              row.appendChild(makeCell(actual.ecm_targetmet));
+              row.appendChild(makeCell(actual.ecm_optionalnarrative));
               break;
             case "Annually":
-              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              row.appendChild(makeCell(actual.ecm_fiscalyear));
+              row.appendChild(makeCell(actual.ecm_actual));
+              row.appendChild(makeCell(actual.ecm_target));
+              row.appendChild(makeCell(actual.ecm_targetmet));
+              row.appendChild(makeCell(actual.ecm_optionalnarrative));
               break;
             case "Monthly":
-              rowHTML = "<td>" + actual.ecm_fiscalyear + "</td><td>" + actual.ecm_month + "</td><td>" + actual.ecm_actual + "</td><td>" + actual.ecm_target + "</td><td>" + actual.ecm_targetmet + "</td><td>" + actual.ecm_optionalnarrative + "</td>";
+              row.appendChild(makeCell(actual.ecm_fiscalyear));
+              row.appendChild(makeCell(actual.ecm_month));
+              row.appendChild(makeCell(actual.ecm_actual));
+              row.appendChild(makeCell(actual.ecm_target));
+              row.appendChild(makeCell(actual.ecm_targetmet));
+              row.appendChild(makeCell(actual.ecm_optionalnarrative));
               break;
           }
 
-          // Basic User version: Show edit button only for active status records (status == 1 or status == 'true')
-          // No delete button for basic users
+          var actionTd = document.createElement("td");
           if (actual.ecm_status == 1 || actual.ecm_status === "true" || actual.ecm_status === true) {
-            rowHTML +=
-              '<td><button class="edit-button small" onclick="openEditActualModal(\'' +
-              actual.ecm_measureactualid +
-              "')\">" +
-              '<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-              '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>' +
-              '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>' +
-              "</svg></button></td>";
+            var btn = document.createElement("button");
+            btn.className = "edit-button small";
+            btn.innerHTML = '<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+            btn.addEventListener("click", (function(id) { return function() { openEditActualModal(id); }; })(actual.ecm_measureactualid));
+            actionTd.appendChild(btn);
           } else {
-            rowHTML += '<td><span class="status-closed">Closed</span></td>';
+            var span = document.createElement("span");
+            span.className = "status-closed";
+            span.textContent = "Closed";
+            actionTd.appendChild(span);
           }
-
-          row.innerHTML = rowHTML;
+          row.appendChild(actionTd);
           tbody.appendChild(row);
         });
       }
@@ -1324,7 +1347,7 @@
       // Modal Functions
       function openAddResultModal() {
         openModal("addResultModal");
-        document.getElementById("target").value = "{{ measureRecord.ecm_target }}";
+        document.getElementById("target").value = {{ measureRecord.ecm_target | json }};
       }
 
       function openEditActualModal(actualId) {
@@ -1335,26 +1358,27 @@
         for (var i = 0; i < rows.length; i++) {
           if (rows[i].getAttribute("data-id") === actualId) {
             var cells = rows[i].cells;
-            var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+            var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
+            var defaultTarget = {{ measureRecord.ecm_target | json }};
 
             if (reportingFrequency === "Monthly") {
               document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
               document.getElementById("editMonth").value = cells[1].textContent.trim();
               document.getElementById("editActual").value = cells[2].textContent.trim();
-              document.getElementById("editTargetValue").value = cells[3].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              document.getElementById("editTargetValue").value = cells[3].textContent.trim() || defaultTarget;
               setSelectValue("editTargetMet", cells[4].textContent.trim());
               document.getElementById("editNarrative").value = cells[5] ? cells[5].textContent.trim() : "";
             } else if (reportingFrequency === "Annually") {
               document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
               document.getElementById("editActual").value = cells[1].textContent.trim();
-              document.getElementById("editTargetValue").value = cells[2].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              document.getElementById("editTargetValue").value = cells[2].textContent.trim() || defaultTarget;
               setSelectValue("editTargetMet", cells[3].textContent.trim());
               document.getElementById("editNarrative").value = cells[4] ? cells[4].textContent.trim() : "";
             } else {
               document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
               if (document.getElementById("editQuarter")) document.getElementById("editQuarter").value = cells[1].textContent.trim();
               document.getElementById("editActual").value = cells[2].textContent.trim();
-              document.getElementById("editTargetValue").value = cells[3].textContent.trim() || "{{ measureRecord.ecm_target }}";
+              document.getElementById("editTargetValue").value = cells[3].textContent.trim() || defaultTarget;
               setSelectValue("editTargetMet", cells[4].textContent.trim());
               document.getElementById("editNarrative").value = cells[5] ? cells[5].textContent.trim() : "";
             }
@@ -1371,8 +1395,8 @@
         submitButton.textContent = "Saving...";
         submitButton.disabled = true;
 
-        var measGUID = "{{ measGUID }}";
-        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+        var measGUID = {{ measGUID | json }};
+        var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
         var record = {};
         record["ecm_Measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
 
@@ -1441,7 +1465,7 @@
       document.getElementById("editActualForm").addEventListener("submit", function (e) {
         e.preventDefault();
         var actualId = document.getElementById("editActualId").value;
-        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency }}";
+        var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
         var submitButton = document.querySelector("#editActualForm .btn-primary");
         var originalText = submitButton.textContent;
         submitButton.textContent = "Saving...";
