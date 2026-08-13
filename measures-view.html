@@ -1851,27 +1851,37 @@ function fetchCompleteDataForMeasures(measureIds) {
     }
 
     const fetchBatch = (ids) => {
-        // Create filter condition for the measure IDs
         const idFilter = ids.map(id => `ecm_measureid eq ${id}`).join(' or ');
-
         const apiUrl = `/_api/ecm_measures?$select=ecm_measureid,ecm_desiredtrend,ecm_coreoperationmeasure,ecm_fy2630alignment,ecm_fy2630objective,ecm_calculationmethod&$filter=${encodeURIComponent(idFilter)}`;
 
         console.log("Fetching batch of", ids.length, "measures");
 
-        return new Promise((resolve) => {
-            webapi.safeAjax({
-                type: "GET",
-                url: apiUrl,
-                success: function(data) {
-                    console.log("Batch response:", data.value ? data.value.length : 0, "records");
-                    resolve(data.value || []);
-                },
-                error: function(xhr) {
-                    console.error("Error fetching measure data:", xhr.status, xhr.statusText);
-                    resolve([]); // Return empty array on error to prevent export failure
-                }
-            });
+        const timeout = new Promise((resolve) => setTimeout(() => {
+            console.warn("Batch API call timed out, continuing with empty data");
+            resolve([]);
+        }, 15000));
+
+        const request = new Promise((resolve) => {
+            try {
+                webapi.safeAjax({
+                    type: "GET",
+                    url: apiUrl,
+                    success: function(data) {
+                        console.log("Batch response:", data.value ? data.value.length : 0, "records");
+                        resolve(data.value || []);
+                    },
+                    error: function(xhr) {
+                        console.error("Error fetching measure data:", xhr.status, xhr.statusText);
+                        resolve([]);
+                    }
+                });
+            } catch (e) {
+                console.error("Exception in webapi.safeAjax:", e);
+                resolve([]);
+            }
         });
+
+        return Promise.race([request, timeout]);
     };
 
     // Execute all batches and combine results
@@ -2173,26 +2183,39 @@ function getFormattedDate() {
 }
 
 function getMeasureDefinitionsData() {
-    const { headers, data, measureIds } = getVisibleTableData();
+    let tableData;
+    try {
+        tableData = getVisibleTableData();
+    } catch (e) {
+        console.error("Error reading table data:", e);
+        return Promise.resolve({ headers: [], data: [] });
+    }
+
+    const { headers, data, measureIds } = tableData;
 
     if (!measureIds || measureIds.length === 0) {
         return Promise.resolve({ headers, data });
     }
 
-    return fetchCompleteDataForMeasures(measureIds).then(completeData => {
-        data.forEach((row, index) => {
-            const measureId = measureIds[index];
-            const apiData = completeData.find(m => m.ecm_measureid === measureId);
-            if (apiData) {
-                row[7] = apiData.ecm_desiredtrend || '';
-                row[8] = apiData.ecm_coreoperationmeasure || '';
-                row[9] = apiData.ecm_fy2630alignment || '';
-                row[10] = apiData.ecm_fy2630objective || '';
-                row[11] = apiData.ecm_calculationmethod || '';
-            }
+    return fetchCompleteDataForMeasures(measureIds)
+        .then(completeData => {
+            data.forEach((row, index) => {
+                const measureId = measureIds[index];
+                const apiData = completeData.find(m => m.ecm_measureid === measureId);
+                if (apiData) {
+                    row[7] = apiData.ecm_desiredtrend || '';
+                    row[8] = apiData.ecm_coreoperationmeasure || '';
+                    row[9] = apiData.ecm_fy2630alignment || '';
+                    row[10] = apiData.ecm_fy2630objective || '';
+                    row[11] = apiData.ecm_calculationmethod || '';
+                }
+            });
+            return { headers, data };
+        })
+        .catch(e => {
+            console.error("API fetch failed, exporting with basic data only:", e);
+            return { headers, data };
         });
-        return { headers, data };
-    });
 }
 
 function getAnnualActualsData() {
