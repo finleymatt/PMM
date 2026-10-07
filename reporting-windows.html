@@ -419,10 +419,11 @@
           <h2 class="section-title">Automated Schedule</h2>
         </div>
         <p class="schedule-note">
-          Reporting windows are opened and closed automatically by the scheduled flow
-          <strong>TOPS - Reporting Window Scheduler</strong>, which runs every morning. The toggles below are a manual
-          override: a window opened by hand stays open until an admin closes it, and a window closed by hand before the
-          30th stays closed. Quarterly windows also pre-create an open Actual row for every active quarterly measure.
+          Reporting windows open and close automatically on the calendar below. The measure pages compute this in the
+          browser from today's date, so no scheduled flow is needed. The toggles below are a manual override for one
+          period: switching a window <strong>On</strong> keeps it open outside its dates, and switching it
+          <strong>Off</strong> closes it early. During an open quarterly window, the first visit to a quarterly measure
+          creates its Actual row for that quarter.
         </p>
         <div class="table-container">
           <table>
@@ -516,7 +517,7 @@
       ];
       console.log("reportingWindows loaded:", reportingWindows.length, "records");
       // ============================================================
-      // Automated schedule (mirrors the "TOPS - Reporting Window Scheduler" flow)
+      // Automated schedule (same rules as the measure detail pages)
       // Fiscal year label = calendar year of the month the window opens.
       // ============================================================
       var WINDOW_SCHEDULE = [

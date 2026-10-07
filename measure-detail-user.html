@@ -460,48 +460,20 @@
     </entity>
   </fetch>
   {% endfetchxml %}
-  {% comment %} Open reporting windows. Opened/closed daily by the scheduled flow "TOPS - Reporting Window Scheduler"; the Manage Reporting Windows toggle is a manual override. {% endcomment %}
-  {% fetchxml openReportingWindows %}
+  {% comment %} Reporting windows set by hand on Manage Reporting Windows. They override the calendar computed in the browser below. {% endcomment %}
+  {% fetchxml reportingWindowRecords %}
   <fetch version="1.0" mapping="logical" distinct="true">
     <entity name="ecm_reportingwindows">
       <attribute name="ecm_fiscalyear" />
       <attribute name="ecm_quarter" />
       <attribute name="ecm_reportingfrequency" />
-      <order attribute="ecm_fiscalyear" descending="true" />
-      <order attribute="ecm_quarter" descending="true" />
+      <attribute name="ecm_status" />
       <filter type="and">
         <condition attribute="statecode" operator="eq" value="0" />
-        <condition attribute="ecm_status" operator="eq" value="Open" />
       </filter>
     </entity>
   </fetch>
   {% endfetchxml %}
-  {% assign windowFrequency = '' %}
-  {% if measureRecord.ecm_reportingfrequency == 'Annually' %}
-    {% assign windowFrequency = 'Annually' %}
-  {% elsif measureRecord.ecm_reportingfrequency contains 'Quarterly' %}
-    {% assign windowFrequency = 'Quarterly' %}
-  {% endif %}
-  {% assign hasOpenWindow = false %}
-  {% assign openWindowFY = '' %}
-  {% assign openWindowQuarter = '' %}
-  {% for w in openReportingWindows.results.entities %}
-    {% if hasOpenWindow == false and w.ecm_reportingfrequency == windowFrequency %}
-      {% assign hasOpenWindow = true %}
-      {% assign openWindowFY = w.ecm_fiscalyear | default: '' %}
-      {% assign openWindowQuarter = w.ecm_quarter | default: '' %}
-    {% endif %}
-  {% endfor %}
-  {% assign openWindowRowExists = false %}
-  {% if hasOpenWindow %}
-    {% for actual in measureActuals.results.entities %}
-      {% if actual.ecm_fiscalyear == openWindowFY %}
-        {% if windowFrequency == 'Annually' or actual.ecm_quarter == openWindowQuarter %}
-          {% assign openWindowRowExists = true %}
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-  {% endif %}
 
   <body>
     <div class="breadcrumb"><a href="/Measures/">Measures</a> &gt; {{ measureRecord.ecm_name | escape }}</div>
@@ -559,18 +531,12 @@
       <div class="section-header">
         <h2 class="section-title">Actual</h2>
         <div class="action-buttons">
-          {% if measureRecord.ecm_reportingfrequency == 'Monthly' %}
-          <button class="btn-new" onclick="openAddResultModal()">New</button>
-          {% elsif measureRecord.ecm_reportingfrequency == 'Annually' and hasOpenWindow and openWindowRowExists == false %}
-          <button class="btn-new" onclick="openAddResultModal()">New</button>
+          {% if measureRecord.ecm_reportingfrequency == 'Annually' or measureRecord.ecm_reportingfrequency == 'Monthly' %}
+          <button id="btnNewActual" class="btn-new" onclick="openAddResultModal()"{% if measureRecord.ecm_reportingfrequency == 'Annually' %} style="display: none"{% endif %}>New</button>
           {% endif %}
         </div>
       </div>
-      {% if windowFrequency != '' %}
-      <div class="window-banner {% if hasOpenWindow %}window-open{% else %}window-closed{% endif %}">
-        {% if hasOpenWindow %}Reporting window open: {{ openWindowFY | escape }}{% if openWindowQuarter != '' %} {{ openWindowQuarter | escape }}{% endif %}. {% if windowFrequency == 'Quarterly' or openWindowRowExists %}Use the edit button on the open row to enter results.{% else %}Use New to enter results.{% endif %}{% else %}No reporting window is currently open for this measure. Quarterly windows open on the 1st of January, April, July and October; the annual window opens on the 1st of October. Each stays open through the 30th.{% endif %}
-      </div>
-      {% endif %}
+      <div id="windowBanner" class="window-banner" style="display: none"></div>
       <div class="table-container">
         <table class="result-table">
           <thead>
@@ -1393,7 +1359,7 @@
           }
 
           var actionTd = document.createElement("td");
-          if (actual.ecm_status == 1 || actual.ecm_status === "true" || actual.ecm_status === true) {
+          if (isRowEditable(actual)) {
             var btn = document.createElement("button");
             btn.className = "edit-button small";
             btn.innerHTML = '<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
@@ -1414,18 +1380,17 @@
       function openAddResultModal() {
         openModal("addResultModal");
         document.getElementById("target").value = {{ measureRecord.ecm_target | json }};
-        // Pre-select the open reporting window (set daily by the scheduler flow)
-        var openWindowFY = "{{ openWindowFY | escape }}";
-        var openWindowQuarter = "{{ openWindowQuarter | escape }}";
+        // Pre-select the open reporting window
+        var openWindow = currentOpenWindow(WINDOW_FREQUENCY, new Date());
         var fySelect = document.getElementById("fiscalYear");
-        if (fySelect && openWindowFY) {
-          fySelect.value = openWindowFY;
-          fySelect.disabled = true;
-        }
         var qSelect = document.getElementById("quarter");
-        if (qSelect && openWindowQuarter) {
-          qSelect.value = openWindowQuarter;
-          qSelect.disabled = true;
+        if (openWindow && fySelect) {
+          fySelect.value = openWindow.fiscalYear;
+          fySelect.disabled = !IS_ADMIN_PAGE;
+        }
+        if (openWindow && openWindow.quarter && qSelect) {
+          qSelect.value = openWindow.quarter;
+          qSelect.disabled = !IS_ADMIN_PAGE;
         }
       }
 
@@ -1598,6 +1563,153 @@
       });
 
       // Initialize on DOM ready
+      // ============================================================
+      // Reporting windows - computed in the browser from the fiscal calendar (no flow).
+      // Quarterly: Q1 Jan 1-30, Q2 Apr 1-30, Q3 Jul 1-30, Q4 Oct 1-30. Annual: Oct 1-30.
+      // FY label = calendar year of the month the window opens (Oct 2026 -> FY26).
+      // An ecm_reportingwindows record set on Manage Reporting Windows overrides the
+      // calendar for that period (Open keeps it open off-schedule, Closed closes it early).
+      // ============================================================
+      var IS_ADMIN_PAGE = false;
+      var MEASURE_FREQUENCY = "{{ measureRecord.ecm_reportingfrequency | escape }}";
+      var WINDOW_FREQUENCY = MEASURE_FREQUENCY === "Annually" ? "Annually" : MEASURE_FREQUENCY.indexOf("Quarterly") === 0 ? "Quarterly" : "";
+      var reportingWindowOverrides = [
+        {% for w in reportingWindowRecords.results.entities %}
+        { frequency: "{{ w.ecm_reportingfrequency | escape }}", fiscalYear: "{{ w.ecm_fiscalyear | escape }}", quarter: "{{ w.ecm_quarter | escape }}", status: "{{ w.ecm_status | escape }}" }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
+      var existingActualKeys = [
+        {% for actual in measureActuals.results.entities %}
+        "{{ actual.ecm_fiscalyear | escape }}|{{ actual.ecm_quarter | escape }}"{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
+
+      function fiscalYearLabel(year) {
+        return "FY" + String(year).slice(-2);
+      }
+      function scheduledWindows(today) {
+        var month = today.getMonth() + 1;
+        var day = today.getDate();
+        var fy = fiscalYearLabel(today.getFullYear());
+        var quarterByMonth = { 1: "Q1", 4: "Q2", 7: "Q3", 10: "Q4" };
+        var open = [];
+        if (day <= 30 && quarterByMonth[month]) open.push({ frequency: "Quarterly", fiscalYear: fy, quarter: quarterByMonth[month] });
+        if (day <= 30 && month === 10) open.push({ frequency: "Annually", fiscalYear: fy, quarter: "" });
+        return open;
+      }
+      function sameWindow(a, frequency, fiscalYear, quarter) {
+        if (a.frequency !== frequency || a.fiscalYear !== fiscalYear) return false;
+        return frequency === "Annually" || (a.quarter || "") === (quarter || "");
+      }
+      function findOverride(frequency, fiscalYear, quarter) {
+        for (var i = 0; i < reportingWindowOverrides.length; i++) {
+          if (sameWindow(reportingWindowOverrides[i], frequency, fiscalYear, quarter)) return reportingWindowOverrides[i];
+        }
+        return null;
+      }
+      function isWindowOpen(frequency, fiscalYear, quarter, today) {
+        var override = findOverride(frequency, fiscalYear, quarter);
+        if (override) return override.status === "Open";
+        return scheduledWindows(today).some(function (w) { return sameWindow(w, frequency, fiscalYear, quarter); });
+      }
+      function currentOpenWindow(frequency, today) {
+        if (!frequency) return null;
+        var scheduled = scheduledWindows(today).filter(function (w) { return w.frequency === frequency; });
+        for (var i = 0; i < scheduled.length; i++) {
+          if (isWindowOpen(frequency, scheduled[i].fiscalYear, scheduled[i].quarter, today)) return scheduled[i];
+        }
+        var manual = reportingWindowOverrides
+          .filter(function (w) { return w.frequency === frequency && w.status === "Open"; })
+          .sort(function (a, b) { return (b.fiscalYear + (b.quarter || "")).localeCompare(a.fiscalYear + (a.quarter || "")); });
+        return manual.length ? { frequency: frequency, fiscalYear: manual[0].fiscalYear, quarter: manual[0].quarter || "" } : null;
+      }
+      function isRowEditable(actual) {
+        var statusOpen = actual.ecm_status == 1 || actual.ecm_status === "true" || actual.ecm_status === true;
+        if (!statusOpen) return false;
+        if (!WINDOW_FREQUENCY) return true;
+        return isWindowOpen(WINDOW_FREQUENCY, actual.ecm_fiscalyear, actual.ecm_quarter || "", new Date());
+      }
+      function windowLabel(w) {
+        return w.fiscalYear + (w.quarter ? " " + w.quarter : "");
+      }
+      function hasRowFor(w) {
+        var key = w.fiscalYear + "|" + (WINDOW_FREQUENCY === "Annually" ? "" : w.quarter);
+        return existingActualKeys.indexOf(key) !== -1;
+      }
+      function setWindowBanner(isOpen, text) {
+        var banner = document.getElementById("windowBanner");
+        if (!banner) return;
+        banner.className = "window-banner " + (isOpen ? "window-open" : "window-closed");
+        banner.textContent = text;
+        banner.style.display = "block";
+      }
+      function renderWindowBanner(openWindow) {
+        if (!WINDOW_FREQUENCY) return;
+        if (!openWindow) {
+          setWindowBanner(false, "No reporting window is currently open for this measure. Quarterly windows open on the 1st of January, April, July and October; the annual window opens on the 1st of October. Each stays open through the 30th." + (IS_ADMIN_PAGE ? " Admins can still add or edit results." : ""));
+          return;
+        }
+        var how = WINDOW_FREQUENCY === "Quarterly" || hasRowFor(openWindow) ? "Use the edit button on the " + windowLabel(openWindow) + " row to enter results." : "Use New to enter results.";
+        setWindowBanner(true, "Reporting window open: " + windowLabel(openWindow) + ". " + how + (IS_ADMIN_PAGE ? " Override on Manage Reporting Windows." : ""));
+      }
+      function updateNewButton(openWindow) {
+        var btn = document.getElementById("btnNewActual");
+        if (!btn || IS_ADMIN_PAGE || MEASURE_FREQUENCY !== "Annually") return;
+        btn.style.display = openWindow && !hasRowFor(openWindow) ? "" : "none";
+      }
+      // Quarterly measures have no New button: the first visit during an open window creates the row.
+      function ensureOpenWindowRow(openWindow) {
+        if (WINDOW_FREQUENCY !== "Quarterly" || !openWindow || hasRowFor(openWindow)) return;
+        var measGUID = {{ measGUID | json }};
+        var storageKey = "tops_autorow_" + measGUID + "_" + openWindow.fiscalYear + "_" + openWindow.quarter;
+        var alreadyCreated = false;
+        try { alreadyCreated = !!sessionStorage.getItem(storageKey); } catch (e) {}
+        function remember() { try { sessionStorage.setItem(storageKey, "1"); } catch (e) {} }
+        if (alreadyCreated) {
+          setWindowBanner(true, "The " + windowLabel(openWindow) + " row has been created and will appear here within a few minutes.");
+          return;
+        }
+        var filter = "ecm_measure eq '" + measGUID + "' and ecm_fiscalyear eq '" + openWindow.fiscalYear + "' and ecm_quarter eq '" + openWindow.quarter + "'";
+        webapi.safeAjax({
+          type: "GET",
+          url: "/_api/ecm_measureactuals?$select=ecm_measureactualid&$filter=" + filter,
+          success: function (data) {
+            if (data && data.value && data.value.length > 0) {
+              remember();
+              location.reload();
+              return;
+            }
+            var record = { ecm_fiscalyear: openWindow.fiscalYear, ecm_quarter: openWindow.quarter, ecm_status: true };
+            record["ecm_Measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
+            var defaultTarget = {{ measureRecord.ecm_target | json }};
+            if (defaultTarget) record.ecm_target = String(defaultTarget);
+            webapi.safeAjax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/_api/ecm_measureactuals",
+              data: JSON.stringify(record),
+              success: function () {
+                remember();
+                location.reload();
+              },
+              error: function (xhr) {
+                console.error("Could not create the " + windowLabel(openWindow) + " row", xhr);
+              },
+            });
+          },
+          error: function (xhr) {
+            console.error("Could not check for an existing " + windowLabel(openWindow) + " row", xhr);
+          },
+        });
+      }
+      function initReportingWindow() {
+        var openWindow = currentOpenWindow(WINDOW_FREQUENCY, new Date());
+        renderWindowBanner(openWindow);
+        updateNewButton(openWindow);
+        ensureOpenWindowRow(openWindow);
+      }
+      window.addEventListener("load", initReportingWindow);
+
       document.addEventListener("DOMContentLoaded", function () {
         var decimalInputs = ["editActual", "editActualYTD", "actual", "actualYTD"];
         decimalInputs.forEach(function (inputId) {
