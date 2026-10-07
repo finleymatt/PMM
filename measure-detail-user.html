@@ -319,6 +319,23 @@
         height: 16px;
       }
 
+      .window-banner {
+        margin: 0 0 12px 0;
+        padding: 10px 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        border: 1px solid transparent;
+      }
+      .window-open {
+        background: #e8f5e9;
+        border-color: #a5d6a7;
+        color: #1b5e20;
+      }
+      .window-closed {
+        background: #fff8e1;
+        border-color: #ffe082;
+        color: #7a5a00;
+      }
       .status-closed {
         color: #777;
         font-size: 12px;
@@ -443,6 +460,48 @@
     </entity>
   </fetch>
   {% endfetchxml %}
+  {% comment %} Open reporting windows. Opened/closed daily by the scheduled flow "TOPS - Reporting Window Scheduler"; the Manage Reporting Windows toggle is a manual override. {% endcomment %}
+  {% fetchxml openReportingWindows %}
+  <fetch version="1.0" mapping="logical" distinct="true">
+    <entity name="ecm_reportingwindows">
+      <attribute name="ecm_fiscalyear" />
+      <attribute name="ecm_quarter" />
+      <attribute name="ecm_reportingfrequency" />
+      <order attribute="ecm_fiscalyear" descending="true" />
+      <order attribute="ecm_quarter" descending="true" />
+      <filter type="and">
+        <condition attribute="statecode" operator="eq" value="0" />
+        <condition attribute="ecm_status" operator="eq" value="Open" />
+      </filter>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+  {% assign windowFrequency = '' %}
+  {% if measureRecord.ecm_reportingfrequency == 'Annually' %}
+    {% assign windowFrequency = 'Annually' %}
+  {% elsif measureRecord.ecm_reportingfrequency contains 'Quarterly' %}
+    {% assign windowFrequency = 'Quarterly' %}
+  {% endif %}
+  {% assign hasOpenWindow = false %}
+  {% assign openWindowFY = '' %}
+  {% assign openWindowQuarter = '' %}
+  {% for w in openReportingWindows.results.entities %}
+    {% if hasOpenWindow == false and w.ecm_reportingfrequency == windowFrequency %}
+      {% assign hasOpenWindow = true %}
+      {% assign openWindowFY = w.ecm_fiscalyear | default: '' %}
+      {% assign openWindowQuarter = w.ecm_quarter | default: '' %}
+    {% endif %}
+  {% endfor %}
+  {% assign openWindowRowExists = false %}
+  {% if hasOpenWindow %}
+    {% for actual in measureActuals.results.entities %}
+      {% if actual.ecm_fiscalyear == openWindowFY %}
+        {% if windowFrequency == 'Annually' or actual.ecm_quarter == openWindowQuarter %}
+          {% assign openWindowRowExists = true %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 
   <body>
     <div class="breadcrumb"><a href="/Measures/">Measures</a> &gt; {{ measureRecord.ecm_name | escape }}</div>
@@ -500,11 +559,18 @@
       <div class="section-header">
         <h2 class="section-title">Actual</h2>
         <div class="action-buttons">
-          {% if measureRecord.ecm_reportingfrequency == 'Annually' or measureRecord.ecm_reportingfrequency == 'Monthly' %}
+          {% if measureRecord.ecm_reportingfrequency == 'Monthly' %}
+          <button class="btn-new" onclick="openAddResultModal()">New</button>
+          {% elsif measureRecord.ecm_reportingfrequency == 'Annually' and hasOpenWindow and openWindowRowExists == false %}
           <button class="btn-new" onclick="openAddResultModal()">New</button>
           {% endif %}
         </div>
       </div>
+      {% if windowFrequency != '' %}
+      <div class="window-banner {% if hasOpenWindow %}window-open{% else %}window-closed{% endif %}">
+        {% if hasOpenWindow %}Reporting window open: {{ openWindowFY | escape }}{% if openWindowQuarter != '' %} {{ openWindowQuarter | escape }}{% endif %}. {% if windowFrequency == 'Quarterly' or openWindowRowExists %}Use the edit button on the open row to enter results.{% else %}Use New to enter results.{% endif %}{% else %}No reporting window is currently open for this measure. Quarterly windows open on the 1st of January, April, July and October; the annual window opens on the 1st of October. Each stays open through the 30th.{% endif %}
+      </div>
+      {% endif %}
       <div class="table-container">
         <table class="result-table">
           <thead>
@@ -1348,6 +1414,19 @@
       function openAddResultModal() {
         openModal("addResultModal");
         document.getElementById("target").value = {{ measureRecord.ecm_target | json }};
+        // Pre-select the open reporting window (set daily by the scheduler flow)
+        var openWindowFY = "{{ openWindowFY | escape }}";
+        var openWindowQuarter = "{{ openWindowQuarter | escape }}";
+        var fySelect = document.getElementById("fiscalYear");
+        if (fySelect && openWindowFY) {
+          fySelect.value = openWindowFY;
+          fySelect.disabled = true;
+        }
+        var qSelect = document.getElementById("quarter");
+        if (qSelect && openWindowQuarter) {
+          qSelect.value = openWindowQuarter;
+          qSelect.disabled = true;
+        }
       }
 
       function openEditActualModal(actualId) {
