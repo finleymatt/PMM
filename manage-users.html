@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Users</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .page-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 24px;
+        color: #333;
+      }
+
+      .section {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+
+      .access-denied {
+        text-align: center;
+        padding: 60px 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        margin: 60px auto;
+      }
+
+      .access-denied h1 {
+        color: #cc0000;
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      .access-denied p {
+        color: #666;
+        font-size: 16px;
+      }
+
+      /* Toolbar */
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .search-box {
+        position: relative;
+        width: 280px;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .search-box input:focus {
+        outline: none;
+        border-color: #0066cc;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        width: 16px;
+        height: 16px;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        border: none;
+      }
+
+      .btn-primary {
+        background-color: #0066cc;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: #0052a3;
+      }
+
+      .btn-secondary {
+        background-color: white;
+        border: 1px solid #ddd;
+        color: #333;
+      }
+
+      .btn-secondary:hover {
+        background-color: #f8f9fa;
+      }
+
+      /* Table styles */
+      .table-container {
+        overflow-x: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .actions-cell {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      /* Action buttons */
+      .edit-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .edit-icon {
+        width: 20px;
+        height: 20px;
+        color: #0066cc;
+      }
+
+      /* Pagination */
+      .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .pagination-container select {
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .pagination {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .pagination-btn {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        background-color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #0066cc;
+        min-width: 40px;
+        text-align: center;
+      }
+
+      .pagination-btn:hover:not(:disabled) {
+        background-color: #f8f9fa;
+      }
+
+      .pagination-btn:disabled {
+        color: #999;
+        cursor: not-allowed;
+      }
+
+      .pagination-btn.active {
+        background-color: #0066cc;
+        color: white;
+        border-color: #0066cc;
+      }
+
+      .pagination-ellipsis {
+        padding: 8px 4px;
+        color: #666;
+      }
+
+      .showing-entries {
+        text-align: center;
+        color: #0066cc;
+        font-size: 14px;
+        margin-top: 12px;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        position: relative;
+        background-color: white;
+        margin: 5% auto;
+        padding: 24px;
+        border-radius: 8px;
+        max-width: 480px;
+        width: 90%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .modal-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .close-button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .form-group input:disabled {
+        background-color: #f5f5f5;
+        color: #666;
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #ddd;
+      }
+
+      /* Notification styles */
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: none;
+        align-items: center;
+        z-index: 2000;
+        max-width: 350px;
+        animation: slideIn 0.3s ease-out forwards;
+      }
+
+      .success-notification {
+        background-color: #e7f7ee;
+        border-left: 4px solid #34c759;
+        color: #2a7c44;
+      }
+
+      .error-notification {
+        background-color: #ffeeee;
+        border-left: 4px solid #ff3b30;
+        color: #cc2f26;
+      }
+
+      .notification.show {
+        display: flex;
+      }
+
+      .notification-icon {
+        margin-right: 12px;
+        font-size: 18px;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+
+      /* Loading state */
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+
+  <!--include PortalWebAPI helper for WebAPI-->
+  {% include 'portalwebapihelper' %}
+
+  <!-- Fetch all organizations for dropdown -->
+  {% fetchxml organizationsQuery %}
+  <fetch version="1.0" mapping="logical">
+    <entity name="cr335_organizationbuerau">
+      <attribute name="cr335_organizationbuerauid" />
+      <attribute name="cr335_name" />
+      <filter>
+        <condition attribute="statecode" operator="eq" value="0" />
+      </filter>
+      <order attribute="cr335_name" />
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  <!-- Fetch contacts with organization and role -->
+  {% fetchxml contactsQuery %}
+  <fetch version="1.0" mapping="logical">
+    <entity name="contact">
+      <attribute name="contactid" />
+      <attribute name="firstname" />
+      <attribute name="lastname" />
+      <attribute name="emailaddress1" />
+      <attribute name="cr335_organizationbuerau" />
+      <attribute name="ecm_role" />
+      <filter type="and">
+        <condition attribute="statecode" operator="eq" value="0" />
+        <condition attribute="createdon" operator="on-or-before" value='{{ "now" | date: "yyyy-MM-dd HH:mm:ss" }}'/>
+      </filter>
+      <order attribute="lastname" />
+      <link-entity name="cr335_organizationbuerau" from="cr335_organizationbuerauid" to="cr335_organizationbuerau" link-type="outer" alias="org">
+        <attribute name="cr335_name" />
+      </link-entity>
+    </entity>
+  </fetch>
+  {% endfetchxml %}
+
+  <!-- Check if user has PMM Admin role -->
+  {% assign is_admin = false %}
+  {% if user %}
+    {% if user.roles contains 'PMM Admin' %}
+      {% assign is_admin = true %}
+    {% endif %}
+  {% endif %}
+
+  <body>
+    {% if is_admin %}
+    <!-- Notifications -->
+    <div id="successNotification" class="notification success-notification">
+      <span class="notification-icon">&#10003;</span>
+      <span class="notification-message" id="successMessage">User role updated successfully</span>
+    </div>
+    <div id="errorNotification" class="notification error-notification">
+      <span class="notification-icon">&#10005;</span>
+      <span class="notification-message" id="errorMessage">An error occurred</span>
+    </div>
+
+    <h1 class="page-title">Manage Users</h1>
+
+    <div class="section">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search" onkeyup="filterUsers()" />
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-container">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>User Role</th>
+              <th>Organization</th>
+              <th style="width: 80px;"></th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            {% for contact in contactsQuery.results.entities %}
+            {% assign thisContactRole = contact.ecm_role %}
+            {% assign thisContactRoleId = '' %}
+            {% assign thisContactRoleDisplay = '' %}
+            {% if thisContactRole == 'TOPS Admin' %}
+              {% assign thisContactRoleId = 'de7c4434-77d9-f011-8544-001dd8073dce' %}
+              {% assign thisContactRoleDisplay = 'TOPS Site Owner' %}
+            {% elsif thisContactRole == 'TOPS User' %}
+              {% assign thisContactRoleId = '5eab7f3a-77d9-f011-8544-001dd8073dce' %}
+              {% assign thisContactRoleDisplay = 'TOPS User' %}
+            {% endif %}
+            <tr data-contactid="{{ contact.contactid }}"
+                data-firstname="{{ contact.firstname | escape }}"
+                data-lastname="{{ contact.lastname | escape }}"
+                data-email="{{ contact.emailaddress1 | escape }}"
+                data-orgid="{{ contact.cr335_organizationbuerau.Id }}"
+                data-orgname="{{ contact['org.cr335_name'] | escape }}"
+                data-roleid="{{ thisContactRoleId }}"
+                data-rolename="{{ thisContactRole | escape }}">
+              <td>{{ contact.firstname }}</td>
+              <td>{{ contact.lastname }}</td>
+              <td>{{ contact.emailaddress1 }}</td>
+              <td class="role-cell">{% if thisContactRoleDisplay != blank %}{{ thisContactRoleDisplay }}{% else %}&mdash;{% endif %}</td>
+              <td class="org-cell">{{ contact['org.cr335_name'] }}</td>
+              <td>
+                <div class="actions-cell">
+                  <button class="edit-button" onclick="openEditRoleModal('{{ contact.contactid }}')">
+                    <svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <select id="itemsPerPage" onchange="changeItemsPerPage()">
+          <option value="10">10 Items</option>
+          <option value="20" selected>20 Items</option>
+          <option value="50">50 Items</option>
+        </select>
+        <div class="pagination" id="pagination"></div>
+        <select id="gotoPage" onchange="goToPage(this.value)"></select>
+      </div>
+      <div class="showing-entries" id="showingEntries"></div>
+    </div>
+
+    <!-- Edit Role Modal -->
+    <div id="editRoleModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Edit User</h3>
+          <button class="close-button" onclick="closeModal('editRoleModal')">&times;</button>
+        </div>
+        <form id="editRoleForm" onsubmit="saveUser(event)">
+          <input type="hidden" id="editContactId" />
+          <input type="hidden" id="currentRoleId" />
+          <input type="hidden" id="currentRoleName" />
+          <input type="hidden" id="currentOrgId" />
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="editUserName" disabled />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="text" id="editUserEmail" disabled />
+          </div>
+          <div class="form-group">
+            <label for="editUserRole">User Role</label>
+            <select id="editUserRole" required onchange="handleRoleChange()">
+              <option value="">Select User Role</option>
+              <option value="de7c4434-77d9-f011-8544-001dd8073dce" data-rolename="PMM Admin">TOPS Site Owner</option>
+              <option value="5eab7f3a-77d9-f011-8544-001dd8073dce" data-rolename="PMM User">TOPS User</option>
+            </select>
+          </div>
+          <div class="form-group" id="orgFormGroup" style="display: none;">
+            <label for="editUserOrg">Organization</label>
+            <select id="editUserOrg">
+              <option value="">Select Organization</option>
+              {% for org in organizationsQuery.results.entities %}
+              <option value="{{ org.cr335_organizationbuerauid }}">{{ org.cr335_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('editRoleModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="saveRoleBtn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Power Automate flow URLs for role management (per environment)
+      var ROLE_FLOW_URLS = {
+        dev: "https://prod-58.usgovtexas.logic.azure.us:443/workflows/7e5960861e7744b9bb7c8014092105c4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zekO8neuRsIX1vqxVNFAdi9ftTpZIcsaGI3j1GzLfDU",
+        test: "https://prod-25.usgovtexas.logic.azure.us:443/workflows/68378d1e919741ef80602ad6b56c5a1e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=WHStyF2sAwfY7CLd28S60PacKpWoofl4Hb2OjRzRih8",
+        prod: "https://prod-42.usgovtexas.logic.azure.us:443/workflows/1583ad51d0614370a3f53eb4a420d615/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rXyfQzG4wopc-HGaAnr2B-SeH0SxKNEezzdIg0XCLVE"
+      };
+
+      // Determine environment from hostname
+      var hostname = window.location.hostname.toLowerCase();
+      var ROLE_FLOW_URL;
+      if (hostname.indexOf('topstest') !== -1) {
+        ROLE_FLOW_URL = ROLE_FLOW_URLS.test;
+      } else if (hostname === 'tops.high.powerappsportals.us') {
+        ROLE_FLOW_URL = ROLE_FLOW_URLS.prod;
+      } else {
+        // Default to dev (topsdev or localhost)
+        ROLE_FLOW_URL = ROLE_FLOW_URLS.dev;
+      }
+
+      // Web roles data (hardcoded since mspp_webrole is a virtual table)
+      // Display names: TOPS Site Owner / TOPS User; backend names: PMM Admin / PMM User
+      var webRoles = {
+        "de7c4434-77d9-f011-8544-001dd8073dce": "TOPS Site Owner",
+        "5eab7f3a-77d9-f011-8544-001dd8073dce": "TOPS User"
+      };
+
+      // Handle role change - show/hide org dropdown
+      function handleRoleChange() {
+        var roleSelect = document.getElementById("editUserRole");
+        var orgFormGroup = document.getElementById("orgFormGroup");
+        var orgSelect = document.getElementById("editUserOrg");
+        var selectedOption = roleSelect.options[roleSelect.selectedIndex];
+        var roleName = selectedOption ? selectedOption.getAttribute("data-rolename") : "";
+
+        if (roleName === "PMM User") {
+          orgFormGroup.style.display = "block";
+          orgSelect.required = true;
+        } else {
+          orgFormGroup.style.display = "none";
+          orgSelect.required = false;
+        }
+      }
+
+      // Pagination state
+      var allRows = [];
+      var filteredRows = [];
+      var currentPage = 1;
+      var itemsPerPage = 20;
+
+      document.addEventListener("DOMContentLoaded", function() {
+        // Initialize pagination
+        allRows = Array.from(document.querySelectorAll("#usersTableBody tr"));
+        filteredRows = [...allRows];
+        renderPagination();
+        showCurrentPage();
+      });
+
+      function showCurrentPage() {
+        var start = (currentPage - 1) * itemsPerPage;
+        var end = start + itemsPerPage;
+
+        allRows.forEach(function(row) { row.style.display = "none"; });
+        filteredRows.slice(start, end).forEach(function(row) { row.style.display = ""; });
+
+        updateShowingEntries();
+      }
+
+      function renderPagination() {
+        var totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+        var pagination = document.getElementById("pagination");
+        var gotoSelect = document.getElementById("gotoPage");
+
+        if (totalPages <= 1) {
+          pagination.innerHTML = "";
+          gotoSelect.innerHTML = "";
+          return;
+        }
+
+        var html = '<button class="pagination-btn" onclick="changePage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? "disabled" : "") + '>&lt; Previous</button>';
+
+        var pages = getPaginationPages(currentPage, totalPages);
+        pages.forEach(function(page) {
+          if (page === "...") {
+            html += '<span class="pagination-ellipsis">...</span>';
+          } else {
+            html += '<button class="pagination-btn ' + (page === currentPage ? "active" : "") + '" onclick="changePage(' + page + ')">' + page + '</button>';
+          }
+        });
+
+        html += '<button class="pagination-btn" onclick="changePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? "disabled" : "") + '>Next &gt;</button>';
+        pagination.innerHTML = html;
+
+        gotoSelect.innerHTML = "";
+        for (var i = 1; i <= totalPages; i++) {
+          var option = document.createElement("option");
+          option.value = i;
+          option.textContent = "Go To: " + i;
+          if (i === currentPage) option.selected = true;
+          gotoSelect.appendChild(option);
+        }
+      }
+
+      function getPaginationPages(current, total) {
+        if (total <= 7) {
+          var arr = [];
+          for (var i = 1; i <= total; i++) arr.push(i);
+          return arr;
+        }
+        var pages = [1];
+        if (current > 3) pages.push("...");
+        for (var i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+        if (current < total - 2) pages.push("...");
+        pages.push(total);
+        return pages;
+      }
+
+      function changePage(page) {
+        var totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        showCurrentPage();
+        renderPagination();
+      }
+
+      function goToPage(page) {
+        changePage(parseInt(page));
+      }
+
+      function changeItemsPerPage() {
+        itemsPerPage = parseInt(document.getElementById("itemsPerPage").value);
+        currentPage = 1;
+        showCurrentPage();
+        renderPagination();
+      }
+
+      function updateShowingEntries() {
+        var start = (currentPage - 1) * itemsPerPage + 1;
+        var end = Math.min(currentPage * itemsPerPage, filteredRows.length);
+        var total = filteredRows.length;
+        if (total === 0) {
+          document.getElementById("showingEntries").textContent = "No users found.";
+        } else {
+          document.getElementById("showingEntries").textContent = "Showing " + start + "-" + end + " of " + total + " entries.";
+        }
+      }
+
+      function filterUsers() {
+        var term = document.getElementById("searchInput").value.toLowerCase();
+        filteredRows = allRows.filter(function(row) {
+          var text = row.textContent.toLowerCase();
+          return text.indexOf(term) !== -1;
+        });
+        currentPage = 1;
+        showCurrentPage();
+        renderPagination();
+      }
+
+      function openEditRoleModal(contactId) {
+        var row = document.querySelector('tr[data-contactid="' + contactId + '"]');
+        if (!row) return;
+
+        document.getElementById("editContactId").value = contactId;
+        document.getElementById("editUserName").value = row.dataset.firstname + " " + row.dataset.lastname;
+        document.getElementById("editUserEmail").value = row.dataset.email;
+
+        // Set current organization
+        var currentOrgId = row.dataset.orgid || "";
+        document.getElementById("editUserOrg").value = currentOrgId;
+        document.getElementById("currentOrgId").value = currentOrgId;
+
+        // Set current role from data attribute (if previously saved)
+        var currentRoleId = row.dataset.roleid || "";
+        var currentRoleName = row.dataset.rolename || "";
+        document.getElementById("editUserRole").value = currentRoleId;
+        document.getElementById("currentRoleId").value = currentRoleId;
+        document.getElementById("currentRoleName").value = currentRoleName;
+
+        handleRoleChange();
+        openModal("editRoleModal");
+      }
+
+      function saveUser(event) {
+        event.preventDefault();
+        var saveBtn = document.getElementById("saveRoleBtn");
+        saveBtn.textContent = "Saving...";
+        saveBtn.disabled = true;
+
+        var contactId = document.getElementById("editContactId").value;
+        var newRoleId = document.getElementById("editUserRole").value;
+        var currentRoleId = document.getElementById("currentRoleId").value;
+        var oldRoleName = document.getElementById("currentRoleName").value;
+        var newOrgId = document.getElementById("editUserOrg").value;
+        var currentOrgId = document.getElementById("currentOrgId").value;
+
+        var roleChanged = newRoleId !== currentRoleId;
+        var orgChanged = newOrgId !== currentOrgId;
+
+        // Get role name for org dropdown logic
+        var roleSelect = document.getElementById("editUserRole");
+        var selectedOption = roleSelect.options[roleSelect.selectedIndex];
+        var roleName = selectedOption ? selectedOption.getAttribute("data-rolename") : "";
+
+        // Only allow org change for PMM User
+        if (roleName !== "PMM User") {
+          orgChanged = false;
+          newOrgId = currentOrgId;
+        }
+
+        if (!roleChanged && !orgChanged) {
+          closeModal("editRoleModal");
+          saveBtn.textContent = "Save";
+          saveBtn.disabled = false;
+          return;
+        }
+
+        // Function to update role and organization via Power Automate flow
+        function updateViaFlow(callback) {
+          $.ajax({
+            type: "POST",
+            url: ROLE_FLOW_URL,
+            contentType: "application/json",
+            data: JSON.stringify({
+              contactId: contactId,
+              newRoleId: newRoleId || "",
+              oldRoleId: currentRoleId || "",
+              roleName: roleName || "",
+              oldRoleName: oldRoleName || "",
+              organizationId: newOrgId || "",
+              action: "assignRole"
+            }),
+            success: function(response) {
+              console.log("Update success:", response);
+              callback();
+            },
+            error: function(xhr, status, error) {
+              console.error("Update error:", xhr, status, error);
+              showErrorNotification("Error updating user: " + (error || "Unknown error"));
+              saveBtn.textContent = "Save";
+              saveBtn.disabled = false;
+            }
+          });
+        }
+
+        // Call flow to update role and organization
+        updateViaFlow(function() {
+          showSuccessNotification("User successfully saved");
+          // Refresh page to show updated data
+          setTimeout(function() {
+            window.location.reload();
+          }, 1000);
+        });
+      }
+
+      function openModal(id) {
+        document.getElementById(id).style.display = "block";
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      // Close on backdrop click
+      document.querySelectorAll(".modal").forEach(function(modal) {
+        modal.addEventListener("click", function(e) {
+          if (e.target === this) this.style.display = "none";
+        });
+      });
+
+      function showSuccessNotification(message) {
+        var notif = document.getElementById("successNotification");
+        document.getElementById("successMessage").textContent = message;
+        notif.classList.add("show");
+        setTimeout(function() { notif.classList.remove("show"); }, 3000);
+      }
+
+      function showErrorNotification(message) {
+        var notif = document.getElementById("errorNotification");
+        document.getElementById("errorMessage").textContent = message;
+        notif.classList.add("show");
+        setTimeout(function() { notif.classList.remove("show"); }, 5000);
+      }
+    </script>
+    {% else %}
+    <!-- Access Denied Message -->
+    <div class="access-denied">
+      <h1>Access Denied</h1>
+      <p>You do not have permission to access this page. This page is only available to PMM Administrators.</p>
+      <p><a href="/">Return to Home</a></p>
+    </div>
+    {% endif %}
+  </body>
+</html>
