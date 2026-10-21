@@ -2469,7 +2469,7 @@
           setWindowBanner(true, "The " + windowLabel(openWindow) + " row has been created and will appear here within a few minutes.");
           return;
         }
-        var filter = "ecm_measure eq '" + measGUID + "' and ecm_fiscalyear eq '" + openWindow.fiscalYear + "' and ecm_quarter eq '" + openWindow.quarter + "'";
+        var filter = "_ecm_measure_value eq " + measGUID + " and ecm_fiscalyear eq '" + openWindow.fiscalYear + "' and ecm_quarter eq '" + openWindow.quarter + "'";
         webapi.safeAjax({
           type: "GET",
           url: "/_api/ecm_measureactuals?$select=ecm_measureactualid&$filter=" + filter,
