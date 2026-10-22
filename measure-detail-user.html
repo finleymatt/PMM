@@ -1452,7 +1452,7 @@
         openModal("addResultModal");
         document.getElementById("target").value = {{ measureRecord.ecm_target | json }};
         // Pre-select the open reporting window
-        var openWindow = currentOpenWindow(WINDOW_FREQUENCY, new Date());
+        var openWindow = currentOpenWindow(WINDOW_FREQUENCY, windowToday());
         var fySelect = document.getElementById("fiscalYear");
         var qSelect = document.getElementById("quarter");
         if (openWindow && fySelect) {
@@ -1648,6 +1648,15 @@
       var IS_ADMIN_PAGE = false;
       var MEASURE_FREQUENCY = "{{ measureRecord.ecm_reportingfrequency | escape }}";
       var WINDOW_FREQUENCY = MEASURE_FREQUENCY === "Annually" ? "Annually" : MEASURE_FREQUENCY.indexOf("Quarterly") === 0 ? "Quarterly" : "";
+      // Testing only: on topsdev/topstest, ?testDate=YYYY-MM-DD makes the reporting window logic use that date.
+      function windowToday() {
+        var host = window.location.hostname;
+        if (host.indexOf("topsdev") === 0 || host.indexOf("topstest") === 0) {
+          var match = /[?&]testDate=(\d{4})-(\d{2})-(\d{2})/i.exec(window.location.search);
+          if (match) return new Date(+match[1], +match[2] - 1, +match[3]);
+        }
+        return new Date();
+      }
       var reportingWindowOverrides = [
         {% for w in reportingWindowRecords.results.entities %}
         { frequency: "{{ w.ecm_reportingfrequency | escape }}", fiscalYear: "{{ w.ecm_fiscalyear | escape }}", quarter: "{{ w.ecm_quarter | escape }}", status: "{{ w.ecm_status | escape }}" }{% unless forloop.last %},{% endunless %}
@@ -1702,7 +1711,7 @@
         var statusOpen = actual.ecm_status == 1 || actual.ecm_status === "true" || actual.ecm_status === true;
         if (!statusOpen) return false;
         if (!WINDOW_FREQUENCY) return true;
-        return isWindowOpen(WINDOW_FREQUENCY, actual.ecm_fiscalyear, actual.ecm_quarter || "", new Date());
+        return isWindowOpen(WINDOW_FREQUENCY, actual.ecm_fiscalyear, actual.ecm_quarter || "", windowToday());
       }
       function windowLabel(w) {
         return w.fiscalYear + (w.quarter ? " " + w.quarter : "");
@@ -1778,7 +1787,7 @@
         });
       }
       function initReportingWindow() {
-        var openWindow = currentOpenWindow(WINDOW_FREQUENCY, new Date());
+        var openWindow = currentOpenWindow(WINDOW_FREQUENCY, windowToday());
         renderWindowBanner(openWindow);
         updateNewButton(openWindow);
         ensureOpenWindowRow(openWindow);
