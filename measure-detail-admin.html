@@ -1549,11 +1549,11 @@
       {% if measureActuals.results.entities.size > 0 %}
         {% for actual in measureActuals.results.entities %}
           measureActualsData.push({
-            id: {{ actual.ecm_measureactualid | json }},
-            fiscalYear: {{ actual.ecm_fiscalyear | json }},
-            quarter: {{ actual.ecm_quarter | json }},
-            actual: {{ actual.ecm_actual | json }},
-            actualYTD: {{ actual.ecm_actualytd | json }}
+            id: "{{ actual.ecm_measureactualid | escape }}",
+            fiscalYear: "{{ actual.ecm_fiscalyear | escape }}",
+            quarter: "{{ actual.ecm_quarter | escape }}",
+            actual: "{{ actual.ecm_actual | escape }}",
+            actualYTD: "{{ actual.ecm_actualytd | escape }}"
           });
         {% endfor %}
       {% endif %}
@@ -1661,7 +1661,7 @@
 
       function getFiscalYearActuals(fiscalYear) {
         return new Promise(function (resolve, reject) {
-          var measGUID = {{ measGUID | json }};
+          var measGUID = "{{ measGUID | escape }}";
           var apiUrl =
             "/_api/ecm_measureactuals?$select=ecm_actual,ecm_actualytd,ecm_quarter,ecm_measureactualid,ecm_fiscalyear&$filter=_ecm_measure_value eq " +
             measGUID +
@@ -1772,21 +1772,21 @@
       }
 
       function populateSortedTable() {
-        var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
+        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency | escape }}";
         var actualsData = [
           {% if measureActuals.results.entities.size > 0 %}
             {% for actual in measureActuals.results.entities %}
               {
-                ecm_measureactualid: {{ actual.ecm_measureactualid | json }},
-                ecm_fiscalyear: {{ actual.ecm_fiscalyear | json }},
-                ecm_quarter: {{ actual.ecm_quarter | json }},
-                ecm_month: {{ actual.ecm_month | json }},
-                ecm_actual: {{ actual.ecm_actual | json }},
-                ecm_actualytd: {{ actual.ecm_actualytd | json }},
-                ecm_target: {{ actual.ecm_target | json }},
-                ecm_targetmet: {{ actual.ecm_targetmet | json }},
-                ecm_optionalnarrative: (document.getElementById("dataNarrative_" + {{ actual.ecm_measureactualid | json }}) || {}).value || "",
-                ecm_status: {{ actual.ecm_status | json }}
+                ecm_measureactualid: "{{ actual.ecm_measureactualid | escape }}",
+                ecm_fiscalyear: "{{ actual.ecm_fiscalyear | escape }}",
+                ecm_quarter: "{{ actual.ecm_quarter | escape }}",
+                ecm_month: "{{ actual.ecm_month | escape }}",
+                ecm_actual: "{{ actual.ecm_actual | escape }}",
+                ecm_actualytd: "{{ actual.ecm_actualytd | escape }}",
+                ecm_target: "{{ actual.ecm_target | escape }}",
+                ecm_targetmet: "{{ actual.ecm_targetmet | escape }}",
+                ecm_optionalnarrative: (document.getElementById("dataNarrative_" + "{{ actual.ecm_measureactualid | escape }}") || {}).value || "",
+                ecm_status: "{{ actual.ecm_status | escape }}"
               }{% unless forloop.last %},{% endunless %}
             {% endfor %}
           {% endif %}
@@ -1988,7 +1988,7 @@
         setSelectValue("editReportingFreq", "{{ measureRecord.ecm_reportingfrequency | escape }}");
         setSelectValue("editCoreOperationMeasure", "{{ measureRecord.ecm_coreoperationmeasure | escape }}");
         setSelectValue("editDesiredTrend", "{{ measureRecord.ecm_desiredtrend | escape }}");
-        document.getElementById("editTarget").value = {{ measureRecord.ecm_target | json }};
+        document.getElementById("editTarget").value = "{{ measureRecord.ecm_target | escape }}";
         var usageValues = document.getElementById("dataUsage").value.split(",");
         populateUsageTags(usageValues);
         document.getElementById("editCalcMethod").value = document.getElementById("dataCalcMethod").value;
@@ -2000,7 +2000,7 @@
 
       function openAddResultModal() {
         openModal("addResultModal");
-        document.getElementById("target").value = {{ measureRecord.ecm_target | json }};
+        document.getElementById("target").value = "{{ measureRecord.ecm_target | escape }}";
         // Pre-select the open reporting window
         var openWindow = currentOpenWindow(WINDOW_FREQUENCY, windowToday());
         var fySelect = document.getElementById("fiscalYear");
@@ -2023,8 +2023,8 @@
         for (var i = 0; i < rows.length; i++) {
           if (rows[i].getAttribute("data-id") === actualId) {
             var cells = rows[i].cells;
-            var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
-            var defaultTarget = {{ measureRecord.ecm_target | json }};
+            var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency | escape }}";
+            var defaultTarget = "{{ measureRecord.ecm_target | escape }}";
 
             if (reportingFrequency === "Monthly") {
               document.getElementById("editFiscalYear").value = cells[0].textContent.trim();
@@ -2062,11 +2062,11 @@
 
       function openStrengthAssessmentModal() {
         openModal("strengthAssessmentModal");
-        setSelectValue("dataCollection", {{ measureRecord.ecm_datacollection | json }});
-        setSelectValue("dataValidation", {{ measureRecord.ecm_datavalidation | json }});
-        setSelectValue("strategicAlignment", {{ measureRecord.ecm_strategicalignment | json }});
-        setSelectValue("intuitiveness", {{ measureRecord.ecm_intuitiveness | json }});
-        setSelectValue("usefulness", {{ measureRecord.ecm_usefulness | json }});
+        setSelectValue("dataCollection", "{{ measureRecord.ecm_datacollection | escape }}");
+        setSelectValue("dataValidation", "{{ measureRecord.ecm_datavalidation | escape }}");
+        setSelectValue("strategicAlignment", "{{ measureRecord.ecm_strategicalignment | escape }}");
+        setSelectValue("intuitiveness", "{{ measureRecord.ecm_intuitiveness | escape }}");
+        setSelectValue("usefulness", "{{ measureRecord.ecm_usefulness | escape }}");
         updateWeightedScore();
       }
 
@@ -2084,7 +2084,7 @@
       // Delete Functions
       function confirmDeleteDefinition() {
         document.getElementById("deleteConfirmMessage").textContent = "Are you sure you want to delete this measure definition?";
-        document.getElementById("deleteItemId").value = {{ measGUID | json }};
+        document.getElementById("deleteItemId").value = "{{ measGUID | escape }}";
         document.getElementById("deleteItemType").value = "definition";
         openModal("deleteConfirmModal");
       }
@@ -2150,7 +2150,7 @@
       // Form Submissions
       document.getElementById("editDefinitionForm").addEventListener("submit", function (e) {
         e.preventDefault();
-        var measGUID = {{ measGUID | json }};
+        var measGUID = "{{ measGUID | escape }}";
 
         var record = {
           ecm_name: document.getElementById("editName").value,
@@ -2203,8 +2203,8 @@
         submitButton.textContent = "Saving...";
         submitButton.disabled = true;
 
-        var measGUID = {{ measGUID | json }};
-        var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
+        var measGUID = "{{ measGUID | escape }}";
+        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency | escape }}";
         var record = {};
         record["ecm_Measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
 
@@ -2275,7 +2275,7 @@
       document.getElementById("editActualForm").addEventListener("submit", function (e) {
         e.preventDefault();
         var actualId = document.getElementById("editActualId").value;
-        var reportingFrequency = {{ measureRecord.ecm_reportingfrequency | json }};
+        var reportingFrequency = "{{ measureRecord.ecm_reportingfrequency | escape }}";
         var submitButton = document.querySelector("#editActualForm .btn-primary");
         var originalText = submitButton.textContent;
         submitButton.textContent = "Saving...";
@@ -2334,7 +2334,7 @@
 
       document.getElementById("strengthAssessmentForm").addEventListener("submit", function (e) {
         e.preventDefault();
-        var measGUID = {{ measGUID | json }};
+        var measGUID = "{{ measGUID | escape }}";
 
         var record = {
           ecm_datacollection: document.getElementById("dataCollection").value,
@@ -2473,7 +2473,7 @@
       // Quarterly measures have no New button: the first visit during an open window creates the row.
       function ensureOpenWindowRow(openWindow) {
         if (WINDOW_FREQUENCY !== "Quarterly" || !openWindow || hasRowFor(openWindow)) return;
-        var measGUID = {{ measGUID | json }};
+        var measGUID = "{{ measGUID | escape }}";
         var storageKey = "tops_autorow_" + measGUID + "_" + openWindow.fiscalYear + "_" + openWindow.quarter;
         var alreadyCreated = false;
         try { alreadyCreated = !!sessionStorage.getItem(storageKey); } catch (e) {}
@@ -2494,7 +2494,7 @@
             }
             var record = { ecm_fiscalyear: openWindow.fiscalYear, ecm_quarter: openWindow.quarter, ecm_status: true };
             record["ecm_Measure@odata.bind"] = "/ecm_measures(" + measGUID + ")";
-            var defaultTarget = {{ measureRecord.ecm_target | json }};
+            var defaultTarget = "{{ measureRecord.ecm_target | escape }}";
             if (defaultTarget) record.ecm_target = String(defaultTarget);
             webapi.safeAjax({
               type: "POST",
