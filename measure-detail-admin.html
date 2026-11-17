@@ -2378,11 +2378,29 @@
       var MEASURE_FREQUENCY = "{{ measureRecord.ecm_reportingfrequency | escape }}";
       var WINDOW_FREQUENCY = MEASURE_FREQUENCY === "Annually" ? "Annually" : MEASURE_FREQUENCY.indexOf("Quarterly") === 0 ? "Quarterly" : "";
       // Testing only: on topsdev/topstest, ?testDate=YYYY-MM-DD makes the reporting window logic use that date.
+      // Accepts 2027-10-01, 10/01/2027, 10-1-2027 or "Oct 1 2027". Never honored on the production host.
+      var windowTodayLogged = false;
       function windowToday() {
-        var host = window.location.hostname;
-        if (host.indexOf("topsdev") === 0 || host.indexOf("topstest") === 0) {
-          var match = /[?&]testDate=(\d{4})-(\d{2})-(\d{2})/i.exec(window.location.search);
-          if (match) return new Date(+match[1], +match[2] - 1, +match[3]);
+        var host = window.location.hostname.toLowerCase();
+        var isNonProd = /(^|[.-])(topsdev|topstest|dev|test|uat|qa)([.-]|$)/.test(host);
+        var match = /[?&]testDate=([^&#]+)/i.exec(window.location.search);
+        if (isNonProd && match) {
+          var raw = decodeURIComponent(match[1].replace(/\+/g, " ")).trim();
+          var parsed = null;
+          var iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(raw);
+          var us = /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/.exec(raw);
+          if (iso) parsed = new Date(+iso[1], +iso[2] - 1, +iso[3]);
+          else if (us) parsed = new Date(+us[3], +us[1] - 1, +us[2]);
+          else if (!isNaN(Date.parse(raw))) parsed = new Date(Date.parse(raw));
+          if (parsed && !isNaN(parsed.getTime())) {
+            parsed.setHours(0, 0, 0, 0);
+            if (!windowTodayLogged) { windowTodayLogged = true; console.log("Reporting windows: using testDate", parsed.toDateString()); }
+            return parsed;
+          }
+          if (!windowTodayLogged) { windowTodayLogged = true; console.warn("Reporting windows: testDate not understood:", raw); }
+        } else if (match && !windowTodayLogged) {
+          windowTodayLogged = true;
+          console.warn("Reporting windows: testDate ignored on host", host);
         }
         return new Date();
       }
