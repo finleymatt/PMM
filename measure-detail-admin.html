@@ -2434,7 +2434,28 @@
         var manual = reportingWindowOverrides
           .filter(function (w) { return w.frequency === frequency && w.status === "Open"; })
           .sort(function (a, b) { return (b.fiscalYear + (b.quarter || "")).localeCompare(a.fiscalYear + (a.quarter || "")); });
-        return manual.length ? { frequency: frequency, fiscalYear: manual[0].fiscalYear, quarter: manual[0].quarter || "" } : null;
+        return manual.length ? { frequency: frequency, fiscalYear: manual[0].fiscalYear, quarter: manual[0].quarter || "", override: true } : null;
+      }
+      // Next calendar window for this frequency on or after today
+      function nextScheduledWindow(frequency, today) {
+        var months = frequency === "Annually" ? [10] : [1, 4, 7, 10];
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var quarterByMonth = { 1: "Q1", 4: "Q2", 7: "Q3", 10: "Q4" };
+        for (var year = today.getFullYear(); year <= today.getFullYear() + 1; year++) {
+          for (var i = 0; i < months.length; i++) {
+            var closes = new Date(year, months[i] - 1, 30);
+            if (closes >= today) {
+              return fiscalYearLabel(year) + (frequency === "Quarterly" ? " " + quarterByMonth[months[i]] : "") + ", " + monthNames[months[i] - 1] + " 1 - 30, " + year;
+            }
+          }
+        }
+        return "";
+      }
+      function testDateNote() {
+        var real = new Date();
+        var used = windowToday();
+        if (real.toDateString() === used.toDateString()) return "";
+        return " [test date " + used.getFullYear() + "-" + ("0" + (used.getMonth() + 1)).slice(-2) + "-" + ("0" + used.getDate()).slice(-2) + "]";
       }
       function isRowEditable(actual) {
         var statusOpen = actual.ecm_status == 1 || actual.ecm_status === "true" || actual.ecm_status === true;
@@ -2458,12 +2479,18 @@
       }
       function renderWindowBanner(openWindow) {
         if (!WINDOW_FREQUENCY) return;
+        var next = nextScheduledWindow(WINDOW_FREQUENCY, windowToday());
+        var nextText = next ? " Next scheduled window: " + next + "." : "";
         if (!openWindow) {
-          setWindowBanner(false, "No reporting window is currently open for this measure. Quarterly windows open on the 1st of January, April, July and October; the annual window opens on the 1st of October. Each stays open through the 30th." + (IS_ADMIN_PAGE ? " Admins can still add or edit results." : ""));
+          setWindowBanner(false, "No reporting window is currently open for this measure." + nextText + (IS_ADMIN_PAGE ? " Admins can still add or edit results." : "") + testDateNote());
           return;
         }
         var how = WINDOW_FREQUENCY === "Quarterly" || hasRowFor(openWindow) ? "Use the edit button on the " + windowLabel(openWindow) + " row to enter results." : "Use New to enter results.";
-        setWindowBanner(true, "Reporting window open: " + windowLabel(openWindow) + ". " + how + (IS_ADMIN_PAGE ? " Override on Manage Reporting Windows." : ""));
+        if (openWindow.override) {
+          setWindowBanner(true, "Reporting window " + windowLabel(openWindow) + " is open by admin override (set on Manage Reporting Windows). " + how + nextText + testDateNote());
+          return;
+        }
+        setWindowBanner(true, "Reporting window open: " + windowLabel(openWindow) + ". " + how + (IS_ADMIN_PAGE ? " Override on Manage Reporting Windows." : "") + testDateNote());
       }
       function updateNewButton(openWindow) {
         var btn = document.getElementById("btnNewActual");
