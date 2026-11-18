@@ -1659,8 +1659,19 @@
         return sumDecimals(values);
       }
 
+      // Actuals rendered on this page for a fiscal year, in the shape the Web API returns
+      function localFiscalYearActuals(fiscalYear) {
+        return measureActualsData
+          .filter(function (r) { return r.fiscalYear === fiscalYear; })
+          .map(function (r) {
+            return { ecm_measureactualid: r.id, ecm_fiscalyear: r.fiscalYear, ecm_quarter: r.quarter, ecm_actual: r.actual, ecm_actualytd: r.actualYTD };
+          });
+      }
+
+      // Reads this measure's actuals for a fiscal year. Uses the Web API when it answers, otherwise the page data.
+      var ytdApiWarned = false;
       function getFiscalYearActuals(fiscalYear) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve) {
           var measGUID = "{{ measGUID | escape }}";
           var apiUrl =
             "/_api/ecm_measureactuals?$select=ecm_actual,ecm_actualytd,ecm_quarter,ecm_measureactualid,ecm_fiscalyear&$filter=_ecm_measure_value eq " +
@@ -1668,16 +1679,24 @@
             " and ecm_fiscalyear eq '" +
             fiscalYear +
             "'";
-
+          var local = localFiscalYearActuals(fiscalYear);
           webapi.safeAjax({
             type: "GET",
             url: apiUrl,
             success: function (data) {
-              resolve((data && data.value) || []);
+              var rows = (data && data.value) || [];
+              if (rows.length === 0 && local.length > 0) {
+                if (!ytdApiWarned) { ytdApiWarned = true; console.warn("YTD: Web API returned no rows for " + fiscalYear + "; using the actuals on the page."); }
+                rows = local;
+              }
+              resolve(rows);
             },
             error: function (xhr) {
-              console.error("YTD Calculation Error:", xhr);
-              reject(xhr);
+              if (!ytdApiWarned) {
+                ytdApiWarned = true;
+                console.warn("YTD: Web API read failed (HTTP " + (xhr && xhr.status) + "); using the actuals on the page.", xhr && xhr.responseText);
+              }
+              resolve(local);
             },
           });
         });
@@ -1698,46 +1717,46 @@
         });
       }
 
-      // Recalculates and saves the running YTD for every quarter in the fiscal year (fixes later quarters after an earlier one changes)
-      function recalculateYTDForYear(fiscalYear) {
+      // Recalculates and saves the running YTD for every quarter in the fiscal year after an add or edit.
+      // saved = { id, quarter, actual } for the row just written (id null for a new row).
+      function recalculateYTDForYear(fiscalYear, saved) {
         return getFiscalYearActuals(fiscalYear)
           .then(function (records) {
-            records = records
-              .filter(function (r) {
-                return quarterMap[r.ecm_quarter];
-              })
-              .sort(function (a, b) {
-                return quarterMap[a.ecm_quarter] - quarterMap[b.ecm_quarter];
+            records = records.filter(function (r) { return quarterMap[r.ecm_quarter]; });
+            if (saved && saved.quarter) {
+              var found = false;
+              records.forEach(function (r) {
+                var sameRow = saved.id ? r.ecm_measureactualid === saved.id : r.ecm_quarter === saved.quarter;
+                if (sameRow) { r.ecm_actual = saved.actual; found = true; }
               });
+              if (!found) records.push({ ecm_measureactualid: saved.id || null, ecm_quarter: saved.quarter, ecm_actual: saved.actual, ecm_actualytd: null });
+            }
+            records.sort(function (a, b) { return quarterMap[a.ecm_quarter] - quarterMap[b.ecm_quarter]; });
 
             var running = [];
             var updates = [];
             records.forEach(function (r) {
               running.push(r.ecm_actual);
               var ytd = sumDecimals(running);
-              if (r.ecm_actualytd !== ytd) {
-                updates.push(
-                  new Promise(function (resolve) {
-                    webapi.safeAjax({
-                      type: "PATCH",
-                      contentType: "application/json",
-                      url: "/_api/ecm_measureactuals(" + r.ecm_measureactualid + ")",
-                      data: JSON.stringify({ ecm_actualytd: ytd }),
-                      success: function () {
-                        resolve();
-                      },
-                      error: function (xhr) {
-                        console.error("YTD Update Error:", xhr);
-                        resolve();
-                      },
-                    });
-                  })
-                );
-              }
+              var stored = r.ecm_actualytd == null ? "" : String(r.ecm_actualytd);
+              if (!r.ecm_measureactualid) return;
+              if (parseFloat(stored) === parseFloat(ytd) && stored !== "") return;
+              updates.push(
+                new Promise(function (resolve) {
+                  webapi.safeAjax({
+                    type: "PATCH",
+                    contentType: "application/json",
+                    url: "/_api/ecm_measureactuals(" + r.ecm_measureactualid + ")",
+                    data: JSON.stringify({ ecm_actualytd: ytd }),
+                    success: function () { resolve(); },
+                    error: function (xhr) { console.error("YTD Update Error:", xhr); resolve(); },
+                  });
+                })
+              );
             });
             return Promise.all(updates);
           })
-          .catch(function () {});
+          .catch(function (e) { console.error("YTD recalculation error:", e); });
       }
 
       // Table Sorting and Population
@@ -2251,7 +2270,7 @@
           url: "/_api/ecm_measureactuals",
           data: JSON.stringify(record),
           success: function (data, textStatus, xhr) {
-            var recalc = reportingFrequency === "Quarterly (Count)" ? recalculateYTDForYear(record.ecm_fiscalyear) : Promise.resolve();
+            var recalc = reportingFrequency === "Quarterly (Count)" ? recalculateYTDForYear(record.ecm_fiscalyear, { id: null, quarter: record.ecm_quarter, actual: record.ecm_actual }) : Promise.resolve();
             recalc.then(function () {
               closeModal("addResultModal");
               showSuccessNotification("Result added successfully");
@@ -2311,7 +2330,7 @@
           url: "/_api/ecm_measureactuals(" + actualId + ")",
           data: JSON.stringify(record),
           success: function (data, textStatus, xhr) {
-            var recalc = reportingFrequency === "Quarterly (Count)" ? recalculateYTDForYear(document.getElementById("editFiscalYear").value) : Promise.resolve();
+            var recalc = reportingFrequency === "Quarterly (Count)" ? recalculateYTDForYear(document.getElementById("editFiscalYear").value, { id: actualId, quarter: document.getElementById("editQuarter").value, actual: document.getElementById("editActual").value }) : Promise.resolve();
             recalc.then(function () {
               closeModal("editActualModal");
               showSuccessNotification("Your changes have been successfully saved");
